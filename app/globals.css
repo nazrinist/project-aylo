@@ -1,0 +1,20 @@
+:root { color-scheme: light; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #f7f7f5; color: #171717; }
+button, textarea { font: inherit; }
+.shell { min-height: 100vh; display: grid; place-items: center; padding: 32px 20px; }
+.hero { width: min(760px, 100%); }
+.brand { font-size: 14px; font-weight: 800; letter-spacing: .16em; margin-bottom: 72px; }
+.brand span { font-size: 10px; letter-spacing: normal; font-weight: 600; background: #e8e8e4; border-radius: 999px; padding: 4px 7px; margin-left: 6px; }
+h1 { font-size: clamp(44px, 8vw, 78px); line-height: .96; letter-spacing: -.055em; margin: 0; }
+.subtitle { font-size: 20px; color: #676762; margin: 18px 0 32px; }
+.intentBox { background: white; border: 1px solid #ddddda; border-radius: 24px; padding: 16px; box-shadow: 0 18px 55px rgba(0,0,0,.07); }
+textarea { width: 100%; resize: none; border: 0; outline: 0; padding: 8px; font-size: 18px; line-height: 1.5; background: transparent; }
+textarea::placeholder { color: #a2a29d; }
+.actions { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 10px 4px 0 8px; color: #7a7a75; font-size: 13px; }
+button { border: 0; border-radius: 999px; background: #171717; color: white; padding: 12px 18px; font-weight: 700; cursor: pointer; }
+button:disabled { opacity: .45; cursor: default; }
+.panel { margin-top: 20px; background: white; border: 1px solid #ddddda; border-radius: 20px; padding: 20px; overflow: auto; }
+.panelTitle { font-weight: 800; margin-bottom: 12px; }
+pre { margin: 0; font-size: 13px; line-height: 1.55; }
+.error { color: #8e2020; }

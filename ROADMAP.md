@@ -1,0 +1,39 @@
+# 30-Day MVP Roadmap
+
+## Week 1 — Foundation & marketplace data
+- [x] Day 1: repo skeleton + intent extraction endpoint
+- [ ] Day 2: Supabase project, env setup, auth
+- [ ] Day 3: database migration + seed data
+- [ ] Day 4: business CRUD
+- [ ] Day 5: services CRUD
+- [ ] Day 6: availability model/UI
+- [ ] Day 7: deterministic search filters
+
+## Week 2 — AI → search → results
+- [ ] Day 8: request persistence
+- [ ] Day 9: missing-field follow-up questions
+- [ ] Day 10: searchProviders tool
+- [ ] Day 11: checkAvailability tool
+- [ ] Day 12: ranking engine
+- [ ] Day 13: result cards
+- [ ] Day 14: compare offers
+
+## Week 3 — Booking & merchant side
+- [ ] Day 15: booking confirmation flow
+- [ ] Day 16: booking persistence
+- [ ] Day 17: business dashboard
+- [ ] Day 18: lead inbox
+- [ ] Day 19: accept/reject lead
+- [ ] Day 20: availability management
+- [ ] Day 21: basic analytics
+
+## Week 4 — Reliability & beta
+- [ ] Day 22: request history
+- [ ] Day 23: preferences
+- [ ] Day 24: observability + agent_runs
+- [ ] Day 25: permission/safety checks
+- [ ] Day 26: prompt test suite
+- [ ] Day 27: edge cases
+- [ ] Day 28: seed 30–50 real providers
+- [ ] Day 29: closed beta
+- [ ] Day 30: public beta
