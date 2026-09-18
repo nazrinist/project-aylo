@@ -5,7 +5,7 @@
 - [x] Day 2: provider search API + deterministic ranking + demo mode
 - [x] Day 3: database migrations + seed data + live connection health check
 - [x] Day 4: business CRUD
-- [ ] Day 5: services CRUD
+- [x] Day 5: services CRUD
 - [ ] Day 6: availability model/UI
 - [ ] Day 7: deterministic search filters
 

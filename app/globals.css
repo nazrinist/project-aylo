@@ -60,7 +60,8 @@ pre { margin: 0; font-size: 13px; line-height: 1.55; }
 
 .businessShell { width: min(1120px, calc(100% - 40px)); margin: 0 auto; padding: 48px 0 80px; }
 .businessHeader { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 36px; }
-.businessHeader .backLink { display: inline-block; margin-bottom: 48px; }
+.adminNav { display: flex; align-items: center; gap: 18px; margin-bottom: 48px; }
+.businessHeader .backLink { display: inline-block; }
 .businessHeader h1 { font-size: clamp(44px, 7vw, 70px); }
 .businessHeader > div > p:last-child { color: #676762; font-size: 17px; }
 .catalogCount { padding: 8px 11px; border: 1px solid #d9d9d4; border-radius: 999px; background: white; color: #5b5b56; font-size: 12px; font-weight: 750; white-space: nowrap; }
@@ -69,8 +70,9 @@ pre { margin: 0; font-size: 13px; line-height: 1.55; }
 .formHeading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 4px; }
 .formHeading h2 { margin: 4px 0 0; font-size: 23px; letter-spacing: -.025em; }
 .businessForm label { display: grid; gap: 7px; color: #4d4d48; font-size: 13px; font-weight: 750; }
-.businessForm input:not([type="checkbox"]) { width: 100%; border: 1px solid #d8d8d3; border-radius: 12px; outline: none; padding: 11px 12px; background: #fbfbf9; font: inherit; font-weight: 500; }
-.businessForm input:focus { border-color: #6c6c66; box-shadow: 0 0 0 3px rgba(50,50,47,.08); }
+.businessForm input:not([type="checkbox"]), .businessForm select, .businessForm textarea, .serviceToolbar select { width: 100%; border: 1px solid #d8d8d3; border-radius: 12px; outline: none; padding: 11px 12px; background: #fbfbf9; font: inherit; font-weight: 500; }
+.businessForm textarea { resize: vertical; font-size: 13px; line-height: 1.5; }
+.businessForm input:focus, .businessForm select:focus, .businessForm textarea:focus, .serviceToolbar select:focus { border-color: #6c6c66; box-shadow: 0 0 0 3px rgba(50,50,47,.08); }
 .checkboxLabel { display: flex !important; grid-template-columns: none; align-items: center; gap: 9px !important; }
 .checkboxLabel input { width: 16px; height: 16px; accent-color: #171717; }
 .primaryButton { width: 100%; border-radius: 12px; }
@@ -92,16 +94,28 @@ pre { margin: 0; font-size: 13px; line-height: 1.55; }
 .secondaryButton, .dangerButton { padding: 8px 11px; border: 1px solid #d8d8d3; background: white; color: #333; font-size: 12px; }
 .dangerButton { border-color: #edd0d0; color: #9a2828; }
 .dangerButton:hover { background: #fff4f4; }
+.formColumns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.serviceToolbar { padding: 14px; border: 1px solid #ddddda; border-radius: 16px; background: white; }
+.serviceToolbar label { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: #64645f; font-size: 12px; font-weight: 750; }
+.serviceToolbar select { width: min(260px, 60%); padding: 8px 10px; }
+.serviceMeta { display: flex; align-items: center; gap: 10px; color: #696963; font-size: 12px; }
+.serviceMeta strong { color: #272724; font-size: 14px; }
+.activeBadge { padding: 4px 6px; border-radius: 6px; font-size: 10px; font-weight: 800; }
+.activeBadge.on { background: #e8f7eb; color: #267036; }
+.activeBadge.off { background: #eeeeea; color: #6f6f69; }
 @media (max-width: 680px) {
   .brandRow { align-items: flex-start; flex-direction: column; margin-bottom: 46px; }
   .topActions { width: 100%; justify-content: space-between; }
   .resultsGrid { grid-template-columns: 1fr; }
   .resultsHeader { align-items: center; }
   .businessHeader { align-items: flex-start; flex-direction: column; }
-  .businessHeader .backLink { margin-bottom: 34px; }
+  .adminNav { margin-bottom: 34px; }
   .businessLayout { grid-template-columns: 1fr; }
   .businessForm { position: static; }
   .businessCard { align-items: flex-start; flex-direction: column; }
   .cardActions { width: 100%; }
   .cardActions button { flex: 1; }
+  .formColumns { grid-template-columns: 1fr; }
+  .serviceToolbar label { align-items: stretch; flex-direction: column; }
+  .serviceToolbar select { width: 100%; }
 }

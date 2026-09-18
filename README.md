@@ -94,6 +94,14 @@ into browser code.
 
 See [docs/DAY_4.md](./docs/DAY_4.md) for secure local setup and the CRUD test.
 
+## Day 5 proof
+
+`/services` manages each provider's service name, description, price, duration,
+and active status. The API supports listing, filtering, creating, updating, and
+deleting services with the same server-only write protection.
+
+See [docs/DAY_5.md](./docs/DAY_5.md) for validation rules and the end-to-end test.
+
 ## Product rules
 1. AI interprets intent; deterministic code handles filtering and permissions.
 2. No irreversible action without explicit user confirmation.

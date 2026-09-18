@@ -127,7 +127,10 @@ export default function BusinessesPage() {
     <main className="businessShell">
       <header className="businessHeader">
         <div>
-          <Link href="/" className="backLink">← Aylo search</Link>
+          <div className="adminNav">
+            <Link href="/" className="backLink">← Aylo search</Link>
+            <Link href="/services" className="backLink">Services</Link>
+          </div>
           <p className="eyebrow">Aylo Business</p>
           <h1>Businesses</h1>
           <p>Manage the providers available to Aylo search.</p>
