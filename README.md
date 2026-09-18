@@ -85,6 +85,15 @@ connected** when the hosted database is ready.
 Follow [docs/DAY_3.md](./docs/DAY_3.md) to create the project, run the SQL, add
 the current publishable key, and verify the live search flow.
 
+## Day 4 proof
+
+`/businesses` is the first Aylo Business admin screen. It lists providers and
+supports create, update, verification, and deletion through validated server
+APIs. Write operations require `SUPABASE_SECRET_KEY`; the secret never crosses
+into browser code.
+
+See [docs/DAY_4.md](./docs/DAY_4.md) for secure local setup and the CRUD test.
+
 ## Product rules
 1. AI interprets intent; deterministic code handles filtering and permissions.
 2. No irreversible action without explicit user confirmation.

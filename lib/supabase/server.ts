@@ -12,6 +12,13 @@ export function isSupabaseConfigured() {
   );
 }
 
+export function isSupabaseAdminConfigured() {
+  return Boolean(
+    (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL) &&
+      (process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY),
+  );
+}
+
 export function getSupabaseServerClient() {
   const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key =
@@ -22,6 +29,19 @@ export function getSupabaseServerClient() {
 
   if (!url || !key) {
     throw new Error("Supabase environment variables are missing");
+  }
+
+  return createClient(url, key, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+}
+
+export function getSupabaseAdminClient() {
+  const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!url || !key) {
+    throw new Error("SUPABASE_SECRET_KEY is required for business write operations");
   }
 
   return createClient(url, key, {

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import type { Intent } from "@/types/intent";
 import type { SearchResult, SearchResponse } from "@/types/search";
@@ -133,12 +134,15 @@ export default function Home() {
       <section className="hero">
         <div className="brandRow">
           <div className="brand">AYLO <span>alpha</span></div>
-          <div className={`databaseStatus ${health.status}`}>
-            <i aria-hidden="true" />
-            {health.status === "checking" && "Checking database…"}
-            {health.status === "demo" && "Demo database"}
-            {health.status === "live" && "Supabase connected"}
-            {health.status === "error" && "Supabase setup needed"}
+          <div className="topActions">
+            <Link href="/businesses" className="manageLink">Manage businesses →</Link>
+            <div className={`databaseStatus ${health.status}`}>
+              <i aria-hidden="true" />
+              {health.status === "checking" && "Checking database…"}
+              {health.status === "demo" && "Demo database"}
+              {health.status === "live" && "Supabase connected"}
+              {health.status === "error" && "Supabase setup needed"}
+            </div>
           </div>
         </div>
         <h1>What do you need?</h1>
