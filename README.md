@@ -72,7 +72,8 @@ Run the SQL files in this order inside a Supabase project:
 1. `supabase/migrations/0001_initial_schema.sql`
 2. `supabase/migrations/0002_search_security.sql`
 3. `supabase/migrations/0003_api_grants.sql`
-4. `supabase/seed.sql`
+4. `supabase/migrations/0004_availability_integrity.sql`
+5. `supabase/seed.sql`
 
 See [docs/DAY_2.md](./docs/DAY_2.md) for the data flow and setup checklist.
 
@@ -101,6 +102,16 @@ and active status. The API supports listing, filtering, creating, updating, and
 deleting services with the same server-only write protection.
 
 See [docs/DAY_5.md](./docs/DAY_5.md) for validation rules and the end-to-end test.
+
+## Day 6 proof
+
+`/availability` manages bookable times for each service. Slots are entered in
+Baku time, public reads respect RLS, and server-side writes reject invalid or
+overlapping intervals. PostgreSQL also enforces the overlap rule so concurrent
+requests cannot create conflicting slots.
+
+Run `supabase/migrations/0004_availability_integrity.sql`, then follow
+[docs/DAY_6.md](./docs/DAY_6.md) for the CRUD and overlap test.
 
 ## Product rules
 1. AI interprets intent; deterministic code handles filtering and permissions.

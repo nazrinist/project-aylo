@@ -103,6 +103,17 @@ pre { margin: 0; font-size: 13px; line-height: 1.55; }
 .activeBadge { padding: 4px 6px; border-radius: 6px; font-size: 10px; font-weight: 800; }
 .activeBadge.on { background: #e8f7eb; color: #267036; }
 .activeBadge.off { background: #eeeeea; color: #6f6f69; }
+.availabilityToolbar { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 14px; border: 1px solid #ddddda; border-radius: 16px; background: white; }
+.availabilityToolbar div { display: grid; gap: 3px; }
+.availabilityToolbar span { color: #777771; font-size: 11px; font-weight: 750; text-transform: uppercase; letter-spacing: .06em; }
+.availabilityToolbar strong { font-size: 14px; }
+.availabilityCard { justify-content: flex-start; }
+.slotTime { display: grid; flex: 0 0 96px; gap: 2px; padding: 12px; border-radius: 14px; background: #f1f5ef; color: #29482f; }
+.slotTime strong { font-size: 20px; letter-spacing: -.03em; }
+.slotTime span { font-size: 11px; }
+.slotDetails { flex: 1; min-width: 0; }
+.slotDetails h2 { margin: 0; font-size: 17px; }
+.slotDetails p { margin: 5px 0 8px; color: #73736d; font-size: 12px; }
 @media (max-width: 680px) {
   .brandRow { align-items: flex-start; flex-direction: column; margin-bottom: 46px; }
   .topActions { width: 100%; justify-content: space-between; }
@@ -118,4 +129,8 @@ pre { margin: 0; font-size: 13px; line-height: 1.55; }
   .formColumns { grid-template-columns: 1fr; }
   .serviceToolbar label { align-items: stretch; flex-direction: column; }
   .serviceToolbar select { width: 100%; }
+  .availabilityHeader .adminNav { flex-wrap: wrap; }
+  .availabilityToolbar { grid-template-columns: 1fr; }
+  .availabilityCard { align-items: stretch; }
+  .slotTime { flex-basis: auto; }
 }

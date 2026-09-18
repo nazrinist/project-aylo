@@ -136,6 +136,7 @@ export default function Home() {
           <div className="brand">AYLO <span>alpha</span></div>
           <div className="topActions">
             <Link href="/businesses" className="manageLink">Manage businesses →</Link>
+            <Link href="/availability" className="manageLink">Availability →</Link>
             <div className={`databaseStatus ${health.status}`}>
               <i aria-hidden="true" />
               {health.status === "checking" && "Checking database…"}

@@ -130,6 +130,7 @@ export default function BusinessesPage() {
           <div className="adminNav">
             <Link href="/" className="backLink">← Aylo search</Link>
             <Link href="/services" className="backLink">Services</Link>
+            <Link href="/availability" className="backLink">Availability</Link>
           </div>
           <p className="eyebrow">Aylo Business</p>
           <h1>Businesses</h1>

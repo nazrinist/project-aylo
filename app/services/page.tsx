@@ -158,6 +158,7 @@ export default function ServicesPage() {
           <div className="adminNav">
             <Link href="/" className="backLink">← Aylo search</Link>
             <Link href="/businesses" className="backLink">Businesses</Link>
+            <Link href="/availability" className="backLink">Availability</Link>
           </div>
           <p className="eyebrow">Aylo Business</p>
           <h1>Services</h1>

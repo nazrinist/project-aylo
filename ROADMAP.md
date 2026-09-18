@@ -6,7 +6,7 @@
 - [x] Day 3: database migrations + seed data + live connection health check
 - [x] Day 4: business CRUD
 - [x] Day 5: services CRUD
-- [ ] Day 6: availability model/UI
+- [x] Day 6: availability model/UI
 - [ ] Day 7: deterministic search filters
 
 ## Week 2 — AI → search → results
