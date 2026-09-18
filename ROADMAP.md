@@ -2,8 +2,8 @@
 
 ## Week 1 — Foundation & marketplace data
 - [x] Day 1: repo skeleton + intent extraction endpoint
-- [ ] Day 2: Supabase project, env setup, auth
-- [ ] Day 3: database migration + seed data
+- [x] Day 2: provider search API + deterministic ranking + demo mode
+- [x] Day 3: database migrations + seed data + live connection health check
 - [ ] Day 4: business CRUD
 - [ ] Day 5: services CRUD
 - [ ] Day 6: availability model/UI

@@ -29,11 +29,22 @@ npm install
 npm run dev
 ```
 
-Add at minimum:
+The app runs in demo mode with no keys. To enable AI intent extraction, add:
 
 ```env
 OPENAI_API_KEY=...
 ```
+
+To switch provider search from demo data to Supabase, also add:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=...
+```
+
+Legacy Supabase projects can use `NEXT_PUBLIC_SUPABASE_ANON_KEY`. Server-only
+write operations can later use `SUPABASE_SECRET_KEY`; never expose it in browser
+code or commit `.env.local`.
 
 Then open `http://localhost:3000`.
 
@@ -47,6 +58,32 @@ Then open `http://localhost:3000`.
 ```
 
 returns a normalized intent object used by the future search engine.
+
+## Day 2 proof
+
+`POST /api/search` accepts the normalized intent and returns ranked provider slots.
+The same UI works in two modes:
+
+- `demo`: local provider fixtures, so the complete flow works without credentials;
+- `supabase`: real `businesses`, `services`, and `availability` rows.
+
+Run the SQL files in this order inside a Supabase project:
+
+1. `supabase/migrations/0001_initial_schema.sql`
+2. `supabase/migrations/0002_search_security.sql`
+3. `supabase/migrations/0003_api_grants.sql`
+4. `supabase/seed.sql`
+
+See [docs/DAY_2.md](./docs/DAY_2.md) for the data flow and setup checklist.
+
+## Day 3 proof
+
+`GET /api/health` verifies the database connection and returns counts for
+businesses, services, and available slots. The home page shows **Supabase
+connected** when the hosted database is ready.
+
+Follow [docs/DAY_3.md](./docs/DAY_3.md) to create the project, run the SQL, add
+the current publishable key, and verify the live search flow.
 
 ## Product rules
 1. AI interprets intent; deterministic code handles filtering and permissions.

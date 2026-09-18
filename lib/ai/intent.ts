@@ -5,9 +5,65 @@ function cleanJson(text: string) {
   return text.trim().replace(/^```json\s*/i, "").replace(/```$/i, "").trim();
 }
 
+function addDays(date: Date, days: number) {
+  const result = new Date(date);
+  result.setUTCDate(result.getUTCDate() + days);
+  return result.toISOString().slice(0, 10);
+}
+
+function demoIntent(request: string): Intent {
+  const text = request.toLocaleLowerCase("az");
+  const services: string[] = [];
+  if (/saç|sac|hair|fen|styling/.test(text)) services.push("hair");
+  if (/makiyaj|makeup|make-up/.test(text)) services.push("makeup");
+  if (/manik|pedik|nail/.test(text)) services.push("nails");
+  if (/kirpik|lash/.test(text)) services.push("lashes");
+  if (/qaş|qas|brow/.test(text)) services.push("brows");
+
+  const beauty = services.length > 0 || /salon|beauty|gözəllik|gozellik/.test(text);
+  const budget = text.match(/(\d{2,4})\s*(?:azn|manat)/)?.[1];
+  const rawTime = text.match(/(?:saat\s*)?(?<!\d)(\d{1,2})(?::(\d{2}))?(?!\d)/) ?? null;
+  let hour = rawTime ? Number(rawTime[1]) : null;
+  const minute = rawTime?.[2] ?? "00";
+  if (hour !== null && /axşam|aksam|evening|pm/.test(text) && hour < 12) hour += 12;
+
+  let location: string | null = null;
+  if (/ağ şəhər|ag seher|white city/.test(text)) location = "Ağ Şəhər, Bakı";
+  else {
+    const known = ["xətai", "nerimanov", "nərimanov", "səbail", "sebail", "gənclik", "genclik"];
+    location = known.find((place) => text.includes(place)) ?? null;
+  }
+
+  const today = new Date();
+  const date = /birigün|birigun|day after tomorrow/.test(text)
+    ? addDays(today, 2)
+    : /sabah|tomorrow/.test(text)
+      ? addDays(today, 1)
+      : null;
+
+  const missing_fields: string[] = [];
+  if (services.length === 0) missing_fields.push("services");
+  if (!location) missing_fields.push("location");
+  if (!date) missing_fields.push("date");
+
+  return IntentSchema.parse({
+    category: beauty ? "beauty" : "unknown",
+    services,
+    location,
+    date,
+    time_from: hour === null ? null : `${String(hour).padStart(2, "0")}:${minute}`,
+    time_to: null,
+    budget_min: null,
+    budget_max: budget ? Number(budget) : null,
+    currency: "AZN",
+    missing_fields,
+    original_request: request,
+  });
+}
+
 export async function extractIntent(request: string): Promise<Intent> {
   const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) throw new Error("OPENAI_API_KEY is not configured");
+  if (!apiKey) return demoIntent(request);
 
   const client = new OpenAI({ apiKey });
   const today = new Date().toISOString().slice(0, 10);
