@@ -5,6 +5,9 @@ type ProviderFilterIntent = Pick<
   "category" | "services" | "location" | "budget_min" | "budget_max" | "currency"
 >;
 
+type DateIntent = Pick<Intent, "date">;
+type TimeIntent = Pick<Intent, "time_from" | "time_to">;
+
 export const SINGLE_TIME_TOLERANCE_MINUTES = 60;
 
 const aliases: Record<string, string[]> = {
@@ -56,18 +59,18 @@ export function locationMatches(address: string, requested: string | null) {
   return !wanted || actual.includes(wanted) || wanted.includes(actual);
 }
 
-export function requestedDate(intent: Intent) {
+export function requestedDate(intent: DateIntent) {
   if (intent.date) return intent.date;
   return new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString().slice(0, 10);
 }
 
-export function requestedMinutes(intent: Intent) {
+export function requestedMinutes(intent: Pick<TimeIntent, "time_from">) {
   if (!intent.time_from) return null;
   const [hours, minutes] = intent.time_from.split(":").map(Number);
   return hours * 60 + minutes;
 }
 
-export function timeDistanceMinutes(iso: string, intent: Intent) {
+export function timeDistanceMinutes(iso: string, intent: Pick<TimeIntent, "time_from">) {
   const wanted = requestedMinutes(intent);
   if (wanted === null) return 0;
   const date = new Date(iso);
@@ -86,7 +89,7 @@ function slotMinutesInBaku(iso: string) {
   return (date.getUTCHours() * 60 + date.getUTCMinutes() + 4 * 60) % (24 * 60);
 }
 
-export function timeMatches(iso: string, intent: Intent) {
+export function timeMatches(iso: string, intent: TimeIntent) {
   const slotMinutes = slotMinutesInBaku(iso);
   const from = intent.time_from ? clockMinutes(intent.time_from) : null;
   const to = intent.time_to ? clockMinutes(intent.time_to) : null;

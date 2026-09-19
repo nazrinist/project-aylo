@@ -15,9 +15,9 @@ so demo data and Supabase follow identical eligibility rules.
 - currency;
 - result limit.
 
-It deliberately does **not** inspect appointment slots. Availability remains the
-next orchestration step and will become the separate `checkAvailability` tool on
-Day 11.
+It deliberately does **not** inspect appointment slots. Availability is handled
+by the separate `checkAvailability` tool documented in
+[DAY_11.md](./DAY_11.md).
 
 The OpenAI Responses-compatible function definition is exported from
 `lib/tools/search-providers-contract.ts`. Zod validates the same input again at

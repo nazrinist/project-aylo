@@ -154,6 +154,16 @@ results.
 See [docs/DAY_10.md](./docs/DAY_10.md) for the request payload and verification
 steps. No new database migration is required.
 
+## Day 11 proof
+
+Availability lookup is now the separate `checkAvailability` tool with a strict
+OpenAI/Zod contract and a direct `POST /api/tools/check-availability` proof
+endpoint. The main search flow executes `searchProviders` first, passes its
+service IDs into `checkAvailability`, then joins and ranks the available offers.
+
+See [docs/DAY_11.md](./docs/DAY_11.md) for the payload, time-window rules, and
+end-to-end verification. No new database migration is required.
+
 ## Product rules
 1. AI interprets intent; deterministic code handles filtering and permissions.
 2. No irreversible action without explicit user confirmation.
