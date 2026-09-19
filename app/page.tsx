@@ -5,7 +5,12 @@ import { FormEvent, useEffect, useState } from "react";
 import type { FollowUpQuestion } from "@/types/follow-up";
 import type { Intent } from "@/types/intent";
 import type { RequestPersistence } from "@/types/request";
-import type { SearchResult, SearchResponse } from "@/types/search";
+import type {
+  RankingMetadata,
+  SearchResult,
+  SearchResponse,
+} from "@/types/search";
+import { ResultCard } from "@/app/components/result-card";
 
 type IntentApiResponse =
   | { ok: true; intent: Intent; followUp: FollowUpQuestion | null }
@@ -26,45 +31,6 @@ type DatabaseHealth = {
   };
 };
 
-function formatTime(value: string) {
-  return new Intl.DateTimeFormat("az-AZ", {
-    day: "numeric",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: "Asia/Baku",
-  }).format(new Date(value));
-}
-
-function ResultCard({ result, rank }: { result: SearchResult; rank: number }) {
-  return (
-    <article className="resultCard">
-      <div className="resultTopline">
-        <span className="rank">#{rank}</span>
-        <span className="score">{result.matchScore}% match</span>
-      </div>
-      <h2>{result.businessName}</h2>
-      <p className="serviceName">{result.serviceName}</p>
-      <div className="resultMeta">
-        <span>★ {result.rating ?? "New"}</span>
-        <span>📍 {result.address}</span>
-        <span>🕒 {formatTime(result.availableTime)}</span>
-      </div>
-      <div className="why">
-        {result.reasons.map((reason) => (
-          <span key={reason}>{reason}</span>
-        ))}
-      </div>
-      <div className="resultFooter">
-        <strong>{result.price} {result.currency}</strong>
-        <button type="button" disabled title="Booking is coming in a later milestone">
-          Book · soon
-        </button>
-      </div>
-    </article>
-  );
-}
-
 export default function Home() {
   const [request, setRequest] = useState("");
   const [intent, setIntent] = useState<Intent | null>(null);
@@ -72,6 +38,7 @@ export default function Home() {
   const [conversationRequest, setConversationRequest] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [source, setSource] = useState<SearchResponse["source"] | null>(null);
+  const [ranking, setRanking] = useState<RankingMetadata | null>(null);
   const [appliedFilters, setAppliedFilters] = useState<string[]>([]);
   const [requestPersistence, setRequestPersistence] = useState<RequestPersistence | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -111,6 +78,7 @@ export default function Home() {
     setError(null);
     setResults([]);
     setSource(null);
+    setRanking(null);
     setAppliedFilters([]);
     setRequestPersistence(null);
     setFollowUp(null);
@@ -141,6 +109,7 @@ export default function Home() {
       if (!searchData.ok) throw new Error(searchData.error || "Search failed");
       setResults(searchData.results);
       setSource(searchData.source);
+      setRanking(searchData.ranking);
       setAppliedFilters(searchData.appliedFilters);
       setRequestPersistence(searchData.requestPersistence);
       setConversationRequest("");
@@ -159,6 +128,7 @@ export default function Home() {
     setFollowUp(null);
     setResults([]);
     setSource(null);
+    setRanking(null);
     setAppliedFilters([]);
     setRequestPersistence(null);
     setError(null);
@@ -249,9 +219,14 @@ export default function Home() {
                 <p className="eyebrow">Applied filters</p>
                 <h2>{results.length} providers found</h2>
               </div>
-              <span className={`sourceBadge ${source}`}>
-                {source === "supabase" ? "Live database" : "Demo data"}
-              </span>
+              <div className="resultsBadges">
+                {ranking && (
+                  <span className="rankingBadge">Explainable ranking · {ranking.version}</span>
+                )}
+                <span className={`sourceBadge ${source}`}>
+                  {source === "supabase" ? "Live database" : "Demo data"}
+                </span>
+              </div>
             </div>
             <div className="filterChips" aria-label="Applied search filters">
               {appliedFilters.map((filter) => <span key={filter}>{filter}</span>)}
@@ -271,8 +246,13 @@ export default function Home() {
         )}
 
         <div className="resultsGrid">
-          {results.map((result, index) => (
-            <ResultCard key={result.id} result={result} rank={index + 1} />
+          {ranking && results.map((result, index) => (
+            <ResultCard
+              key={result.id}
+              result={result}
+              rank={index + 1}
+              weights={ranking.weights}
+            />
           ))}
         </div>
       </section>

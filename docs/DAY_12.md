@@ -64,8 +64,8 @@ Every result includes its own breakdown and user-facing reasons:
 }
 ```
 
-The existing result cards continue to display `matchScore` and the three concise
-reasons. Day 13 can improve the card presentation without changing the API.
+The result cards display `matchScore`, three concise reasons, and the full
+breakdown described in [DAY_13.md](./DAY_13.md) without changing the API.
 
 ## Stable ordering
 

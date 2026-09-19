@@ -173,6 +173,16 @@ breakdown, and concise reasons while preserving deterministic tie-breakers.
 See [docs/DAY_12.md](./docs/DAY_12.md) for the scoring formula and example
 response. No new database migration is required.
 
+## Day 13 proof
+
+Ranked offers now render as responsive, accessible result cards with best-match
+and verified badges, clear price/time/duration facts, match reasons, and an
+expandable six-factor score breakdown. The cards use the ranking weights
+returned by the API rather than duplicating scoring rules in the browser.
+
+See [docs/DAY_13.md](./docs/DAY_13.md) for the card hierarchy and accessibility
+checks. No new database migration is required.
+
 ## Product rules
 1. AI interprets intent; deterministic code handles filtering and permissions.
 2. No irreversible action without explicit user confirmation.
