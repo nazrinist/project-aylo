@@ -68,6 +68,7 @@ export default function Home() {
   const [intent, setIntent] = useState<Intent | null>(null);
   const [results, setResults] = useState<SearchResult[]>([]);
   const [source, setSource] = useState<SearchResponse["source"] | null>(null);
+  const [appliedFilters, setAppliedFilters] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [health, setHealth] = useState<DatabaseHealth>({
@@ -102,6 +103,7 @@ export default function Home() {
     setIntent(null);
     setResults([]);
     setSource(null);
+    setAppliedFilters([]);
 
     try {
       const intentResponse = await fetch("/api/intent", {
@@ -122,6 +124,7 @@ export default function Home() {
       if (!searchData.ok) throw new Error(searchData.error || "Search failed");
       setResults(searchData.results);
       setSource(searchData.source);
+      setAppliedFilters(searchData.appliedFilters);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
@@ -189,15 +192,20 @@ export default function Home() {
         )}
 
         {source && (
-          <div className="resultsHeader">
-            <div>
-              <p className="eyebrow">Best matches</p>
-              <h2>{results.length} providers found</h2>
+          <>
+            <div className="resultsHeader">
+              <div>
+                <p className="eyebrow">Applied filters</p>
+                <h2>{results.length} providers found</h2>
+              </div>
+              <span className={`sourceBadge ${source}`}>
+                {source === "supabase" ? "Live database" : "Demo data"}
+              </span>
             </div>
-            <span className={`sourceBadge ${source}`}>
-              {source === "supabase" ? "Live database" : "Demo data"}
-            </span>
-          </div>
+            <div className="filterChips" aria-label="Applied search filters">
+              {appliedFilters.map((filter) => <span key={filter}>{filter}</span>)}
+            </div>
+          </>
         )}
 
         {source && results.length === 0 && (

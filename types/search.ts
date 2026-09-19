@@ -17,5 +17,6 @@ export type SearchResult = {
 
 export type SearchResponse = {
   source: "supabase" | "demo";
+  appliedFilters: string[];
   results: SearchResult[];
 };

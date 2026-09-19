@@ -5,10 +5,14 @@ import type { SearchResponse, SearchResult } from "@/types/search";
 import { getSupabaseServerClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import { searchDemoProviders } from "./demo-providers";
 import {
+  appliedFilters,
   buildReasons,
+  compareSearchResults,
   locationMatches,
   matchScore,
   requestedDate,
+  resultMatchesFilters,
+  serviceMatchesFilters,
   serviceCoverage,
   timeDistanceMinutes,
 } from "./shared";
@@ -37,7 +41,16 @@ type RawAvailability = {
 
 export async function searchProviders(intent: Intent): Promise<SearchResponse> {
   if (!isSupabaseConfigured()) {
-    return { source: "demo", results: searchDemoProviders(intent) };
+    return {
+      source: "demo",
+      appliedFilters: appliedFilters(intent),
+      results: searchDemoProviders(intent),
+    };
+  }
+
+  const filters = appliedFilters(intent);
+  if (intent.category !== "beauty") {
+    return { source: "supabase", appliedFilters: filters, results: [] };
   }
 
   const supabase = getSupabaseServerClient();
@@ -53,10 +66,21 @@ export async function searchProviders(intent: Intent): Promise<SearchResponse> {
   if (serviceError) throw new Error(`Provider search failed: ${serviceError.message}`);
 
   const services = (serviceRows ?? []) as unknown as RawService[];
-  const matchingServices = services.filter(
-    (service) => serviceCoverage(service.name, intent.services) > 0,
-  );
-  if (matchingServices.length === 0) return { source: "supabase", results: [] };
+  const matchingServices = services.filter((service) => {
+    if (service.price === null) return false;
+    return serviceMatchesFilters(
+      {
+        serviceName: service.name,
+        address: service.businesses.address ?? "Bakı",
+        price: Number(service.price),
+        currency: service.currency,
+      },
+      intent,
+    );
+  });
+  if (matchingServices.length === 0) {
+    return { source: "supabase", appliedFilters: filters, results: [] };
+  }
 
   const date = requestedDate(intent);
   const dayStart = `${date}T00:00:00+04:00`;
@@ -123,9 +147,9 @@ export async function searchProviders(intent: Intent): Promise<SearchResponse> {
       };
     })
     .filter((result): result is SearchResult => Boolean(result))
-    .filter((result) => !intent.budget_max || result.price <= intent.budget_max * 1.25)
-    .sort((a, b) => b.matchScore - a.matchScore)
+    .filter((result) => resultMatchesFilters(result, intent))
+    .sort(compareSearchResults)
     .slice(0, 6);
 
-  return { source: "supabase", results };
+  return { source: "supabase", appliedFilters: filters, results };
 }

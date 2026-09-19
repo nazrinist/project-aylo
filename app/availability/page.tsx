@@ -41,7 +41,7 @@ export default function AvailabilityPage() {
   const [slots, setSlots] = useState<Availability[]>([]);
   const [businessId, setBusinessId] = useState("");
   const [serviceId, setServiceId] = useState("");
-  const [date, setDate] = useState(tomorrowInBaku);
+  const [date, setDate] = useState("");
   const [startTime, setStartTime] = useState("10:00");
   const [endTime, setEndTime] = useState("11:00");
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -56,6 +56,10 @@ export default function AvailabilityPage() {
     [businessId, services],
   );
   const selectedService = services.find((service) => service.id === serviceId);
+
+  useEffect(() => {
+    setDate(tomorrowInBaku());
+  }, []);
 
   useEffect(() => {
     async function loadCatalog() {

@@ -7,7 +7,7 @@
 - [x] Day 4: business CRUD
 - [x] Day 5: services CRUD
 - [x] Day 6: availability model/UI
-- [ ] Day 7: deterministic search filters
+- [x] Day 7: deterministic search filters
 
 ## Week 2 — AI → search → results
 - [ ] Day 8: request persistence

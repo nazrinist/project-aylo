@@ -113,6 +113,16 @@ requests cannot create conflicting slots.
 Run `supabase/migrations/0004_availability_integrity.sql`, then follow
 [docs/DAY_6.md](./docs/DAY_6.md) for the CRUD and overlap test.
 
+## Day 7 proof
+
+Provider eligibility now uses the same deterministic rules in demo and Supabase
+mode. Every requested service, location, Baku date/time window, exact budget,
+and currency constraint must match before ranking begins. The UI shows the
+applied filters, and stable tie-breakers keep repeated searches predictable.
+
+Run `npm test` and see [docs/DAY_7.md](./docs/DAY_7.md) for the complete filter
+contract.
+
 ## Product rules
 1. AI interprets intent; deterministic code handles filtering and permissions.
 2. No irreversible action without explicit user confirmation.

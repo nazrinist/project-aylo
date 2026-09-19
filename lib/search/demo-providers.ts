@@ -2,9 +2,11 @@ import type { Intent } from "@/types/intent";
 import type { SearchResult } from "@/types/search";
 import {
   buildReasons,
+  compareSearchResults,
   locationMatches,
   matchScore,
   requestedDate,
+  resultMatchesFilters,
   serviceCoverage,
   timeDistanceMinutes,
 } from "./shared";
@@ -70,11 +72,7 @@ export function searchDemoProviders(intent: Intent): SearchResult[] {
         }),
       } satisfies SearchResult;
     })
-    .filter((result) => {
-      const coverage = serviceCoverage(result.serviceName, intent.services);
-      const priceOk = !intent.budget_max || result.price <= intent.budget_max * 1.25;
-      return coverage > 0 && priceOk;
-    })
-    .sort((a, b) => b.matchScore - a.matchScore)
+    .filter((result) => resultMatchesFilters(result, intent))
+    .sort(compareSearchResults)
     .slice(0, 6);
 }
