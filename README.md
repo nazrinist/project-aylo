@@ -19,7 +19,7 @@ Aylo extracts the constraints, searches providers and availability, ranks the be
 - TypeScript
 - OpenAI Node SDK
 - Supabase / Postgres
-- Node.js 24
+- Node.js 20.9+
 
 ## Start locally
 
