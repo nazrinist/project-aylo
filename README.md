@@ -73,7 +73,8 @@ Run the SQL files in this order inside a Supabase project:
 2. `supabase/migrations/0002_search_security.sql`
 3. `supabase/migrations/0003_api_grants.sql`
 4. `supabase/migrations/0004_availability_integrity.sql`
-5. `supabase/seed.sql`
+5. `supabase/migrations/0005_request_persistence.sql`
+6. `supabase/seed.sql`
 
 See [docs/DAY_2.md](./docs/DAY_2.md) for the data flow and setup checklist.
 
@@ -122,6 +123,16 @@ applied filters, and stable tie-breakers keep repeated searches predictable.
 
 Run `npm test` and see [docs/DAY_7.md](./docs/DAY_7.md) for the complete filter
 contract.
+
+## Day 8 proof
+
+Every validated search can now create a private `requests` row before provider
+search begins. Successful searches record `searched_at` and `result_count`;
+failed searches keep a visible lifecycle status for future recovery. The UI
+shows whether persistence succeeded without exposing the private row.
+
+Run `supabase/migrations/0005_request_persistence.sql`, then follow
+[docs/DAY_8.md](./docs/DAY_8.md) for the end-to-end check.
 
 ## Product rules
 1. AI interprets intent; deterministic code handles filtering and permissions.

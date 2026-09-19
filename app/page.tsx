@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import type { Intent } from "@/types/intent";
+import type { RequestPersistence } from "@/types/request";
 import type { SearchResult, SearchResponse } from "@/types/search";
 
 type IntentApiResponse =
@@ -69,6 +70,7 @@ export default function Home() {
   const [results, setResults] = useState<SearchResult[]>([]);
   const [source, setSource] = useState<SearchResponse["source"] | null>(null);
   const [appliedFilters, setAppliedFilters] = useState<string[]>([]);
+  const [requestPersistence, setRequestPersistence] = useState<RequestPersistence | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [health, setHealth] = useState<DatabaseHealth>({
@@ -104,6 +106,7 @@ export default function Home() {
     setResults([]);
     setSource(null);
     setAppliedFilters([]);
+    setRequestPersistence(null);
 
     try {
       const intentResponse = await fetch("/api/intent", {
@@ -125,6 +128,7 @@ export default function Home() {
       setResults(searchData.results);
       setSource(searchData.source);
       setAppliedFilters(searchData.appliedFilters);
+      setRequestPersistence(searchData.requestPersistence);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
@@ -205,6 +209,13 @@ export default function Home() {
             <div className="filterChips" aria-label="Applied search filters">
               {appliedFilters.map((filter) => <span key={filter}>{filter}</span>)}
             </div>
+            {requestPersistence && (
+              <div className={`persistenceStatus ${requestPersistence.status}`}>
+                {requestPersistence.status === "saved" && "Request saved privately"}
+                {requestPersistence.status === "disabled" && "Request history is off in demo mode"}
+                {requestPersistence.status === "failed" && "Search worked, but the request was not saved"}
+              </div>
+            )}
           </>
         )}
 

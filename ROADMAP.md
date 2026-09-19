@@ -10,7 +10,7 @@
 - [x] Day 7: deterministic search filters
 
 ## Week 2 — AI → search → results
-- [ ] Day 8: request persistence
+- [x] Day 8: request persistence
 - [ ] Day 9: missing-field follow-up questions
 - [ ] Day 10: searchProviders tool
 - [ ] Day 11: checkAvailability tool

@@ -1,3 +1,5 @@
+import type { RequestPersistence } from "@/types/request";
+
 export type SearchResult = {
   id: string;
   businessId: string;
@@ -15,8 +17,12 @@ export type SearchResult = {
   reasons: string[];
 };
 
-export type SearchResponse = {
+export type SearchData = {
   source: "supabase" | "demo";
   appliedFilters: string[];
   results: SearchResult[];
+};
+
+export type SearchResponse = SearchData & {
+  requestPersistence: RequestPersistence;
 };

@@ -46,6 +46,10 @@ pre { margin: 0; font-size: 13px; line-height: 1.55; }
 .sourceBadge.supabase { background: #dcfce7; color: #166534; }
 .filterChips { display: flex; flex-wrap: wrap; gap: 7px; margin: -6px 0 17px; }
 .filterChips span { padding: 7px 9px; border: 1px solid #deded8; border-radius: 999px; background: white; color: #5d5d57; font-size: 11px; font-weight: 750; }
+.persistenceStatus { width: fit-content; margin: -7px 0 17px; padding: 7px 10px; border-radius: 9px; font-size: 11px; font-weight: 750; }
+.persistenceStatus.saved { background: #e8f7eb; color: #267036; }
+.persistenceStatus.disabled { background: #eeeeea; color: #6f6f69; }
+.persistenceStatus.failed { background: #fff2cc; color: #765a08; }
 .resultsGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 .resultCard { background: white; border: 1px solid #ddddda; border-radius: 20px; padding: 19px; box-shadow: 0 8px 28px rgba(0,0,0,.035); }
 .resultTopline, .resultFooter { display: flex; align-items: center; justify-content: space-between; gap: 12px; }

@@ -1,7 +1,7 @@
 import "server-only";
 
 import type { Intent } from "@/types/intent";
-import type { SearchResponse, SearchResult } from "@/types/search";
+import type { SearchData, SearchResult } from "@/types/search";
 import { getSupabaseServerClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import { searchDemoProviders } from "./demo-providers";
 import {
@@ -39,7 +39,7 @@ type RawAvailability = {
   start_time: string;
 };
 
-export async function searchProviders(intent: Intent): Promise<SearchResponse> {
+export async function searchProviders(intent: Intent): Promise<SearchData> {
   if (!isSupabaseConfigured()) {
     return {
       source: "demo",
