@@ -19,7 +19,7 @@
 - [x] Day 14: compare offers
 
 ## Week 3 — Booking & merchant side
-- [ ] Day 15: booking confirmation flow
+- [x] Day 15: booking confirmation flow
 - [ ] Day 16: booking persistence
 - [ ] Day 17: business dashboard
 - [ ] Day 18: lead inbox

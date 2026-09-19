@@ -56,6 +56,12 @@ pre { margin: 0; font-size: 13px; line-height: 1.55; }
 .persistenceStatus.saved { background: #e8f7eb; color: #267036; }
 .persistenceStatus.disabled { background: #eeeeea; color: #6f6f69; }
 .persistenceStatus.failed { background: #fff2cc; color: #765a08; }
+.bookingDraftStatus { display: flex; align-items: center; gap: 11px; margin: -7px 0 17px; border: 1px solid #cce4d1; border-radius: 14px; padding: 11px 12px; background: #f2faf3; color: #245e31; }
+.bookingDraftStatus > span { display: grid; flex: 0 0 28px; width: 28px; height: 28px; place-items: center; border-radius: 50%; background: #dcefe0; font-weight: 900; }
+.bookingDraftStatus > div { display: grid; flex: 1; gap: 2px; }
+.bookingDraftStatus strong { font-size: 12px; }
+.bookingDraftStatus small { color: #647567; font-size: 10px; }
+.bookingDraftStatus button { border: 1px solid #bfd8c4; padding: 7px 10px; background: white; color: #245e31; font-size: 10px; }
 .resultsBadges { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 7px; }
 .rankingBadge { border: 1px solid #dbdbd4; border-radius: 999px; padding: 6px 9px; background: white; color: #66665f; font-size: 11px; font-weight: 750; white-space: nowrap; }
 .compareIntro { display: flex; align-items: center; gap: 8px; margin: -5px 0 14px; color: #71716b; font-size: 12px; }
@@ -111,6 +117,8 @@ pre { margin: 0; font-size: 13px; line-height: 1.55; }
 .resultFooter { margin-top: 16px; }
 .resultFooter > span { color: #8a8a84; font-size: 10px; }
 .resultFooter button { padding: 10px 14px; font-size: 11px; }
+.resultFooter .bookingConfirmedLabel { color: #267036; font-weight: 750; }
+.resultFooter .bookingReviewButton { background: #e8f7eb; color: #21602e; }
 .srOnly { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 .comparisonPanel { margin-top: 20px; overflow: hidden; border: 1px solid #cfdccf; border-radius: 24px; background: white; box-shadow: 0 16px 44px rgba(34,101,49,.07); }
 .comparisonHeader { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; padding: 22px 22px 15px; }
@@ -132,11 +140,46 @@ pre { margin: 0; font-size: 13px; line-height: 1.55; }
 .comparisonTable thead th:first-child { z-index: 2; }
 .comparisonTable thead th > span { display: block; margin-bottom: 4px; color: #81817b; font-size: 9px; letter-spacing: .07em; text-transform: uppercase; }
 .comparisonTable thead th > strong { display: block; color: #20201e; font-size: 14px; }
-.comparisonTable thead button { margin-top: 9px; padding: 0; background: transparent; color: #777771; font-size: 10px; text-decoration: underline; }
+.comparisonColumnActions { display: flex; align-items: center; gap: 9px; margin-top: 10px; }
+.comparisonTable thead .comparisonBook { margin: 0; padding: 7px 9px; background: #173f22; color: white; font-size: 9px; text-decoration: none; }
+.comparisonTable thead .comparisonRemove { margin: 0; padding: 0; background: transparent; color: #777771; font-size: 10px; text-decoration: underline; }
 .comparisonTable td > strong { display: block; line-height: 1.4; }
 .comparisonTable td.comparisonBest { background: #f0f8f1; color: #245e31; }
 .comparisonWinner { display: inline-block; margin-top: 6px; border-radius: 999px; padding: 4px 6px; background: #dcefe0; color: #23622f; font-size: 9px; font-weight: 850; text-transform: uppercase; }
 .comparisonTable .comparisonSectionRow th { position: static; border-right: 0; padding: 9px 15px; background: #edf2ed; color: #45604b; }
+.bookingBackdrop { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; overflow-y: auto; padding: 24px; background: rgba(20,24,20,.58); backdrop-filter: blur(5px); }
+.bookingDialog { position: relative; width: min(620px, 100%); max-height: calc(100vh - 48px); overflow-y: auto; border: 1px solid #d5ddd5; border-radius: 26px; padding: 27px; background: white; box-shadow: 0 30px 90px rgba(0,0,0,.24); }
+.bookingDialog h2 { margin: 5px 44px 7px 0; font-size: 30px; letter-spacing: -.035em; outline: none; }
+.bookingDescription, .bookingSuccess > p:not(.eyebrow) { margin: 0 44px 20px 0; color: #686862; font-size: 13px; line-height: 1.5; }
+.bookingClose { position: absolute; top: 19px; right: 19px; display: grid; width: 34px; height: 34px; place-items: center; padding: 0; background: #eeeeea; color: #555550; font-size: 21px; line-height: 1; }
+.bookingGuardrail { display: flex; align-items: center; gap: 11px; margin-bottom: 17px; border: 1px solid #d9e8dc; border-radius: 14px; padding: 12px 13px; background: #f4faf5; }
+.bookingGuardrail > span { display: grid; flex: 0 0 28px; width: 28px; height: 28px; place-items: center; border-radius: 50%; background: #dcefe0; color: #23622f; font-size: 13px; font-weight: 900; }
+.bookingGuardrail div { display: grid; gap: 2px; }
+.bookingGuardrail strong { color: #285b33; font-size: 12px; }
+.bookingGuardrail small { color: #67766a; font-size: 10px; }
+.bookingOfferHero { display: flex; align-items: center; gap: 12px; border: 1px solid #e2e6e1; border-radius: 17px 17px 0 0; padding: 15px; background: #fafbf9; }
+.bookingOfferHero > span { display: grid; flex: 0 0 40px; width: 40px; height: 40px; place-items: center; border-radius: 13px; background: #e5efe6; color: #315c3a; font-size: 12px; font-weight: 900; }
+.bookingOfferHero > div { display: grid; flex: 1; gap: 3px; min-width: 0; }
+.bookingOfferHero strong { overflow: hidden; font-size: 15px; text-overflow: ellipsis; white-space: nowrap; }
+.bookingOfferHero small { color: #72726c; font-size: 11px; }
+.bookingOfferHero b { border-radius: 999px; padding: 5px 7px; background: #e8f7eb; color: #267036; font-size: 9px; text-transform: uppercase; }
+.bookingSummary { display: grid; grid-template-columns: 1fr 1fr; margin: 0 0 18px; overflow: hidden; border-right: 1px solid #e2e6e1; border-bottom: 1px solid #e2e6e1; border-left: 1px solid #e2e6e1; border-radius: 0 0 17px 17px; }
+.bookingSummary > div { display: grid; gap: 4px; min-width: 0; padding: 13px 15px; border-right: 1px solid #e8eae7; border-bottom: 1px solid #e8eae7; }
+.bookingSummary > div:nth-child(2n) { border-right: 0; }
+.bookingSummary > div:nth-last-child(-n+2) { border-bottom: 0; }
+.bookingSummary dt { color: #85857e; font-size: 9px; font-weight: 850; letter-spacing: .07em; text-transform: uppercase; }
+.bookingSummary dd { margin: 0; overflow: hidden; color: #262623; font-size: 12px; font-weight: 750; line-height: 1.4; text-overflow: ellipsis; }
+.bookingConsent { display: flex; align-items: flex-start; gap: 10px; border: 1px solid #d9d9d4; border-radius: 14px; padding: 13px; color: #464642; font-size: 12px; font-weight: 700; line-height: 1.45; cursor: pointer; }
+.bookingConsent input { flex: 0 0 17px; width: 17px; height: 17px; margin: 1px 0 0; accent-color: #173f22; }
+.bookingDialogActions { display: flex; justify-content: flex-end; gap: 9px; margin-top: 17px; }
+.bookingDialogActions button { padding: 10px 14px; font-size: 11px; }
+.bookingDialogActions.single { margin-top: 18px; }
+.bookingCancel { border: 1px solid #d9d9d4; background: white; color: #555550; }
+.bookingPersistenceNote { margin: 14px 0 0; color: #898983; font-size: 10px; line-height: 1.45; text-align: center; }
+.bookingSuccess { text-align: left; }
+.bookingSuccessIcon { display: grid; width: 48px; height: 48px; margin-bottom: 15px; place-items: center; border-radius: 50%; background: #def2e2; color: #21602e; font-size: 22px; font-weight: 900; }
+.bookingPendingNotice { display: grid; gap: 4px; border: 1px solid #efdfb0; border-radius: 14px; padding: 12px 13px; background: #fff9e9; color: #72590c; font-size: 11px; line-height: 1.45; }
+.bookingPendingNotice strong { font-size: 12px; }
 
 .businessShell { width: min(1120px, calc(100% - 40px)); margin: 0 auto; padding: 48px 0 80px; }
 .businessHeader { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 36px; }
@@ -212,6 +255,16 @@ pre { margin: 0; font-size: 13px; line-height: 1.55; }
   .comparisonHeader { padding: 18px 18px 14px; }
   .comparisonSelection { padding: 0 18px 16px; }
   .comparisonPrompt { padding: 21px 18px; }
+  .bookingBackdrop { align-items: end; padding: 12px; }
+  .bookingDialog { max-height: calc(100vh - 24px); border-radius: 22px; padding: 22px 18px 18px; }
+  .bookingDialog h2 { font-size: 26px; }
+  .bookingSummary { grid-template-columns: 1fr; }
+  .bookingSummary > div, .bookingSummary > div:nth-child(2n), .bookingSummary > div:nth-last-child(-n+2) { border-right: 0; border-bottom: 1px solid #e8eae7; }
+  .bookingSummary > div:last-child { border-bottom: 0; }
+  .bookingDialogActions { flex-direction: column-reverse; }
+  .bookingDialogActions button { width: 100%; }
+  .bookingDraftStatus { align-items: flex-start; flex-wrap: wrap; }
+  .bookingDraftStatus button { margin-left: 39px; }
   .businessHeader { align-items: flex-start; flex-direction: column; }
   .adminNav { margin-bottom: 34px; }
   .businessLayout { grid-template-columns: 1fr; }
@@ -230,4 +283,5 @@ pre { margin: 0; font-size: 13px; line-height: 1.55; }
 
 @media (prefers-reduced-motion: reduce) {
   .resultCard { transition: none; }
+  .bookingBackdrop { backdrop-filter: none; }
 }

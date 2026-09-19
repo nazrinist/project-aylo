@@ -14,7 +14,9 @@ type ResultCardProps = {
   weights: RankingWeights;
   selectedForCompare: boolean;
   compareDisabled: boolean;
+  bookingConfirmed: boolean;
   onCompareToggle: () => void;
+  onBook: () => void;
 };
 
 export function ResultCard({
@@ -23,7 +25,9 @@ export function ResultCard({
   weights,
   selectedForCompare,
   compareDisabled,
+  bookingConfirmed,
   onCompareToggle,
+  onBook,
 }: ResultCardProps) {
   const factors = scoreFactors(result.scoreBreakdown, weights);
   const headingId = `result-${result.id}-heading`;
@@ -140,9 +144,15 @@ export function ResultCard({
       </details>
 
       <div className="resultFooter">
-        <span>Booking flow coming soon</span>
-        <button type="button" disabled title="Booking is coming in a later milestone">
-          Book appointment
+        <span className={bookingConfirmed ? "bookingConfirmedLabel" : undefined}>
+          {bookingConfirmed ? "✓ Details confirmed · not sent" : "Review before confirming"}
+        </span>
+        <button
+          type="button"
+          className={bookingConfirmed ? "bookingReviewButton" : undefined}
+          onClick={onBook}
+        >
+          {bookingConfirmed ? "Review confirmation" : "Book appointment"}
         </button>
       </div>
     </article>

@@ -10,8 +10,10 @@ import {
 type OfferComparisonProps = {
   results: SearchResult[];
   weights: RankingWeights;
+  confirmedOfferId: string | null;
   onRemove: (resultId: string) => void;
   onClear: () => void;
+  onBook: (result: SearchResult) => void;
 };
 
 type ComparisonRowProps = {
@@ -50,8 +52,10 @@ function ComparisonRow({
 export function OfferComparison({
   results,
   weights,
+  confirmedOfferId,
   onRemove,
   onClear,
+  onBook,
 }: OfferComparisonProps) {
   if (results.length === 0) return null;
 
@@ -114,13 +118,23 @@ export function OfferComparison({
                   <th scope="col" key={result.id}>
                     <span>Provider</span>
                     <strong>{result.businessName}</strong>
-                    <button
-                      type="button"
-                      onClick={() => onRemove(result.id)}
-                      aria-label={`Remove ${result.businessName} from comparison`}
-                    >
-                      Remove
-                    </button>
+                    <div className="comparisonColumnActions">
+                      <button
+                        type="button"
+                        className="comparisonBook"
+                        onClick={() => onBook(result)}
+                      >
+                        {confirmedOfferId === result.id ? "Review booking" : "Book offer"}
+                      </button>
+                      <button
+                        type="button"
+                        className="comparisonRemove"
+                        onClick={() => onRemove(result.id)}
+                        aria-label={`Remove ${result.businessName} from comparison`}
+                      >
+                        Remove
+                      </button>
+                    </div>
                   </th>
                 ))}
               </tr>

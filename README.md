@@ -193,6 +193,18 @@ also marks tied winners instead of silently choosing only one provider.
 See [docs/DAY_14.md](./docs/DAY_14.md) for the interaction rules and automated
 checks. No new database migration is required.
 
+## Day 15 proof
+
+Every ranked offer now opens an explicit booking review before any future
+mutation. The user checks provider, service, Baku time, duration, price, and
+location, then enables the confirmation action with a separate acknowledgement.
+Aylo keeps the confirmed draft in the current browser session and clearly says
+that it has not created a booking or contacted the provider yet.
+
+See [docs/DAY_15.md](./docs/DAY_15.md) for the draft contract, accessibility
+behavior, and Day 16 server-validation boundary. No new database migration is
+required.
+
 ## Product rules
 1. AI interprets intent; deterministic code handles filtering and permissions.
 2. No irreversible action without explicit user confirmation.

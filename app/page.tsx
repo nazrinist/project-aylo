@@ -5,6 +5,7 @@ import { FormEvent, useEffect, useState } from "react";
 import type { FollowUpQuestion } from "@/types/follow-up";
 import type { Intent } from "@/types/intent";
 import type { RequestPersistence } from "@/types/request";
+import type { BookingConfirmation as ConfirmedBooking } from "@/types/booking";
 import type {
   RankingMetadata,
   SearchResult,
@@ -16,6 +17,7 @@ import {
   toggleComparisonSelection,
 } from "@/lib/search/comparison";
 import { OfferComparison } from "@/app/components/offer-comparison";
+import { BookingConfirmation } from "@/app/components/booking-confirmation";
 import { ResultCard } from "@/app/components/result-card";
 
 type IntentApiResponse =
@@ -48,6 +50,8 @@ export default function Home() {
   const [appliedFilters, setAppliedFilters] = useState<string[]>([]);
   const [requestPersistence, setRequestPersistence] = useState<RequestPersistence | null>(null);
   const [comparisonIds, setComparisonIds] = useState<string[]>([]);
+  const [bookingOffer, setBookingOffer] = useState<SearchResult | null>(null);
+  const [confirmedBooking, setConfirmedBooking] = useState<ConfirmedBooking | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [health, setHealth] = useState<DatabaseHealth>({
@@ -89,6 +93,8 @@ export default function Home() {
     setAppliedFilters([]);
     setRequestPersistence(null);
     setComparisonIds([]);
+    setBookingOffer(null);
+    setConfirmedBooking(null);
     setFollowUp(null);
 
     try {
@@ -140,10 +146,15 @@ export default function Home() {
     setAppliedFilters([]);
     setRequestPersistence(null);
     setComparisonIds([]);
+    setBookingOffer(null);
+    setConfirmedBooking(null);
     setError(null);
   }
 
   const comparedResults = selectedComparisonResults(results, comparisonIds);
+  const confirmedOffer = confirmedBooking
+    ? results.find((result) => result.id === confirmedBooking.availabilityId) ?? null
+    : null;
 
   function toggleComparison(resultId: string) {
     setComparisonIds((current) => toggleComparisonSelection(current, resultId));
@@ -253,6 +264,18 @@ export default function Home() {
                 {requestPersistence.status === "failed" && "Search worked, but the request was not saved"}
               </div>
             )}
+            {confirmedBooking && confirmedOffer && (
+              <section className="bookingDraftStatus" aria-live="polite">
+                <span aria-hidden="true">✓</span>
+                <div>
+                  <strong>Booking details confirmed</strong>
+                  <small>{confirmedOffer.businessName} · Not sent yet</small>
+                </div>
+                <button type="button" onClick={() => setBookingOffer(confirmedOffer)}>
+                  Review
+                </button>
+              </section>
+            )}
           </>
         )}
 
@@ -279,7 +302,9 @@ export default function Home() {
                 comparisonIds.length >= MAX_COMPARISON_OFFERS
                 && !comparisonIds.includes(result.id)
               }
+              bookingConfirmed={confirmedBooking?.availabilityId === result.id}
               onCompareToggle={() => toggleComparison(result.id)}
+              onBook={() => setBookingOffer(result)}
             />
           ))}
         </div>
@@ -288,11 +313,23 @@ export default function Home() {
           <OfferComparison
             results={comparedResults}
             weights={ranking.weights}
+            confirmedOfferId={confirmedBooking?.availabilityId ?? null}
             onRemove={toggleComparison}
             onClear={() => setComparisonIds([])}
+            onBook={setBookingOffer}
           />
         )}
       </section>
+
+      {bookingOffer && (
+        <BookingConfirmation
+          offer={bookingOffer}
+          requestId={requestPersistence?.requestId ?? null}
+          confirmedBooking={confirmedBooking}
+          onConfirm={setConfirmedBooking}
+          onClose={() => setBookingOffer(null)}
+        />
+      )}
     </main>
   );
 }

@@ -52,7 +52,9 @@ test("result card renders ranking, offer facts, and accessible score details", (
       weights,
       selectedForCompare: true,
       compareDisabled: false,
+      bookingConfirmed: false,
       onCompareToggle: () => undefined,
+      onBook: () => undefined,
     }),
   );
 
@@ -67,5 +69,23 @@ test("result card renders ranking, offer facts, and accessible score details", (
   assert.match(html, /aria-pressed="true"/);
   assert.match(html, /resultCard featured compared/);
   assert.equal((html.match(/role="progressbar"/g) ?? []).length, 7);
-  assert.match(html, /<button[^>]*disabled=""/);
+  assert.match(html, /<button type="button">Book appointment<\/button>/);
+});
+
+test("result card shows the confirmed session state", () => {
+  const html = renderToStaticMarkup(
+    createElement(ResultCard, {
+      result,
+      rank: 2,
+      weights,
+      selectedForCompare: false,
+      compareDisabled: false,
+      bookingConfirmed: true,
+      onCompareToggle: () => undefined,
+      onBook: () => undefined,
+    }),
+  );
+
+  assert.match(html, /✓ Details confirmed · not sent/);
+  assert.match(html, /Review confirmation/);
 });

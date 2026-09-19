@@ -57,8 +57,10 @@ test("comparison renders selected offers, key metrics, and ranking factors", () 
         makeResult("two", "Luna Beauty", 88, 80),
       ],
       weights,
+      confirmedOfferId: null,
       onRemove: () => undefined,
       onClear: () => undefined,
+      onBook: () => undefined,
     }),
   );
 
@@ -73,6 +75,7 @@ test("comparison renders selected offers, key metrics, and ranking factors", () 
   assert.match(html, /Best time fit/);
   assert.match(html, /Ranking factors/);
   assert.match(html, /Clear all/);
+  assert.equal((html.match(/Book offer/g) ?? []).length, 2);
   assert.equal(
     (html.match(/aria-label="Remove [^"]+ from comparison"/g) ?? []).length,
     4,
@@ -84,8 +87,10 @@ test("one selected offer renders a prompt instead of an incomplete table", () =>
     createElement(OfferComparison, {
       results: [makeResult("one", "Glow Studio", 96, 95)],
       weights,
+      confirmedOfferId: "one",
       onRemove: () => undefined,
       onClear: () => undefined,
+      onBook: () => undefined,
     }),
   );
 
