@@ -58,16 +58,23 @@ pre { margin: 0; font-size: 13px; line-height: 1.55; }
 .persistenceStatus.failed { background: #fff2cc; color: #765a08; }
 .resultsBadges { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 7px; }
 .rankingBadge { border: 1px solid #dbdbd4; border-radius: 999px; padding: 6px 9px; background: white; color: #66665f; font-size: 11px; font-weight: 750; white-space: nowrap; }
+.compareIntro { display: flex; align-items: center; gap: 8px; margin: -5px 0 14px; color: #71716b; font-size: 12px; }
+.compareIntro span { border-radius: 999px; padding: 5px 8px; background: #e8f7eb; color: #267036; font-size: 10px; font-weight: 850; letter-spacing: .035em; text-transform: uppercase; }
 .resultsGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 .resultCard { position: relative; overflow: hidden; background: white; border: 1px solid #ddddda; border-radius: 24px; padding: 22px; box-shadow: 0 10px 32px rgba(0,0,0,.045); transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease; }
 .resultCard:hover { border-color: #c7c7c0; box-shadow: 0 16px 42px rgba(0,0,0,.07); transform: translateY(-2px); }
 .resultCard.featured { grid-column: 1 / -1; border-color: #bad6c0; background: linear-gradient(145deg, #fff 46%, #f3fbf4 100%); box-shadow: 0 16px 44px rgba(34,101,49,.09); }
+.resultCard.compared { border-color: #5f956b; box-shadow: 0 0 0 2px rgba(71,132,84,.12), 0 16px 42px rgba(34,101,49,.08); }
 .resultCardHeader, .resultFooter, .factorHeading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .resultBadges { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; }
 .bestMatchBadge, .rankBadge, .resultVerifiedBadge { display: inline-flex; align-items: center; min-height: 25px; border-radius: 999px; padding: 5px 9px; font-size: 10px; font-weight: 850; letter-spacing: .035em; text-transform: uppercase; }
 .bestMatchBadge { background: #173f22; color: white; }
 .rankBadge { background: #eeeeea; color: #6c6c66; }
 .resultVerifiedBadge { background: #e8f7eb; color: #267036; }
+.resultHeaderActions { display: flex; align-items: center; gap: 13px; }
+.compareToggle { min-width: 82px; border: 1px solid #d8d8d2; padding: 8px 10px; background: white; color: #555550; font-size: 10px; }
+.compareToggle:hover { border-color: #7c9c83; color: #245e31; }
+.compareToggle.selected { border-color: #bcd9c2; background: #e8f7eb; color: #267036; }
 .matchScoreBlock { text-align: right; }
 .matchScoreBlock > div { display: flex; align-items: baseline; justify-content: flex-end; gap: 3px; color: #173f22; }
 .matchScoreBlock strong { font-size: 26px; line-height: 1; letter-spacing: -.04em; }
@@ -104,6 +111,32 @@ pre { margin: 0; font-size: 13px; line-height: 1.55; }
 .resultFooter { margin-top: 16px; }
 .resultFooter > span { color: #8a8a84; font-size: 10px; }
 .resultFooter button { padding: 10px 14px; font-size: 11px; }
+.srOnly { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.comparisonPanel { margin-top: 20px; overflow: hidden; border: 1px solid #cfdccf; border-radius: 24px; background: white; box-shadow: 0 16px 44px rgba(34,101,49,.07); }
+.comparisonHeader { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; padding: 22px 22px 15px; }
+.comparisonHeader h2 { margin: 4px 0 2px; font-size: 25px; letter-spacing: -.025em; }
+.comparisonHeader p:last-child { margin: 0; color: #7a7a74; font-size: 11px; }
+.comparisonClear { border: 1px solid #d9d9d4; padding: 8px 11px; background: white; color: #575752; font-size: 11px; }
+.comparisonSelection { display: flex; flex-wrap: wrap; gap: 7px; padding: 0 22px 18px; }
+.comparisonSelection > span { display: inline-flex; align-items: center; gap: 7px; border: 1px solid #d9e5db; border-radius: 999px; padding: 6px 7px 6px 10px; background: #f4faf5; color: #315d3a; font-size: 11px; font-weight: 750; }
+.comparisonSelection button { display: grid; width: 20px; height: 20px; place-items: center; padding: 0; background: #dfeee2; color: #315d3a; font-size: 14px; line-height: 1; }
+.comparisonPrompt { margin: 0; border-top: 1px solid #e8ece8; padding: 24px 22px; background: #f8faf8; color: #626b63; font-size: 13px; }
+.comparisonTableWrap { max-width: 100%; overflow-x: auto; border-top: 1px solid #e4e8e4; outline: none; }
+.comparisonTableWrap:focus-visible { box-shadow: inset 0 0 0 3px rgba(63,138,80,.22); }
+.comparisonTable { width: 100%; min-width: 720px; border-spacing: 0; border-collapse: separate; color: #363632; font-size: 12px; }
+.comparisonTable th, .comparisonTable td { min-width: 175px; border-right: 1px solid #e6e9e5; border-bottom: 1px solid #e6e9e5; padding: 13px 15px; text-align: left; vertical-align: top; }
+.comparisonTable tr > *:last-child { border-right: 0; }
+.comparisonTable tbody tr:last-child > * { border-bottom: 0; }
+.comparisonTable thead th { background: #f7f9f6; }
+.comparisonTable thead th:first-child, .comparisonTable tbody th { position: sticky; left: 0; z-index: 1; min-width: 145px; background: #fafaf8; color: #71716b; font-size: 10px; font-weight: 800; letter-spacing: .055em; text-transform: uppercase; }
+.comparisonTable thead th:first-child { z-index: 2; }
+.comparisonTable thead th > span { display: block; margin-bottom: 4px; color: #81817b; font-size: 9px; letter-spacing: .07em; text-transform: uppercase; }
+.comparisonTable thead th > strong { display: block; color: #20201e; font-size: 14px; }
+.comparisonTable thead button { margin-top: 9px; padding: 0; background: transparent; color: #777771; font-size: 10px; text-decoration: underline; }
+.comparisonTable td > strong { display: block; line-height: 1.4; }
+.comparisonTable td.comparisonBest { background: #f0f8f1; color: #245e31; }
+.comparisonWinner { display: inline-block; margin-top: 6px; border-radius: 999px; padding: 4px 6px; background: #dcefe0; color: #23622f; font-size: 9px; font-weight: 850; text-transform: uppercase; }
+.comparisonTable .comparisonSectionRow th { position: static; border-right: 0; padding: 9px 15px; background: #edf2ed; color: #45604b; }
 
 .businessShell { width: min(1120px, calc(100% - 40px)); margin: 0 auto; padding: 48px 0 80px; }
 .businessHeader { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 36px; }
@@ -169,10 +202,16 @@ pre { margin: 0; font-size: 13px; line-height: 1.55; }
   .resultsBadges { align-items: flex-end; flex-direction: column; }
   .resultCard { padding: 18px; }
   .resultCard:hover { transform: none; }
+  .resultCardHeader { align-items: flex-start; }
+  .resultHeaderActions { align-items: flex-end; flex-direction: column-reverse; gap: 8px; }
+  .compareToggle { min-width: 78px; }
   .offerFacts { grid-template-columns: 1fr 1fr; }
   .offerFacts > div:nth-child(2) { border-right: 0; }
   .offerFacts > div:last-child { grid-column: 1 / -1; border-top: 1px solid #e5e5df; }
   .factorList { grid-template-columns: 1fr; }
+  .comparisonHeader { padding: 18px 18px 14px; }
+  .comparisonSelection { padding: 0 18px 16px; }
+  .comparisonPrompt { padding: 21px 18px; }
   .businessHeader { align-items: flex-start; flex-direction: column; }
   .adminNav { margin-bottom: 34px; }
   .businessLayout { grid-template-columns: 1fr; }

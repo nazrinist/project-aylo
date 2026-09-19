@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import type { RankingWeights, SearchResult } from "@/types/search";
 import {
+  formatBakuDateTime,
   formatDuration,
   matchLabel,
   providerInitials,
@@ -11,19 +12,19 @@ type ResultCardProps = {
   result: SearchResult;
   rank: number;
   weights: RankingWeights;
+  selectedForCompare: boolean;
+  compareDisabled: boolean;
+  onCompareToggle: () => void;
 };
 
-function formatTime(value: string) {
-  return new Intl.DateTimeFormat("az-AZ", {
-    day: "numeric",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: "Asia/Baku",
-  }).format(new Date(value));
-}
-
-export function ResultCard({ result, rank, weights }: ResultCardProps) {
+export function ResultCard({
+  result,
+  rank,
+  weights,
+  selectedForCompare,
+  compareDisabled,
+  onCompareToggle,
+}: ResultCardProps) {
   const factors = scoreFactors(result.scoreBreakdown, weights);
   const headingId = `result-${result.id}-heading`;
   const scoreStyle = {
@@ -32,7 +33,7 @@ export function ResultCard({ result, rank, weights }: ResultCardProps) {
 
   return (
     <article
-      className={`resultCard${rank === 1 ? " featured" : ""}`}
+      className={`resultCard${rank === 1 ? " featured" : ""}${selectedForCompare ? " compared" : ""}`}
       aria-labelledby={headingId}
     >
       <div className="resultCardHeader">
@@ -42,12 +43,24 @@ export function ResultCard({ result, rank, weights }: ResultCardProps) {
           </span>
           {result.verified && <span className="resultVerifiedBadge">✓ Verified</span>}
         </div>
-        <div className="matchScoreBlock">
-          <div>
-            <strong>{result.matchScore}</strong>
-            <span>% match</span>
+        <div className="resultHeaderActions">
+          <button
+            type="button"
+            className={`compareToggle${selectedForCompare ? " selected" : ""}`}
+            aria-pressed={selectedForCompare}
+            disabled={compareDisabled}
+            onClick={onCompareToggle}
+            title={compareDisabled ? "You can compare up to 3 offers" : undefined}
+          >
+            {selectedForCompare ? "✓ Added" : "+ Compare"}
+          </button>
+          <div className="matchScoreBlock">
+            <div>
+              <strong>{result.matchScore}</strong>
+              <span>% match</span>
+            </div>
+            <small>{matchLabel(result.matchScore)}</small>
           </div>
-          <small>{matchLabel(result.matchScore)}</small>
         </div>
       </div>
 
@@ -80,7 +93,7 @@ export function ResultCard({ result, rank, weights }: ResultCardProps) {
         </div>
         <div>
           <span>Available</span>
-          <strong>{formatTime(result.availableTime)}</strong>
+          <strong>{formatBakuDateTime(result.availableTime)}</strong>
         </div>
         <div>
           <span>Duration</span>

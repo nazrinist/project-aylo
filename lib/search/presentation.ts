@@ -45,6 +45,16 @@ export function formatDuration(minutes: number | null) {
   return remainder === 0 ? `${hours} hr` : `${hours} hr ${remainder} min`;
 }
 
+export function formatBakuDateTime(value: string) {
+  return new Intl.DateTimeFormat("az-AZ", {
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "Asia/Baku",
+  }).format(new Date(value));
+}
+
 export function scoreFactors(
   breakdown: RankingScoreBreakdown,
   weights: RankingWeights,

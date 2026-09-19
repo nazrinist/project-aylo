@@ -46,7 +46,14 @@ const weights = {
 
 test("result card renders ranking, offer facts, and accessible score details", () => {
   const html = renderToStaticMarkup(
-    createElement(ResultCard, { result, rank: 1, weights }),
+    createElement(ResultCard, {
+      result,
+      rank: 1,
+      weights,
+      selectedForCompare: true,
+      compareDisabled: false,
+      onCompareToggle: () => undefined,
+    }),
   );
 
   assert.match(html, /Best match/);
@@ -56,6 +63,9 @@ test("result card renders ranking, offer facts, and accessible score details", (
   assert.match(html, /1 hr 30 min/);
   assert.match(html, /Why this match\?/);
   assert.match(html, /Service match/);
+  assert.match(html, /✓ Added/);
+  assert.match(html, /aria-pressed="true"/);
+  assert.match(html, /resultCard featured compared/);
   assert.equal((html.match(/role="progressbar"/g) ?? []).length, 7);
   assert.match(html, /<button[^>]*disabled=""/);
 });

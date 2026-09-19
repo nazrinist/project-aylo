@@ -10,6 +10,12 @@ import type {
   SearchResult,
   SearchResponse,
 } from "@/types/search";
+import {
+  MAX_COMPARISON_OFFERS,
+  selectedComparisonResults,
+  toggleComparisonSelection,
+} from "@/lib/search/comparison";
+import { OfferComparison } from "@/app/components/offer-comparison";
 import { ResultCard } from "@/app/components/result-card";
 
 type IntentApiResponse =
@@ -41,6 +47,7 @@ export default function Home() {
   const [ranking, setRanking] = useState<RankingMetadata | null>(null);
   const [appliedFilters, setAppliedFilters] = useState<string[]>([]);
   const [requestPersistence, setRequestPersistence] = useState<RequestPersistence | null>(null);
+  const [comparisonIds, setComparisonIds] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [health, setHealth] = useState<DatabaseHealth>({
@@ -81,6 +88,7 @@ export default function Home() {
     setRanking(null);
     setAppliedFilters([]);
     setRequestPersistence(null);
+    setComparisonIds([]);
     setFollowUp(null);
 
     try {
@@ -131,7 +139,14 @@ export default function Home() {
     setRanking(null);
     setAppliedFilters([]);
     setRequestPersistence(null);
+    setComparisonIds([]);
     setError(null);
+  }
+
+  const comparedResults = selectedComparisonResults(results, comparisonIds);
+
+  function toggleComparison(resultId: string) {
+    setComparisonIds((current) => toggleComparisonSelection(current, resultId));
   }
 
   return (
@@ -245,6 +260,13 @@ export default function Home() {
           <div className="panel">No matching provider found. Try another time or budget.</div>
         )}
 
+        {results.length > 1 && (
+          <div className="compareIntro">
+            <span>Compare mode</span>
+            Choose up to {MAX_COMPARISON_OFFERS} offers to inspect side by side.
+          </div>
+        )}
+
         <div className="resultsGrid">
           {ranking && results.map((result, index) => (
             <ResultCard
@@ -252,9 +274,24 @@ export default function Home() {
               result={result}
               rank={index + 1}
               weights={ranking.weights}
+              selectedForCompare={comparisonIds.includes(result.id)}
+              compareDisabled={
+                comparisonIds.length >= MAX_COMPARISON_OFFERS
+                && !comparisonIds.includes(result.id)
+              }
+              onCompareToggle={() => toggleComparison(result.id)}
             />
           ))}
         </div>
+
+        {ranking && (
+          <OfferComparison
+            results={comparedResults}
+            weights={ranking.weights}
+            onRemove={toggleComparison}
+            onClear={() => setComparisonIds([])}
+          />
+        )}
       </section>
     </main>
   );

@@ -183,6 +183,16 @@ returned by the API rather than duplicating scoring rules in the browser.
 See [docs/DAY_13.md](./docs/DAY_13.md) for the card hierarchy and accessibility
 checks. No new database migration is required.
 
+## Day 14 proof
+
+Users can now select up to three ranked offers and compare them side by side.
+The accessible comparison table covers price, Baku availability, duration,
+rating, verified status, service, location, and all six ranking factors. It
+also marks tied winners instead of silently choosing only one provider.
+
+See [docs/DAY_14.md](./docs/DAY_14.md) for the interaction rules and automated
+checks. No new database migration is required.
+
 ## Product rules
 1. AI interprets intent; deterministic code handles filtering and permissions.
 2. No irreversible action without explicit user confirmation.

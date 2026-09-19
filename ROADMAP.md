@@ -16,7 +16,7 @@
 - [x] Day 11: checkAvailability tool
 - [x] Day 12: ranking engine
 - [x] Day 13: result cards
-- [ ] Day 14: compare offers
+- [x] Day 14: compare offers
 
 ## Week 3 — Booking & merchant side
 - [ ] Day 15: booking confirmation flow
