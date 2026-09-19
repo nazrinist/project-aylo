@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import { IntentSchema, type Intent } from "@/types/intent";
+import { normalizeMissingFields } from "@/lib/intent/follow-up";
 
 function cleanJson(text: string) {
   return text.trim().replace(/^```json\s*/i, "").replace(/```$/i, "").trim();
@@ -11,7 +12,7 @@ function addDays(date: Date, days: number) {
   return result.toISOString().slice(0, 10);
 }
 
-function demoIntent(request: string): Intent {
+export function demoIntent(request: string): Intent {
   const text = request.toLocaleLowerCase("az");
   const services: string[] = [];
   if (/saç|sac|hair|fen|styling/.test(text)) services.push("hair");
@@ -22,31 +23,43 @@ function demoIntent(request: string): Intent {
 
   const beauty = services.length > 0 || /salon|beauty|gözəllik|gozellik/.test(text);
   const budget = text.match(/(\d{2,4})\s*(?:azn|manat)/)?.[1];
-  const rawTime = text.match(/(?:saat\s*)?(?<!\d)(\d{1,2})(?::(\d{2}))?(?!\d)/) ?? null;
+  const clockTime = text.match(/(?<!\d)([01]?\d|2[0-3]):([0-5]\d)(?!\d)/);
+  const namedHour = text.match(/(?:saat|at)\s*([01]?\d|2[0-3])(?!\d)/);
+  const rawTime = clockTime ?? namedHour;
   let hour = rawTime ? Number(rawTime[1]) : null;
-  const minute = rawTime?.[2] ?? "00";
+  const minute = clockTime?.[2] ?? "00";
   if (hour !== null && /axşam|aksam|evening|pm/.test(text) && hour < 12) hour += 12;
 
   let location: string | null = null;
   if (/ağ şəhər|ag seher|white city/.test(text)) location = "Ağ Şəhər, Bakı";
   else {
-    const known = ["xətai", "nerimanov", "nərimanov", "səbail", "sebail", "gənclik", "genclik"];
+    const known = [
+      "xətai",
+      "xetai",
+      "nerimanov",
+      "nərimanov",
+      "səbail",
+      "sebail",
+      "gənclik",
+      "genclik",
+      "28 may",
+      "içərişəhər",
+      "iceriseher",
+    ];
     location = known.find((place) => text.includes(place)) ?? null;
   }
 
   const today = new Date();
-  const date = /birigün|birigun|day after tomorrow/.test(text)
-    ? addDays(today, 2)
-    : /sabah|tomorrow/.test(text)
-      ? addDays(today, 1)
-      : null;
+  const explicitDate = text.match(/\b(20\d{2}-\d{2}-\d{2})\b/)?.[1] ?? null;
+  const date = explicitDate ?? (/birigün|birigun|day after tomorrow/.test(text)
+      ? addDays(today, 2)
+      : /sabah|tomorrow/.test(text)
+        ? addDays(today, 1)
+        : /bu gün|bugun|today/.test(text)
+          ? addDays(today, 0)
+          : null);
 
-  const missing_fields: string[] = [];
-  if (services.length === 0) missing_fields.push("services");
-  if (!location) missing_fields.push("location");
-  if (!date) missing_fields.push("date");
-
-  return IntentSchema.parse({
+  return normalizeMissingFields(IntentSchema.parse({
     category: beauty ? "beauty" : "unknown",
     services,
     location,
@@ -56,9 +69,9 @@ function demoIntent(request: string): Intent {
     budget_min: null,
     budget_max: budget ? Number(budget) : null,
     currency: "AZN",
-    missing_fields,
+    missing_fields: [],
     original_request: request,
-  });
+  }));
 }
 
 export async function extractIntent(request: string): Promise<Intent> {
@@ -80,5 +93,5 @@ export async function extractIntent(request: string): Promise<Intent> {
   });
 
   const parsed = JSON.parse(cleanJson(response.output_text));
-  return IntentSchema.parse(parsed);
+  return normalizeMissingFields(IntentSchema.parse(parsed));
 }

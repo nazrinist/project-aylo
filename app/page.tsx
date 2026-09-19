@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
+import type { FollowUpQuestion } from "@/types/follow-up";
 import type { Intent } from "@/types/intent";
 import type { RequestPersistence } from "@/types/request";
 import type { SearchResult, SearchResponse } from "@/types/search";
 
 type IntentApiResponse =
-  | { ok: true; intent: Intent }
+  | { ok: true; intent: Intent; followUp: FollowUpQuestion | null }
   | { ok: false; error: string };
 
 type SearchApiResponse =
@@ -67,6 +68,8 @@ function ResultCard({ result, rank }: { result: SearchResult; rank: number }) {
 export default function Home() {
   const [request, setRequest] = useState("");
   const [intent, setIntent] = useState<Intent | null>(null);
+  const [followUp, setFollowUp] = useState<FollowUpQuestion | null>(null);
+  const [conversationRequest, setConversationRequest] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [source, setSource] = useState<SearchResponse["source"] | null>(null);
   const [appliedFilters, setAppliedFilters] = useState<string[]>([]);
@@ -100,23 +103,34 @@ export default function Home() {
   async function submit(e: FormEvent) {
     e.preventDefault();
     if (!request.trim()) return;
+    const answer = request.trim();
+    const fullRequest = followUp && conversationRequest
+      ? `${conversationRequest}\n${followUp.field}: ${answer}`
+      : answer;
     setLoading(true);
     setError(null);
-    setIntent(null);
     setResults([]);
     setSource(null);
     setAppliedFilters([]);
     setRequestPersistence(null);
+    setFollowUp(null);
 
     try {
       const intentResponse = await fetch("/api/intent", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ request }),
+        body: JSON.stringify({ request: fullRequest }),
       });
       const intentData = (await intentResponse.json()) as IntentApiResponse;
       if (!intentData.ok) throw new Error(intentData.error || "Intent request failed");
       setIntent(intentData.intent);
+
+      if (intentData.followUp) {
+        setFollowUp(intentData.followUp);
+        setConversationRequest(fullRequest);
+        setRequest("");
+        return;
+      }
 
       const searchResponse = await fetch("/api/search", {
         method: "POST",
@@ -129,11 +143,25 @@ export default function Home() {
       setSource(searchData.source);
       setAppliedFilters(searchData.appliedFilters);
       setRequestPersistence(searchData.requestPersistence);
+      setConversationRequest("");
+      setRequest("");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       setLoading(false);
     }
+  }
+
+  function resetFlow() {
+    setRequest("");
+    setConversationRequest("");
+    setIntent(null);
+    setFollowUp(null);
+    setResults([]);
+    setSource(null);
+    setAppliedFilters([]);
+    setRequestPersistence(null);
+    setError(null);
   }
 
   return (
@@ -171,17 +199,36 @@ export default function Home() {
           </div>
         )}
 
+        {followUp && (
+          <section className="followUpPanel" aria-live="polite">
+            <div className="followUpHeading">
+              <div>
+                <p className="eyebrow">One more detail</p>
+                <h2>{followUp.question}</h2>
+              </div>
+              <button type="button" className="textButton" onClick={resetFlow}>Start over</button>
+            </div>
+            <div className="followUpExamples">
+              {followUp.examples.map((example) => (
+                <button type="button" key={example} onClick={() => setRequest(example)}>
+                  {example}
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
+
         <form className="intentBox" onSubmit={submit}>
           <textarea
             value={request}
             onChange={(e) => setRequest(e.target.value)}
-            placeholder="Sabah 18:00-da Ağ Şəhərdə 120 AZN-dən ucuz saç və makiyaj…"
+            placeholder={followUp?.question ?? "Sabah 18:00-da Ağ Şəhərdə 120 AZN-dən ucuz saç və makiyaj…"}
             rows={4}
           />
           <div className="actions">
-            <span>V1 · Beauty services</span>
+            <span>{followUp ? `Missing · ${followUp.field}` : "V1 · Beauty services"}</span>
             <button disabled={loading || request.trim().length < 3}>
-              {loading ? "Searching…" : "Find it →"}
+              {loading ? "Working…" : followUp ? "Continue →" : "Find it →"}
             </button>
           </div>
         </form>

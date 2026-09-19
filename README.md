@@ -134,6 +134,15 @@ shows whether persistence succeeded without exposing the private row.
 Run `supabase/migrations/0005_request_persistence.sql`, then follow
 [docs/DAY_8.md](./docs/DAY_8.md) for the end-to-end check.
 
+## Day 9 proof
+
+Incomplete requests no longer trigger a weak search. Aylo deterministically
+checks for a service, Baku area, and date, then asks one focused follow-up at a
+time. Answers are combined with the original request; search and persistence
+start only when the required intent is complete.
+
+See [docs/DAY_9.md](./docs/DAY_9.md) for the conversation test.
+
 ## Product rules
 1. AI interprets intent; deterministic code handles filtering and permissions.
 2. No irreversible action without explicit user confirmation.
