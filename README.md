@@ -164,6 +164,15 @@ service IDs into `checkAvailability`, then joins and ranks the available offers.
 See [docs/DAY_11.md](./docs/DAY_11.md) for the payload, time-window rules, and
 end-to-end verification. No new database migration is required.
 
+## Day 12 proof
+
+Eligible offers now pass through an explainable 100-point ranking engine. The
+API returns ranking version `v1`, its factor weights, each result's score
+breakdown, and concise reasons while preserving deterministic tie-breakers.
+
+See [docs/DAY_12.md](./docs/DAY_12.md) for the scoring formula and example
+response. No new database migration is required.
+
 ## Product rules
 1. AI interprets intent; deterministic code handles filtering and permissions.
 2. No irreversible action without explicit user confirmation.

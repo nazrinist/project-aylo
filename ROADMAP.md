@@ -14,7 +14,7 @@
 - [x] Day 9: missing-field follow-up questions
 - [x] Day 10: searchProviders tool
 - [x] Day 11: checkAvailability tool
-- [ ] Day 12: ranking engine
+- [x] Day 12: ranking engine
 - [ ] Day 13: result cards
 - [ ] Day 14: compare offers
 

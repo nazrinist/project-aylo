@@ -1,19 +1,14 @@
 import "server-only";
 
 import type { Intent } from "@/types/intent";
-import type { SearchData, SearchResult } from "@/types/search";
+import type { RankableSearchResult, SearchData } from "@/types/search";
 import { executeCheckAvailabilityTool } from "@/lib/tools/check-availability";
 import { executeSearchProvidersTool } from "@/lib/tools/search-providers";
+import { rankSearchResults, RANKING_METADATA } from "./ranking";
 import {
   appliedFilters,
-  buildReasons,
-  compareSearchResults,
-  locationMatches,
-  matchScore,
   requestedDate,
   resultMatchesFilters,
-  serviceCoverage,
-  timeDistanceMinutes,
 } from "./shared";
 
 export async function searchProviders(intent: Intent): Promise<SearchData> {
@@ -29,7 +24,12 @@ export async function searchProviders(intent: Intent): Promise<SearchData> {
   const filters = appliedFilters(intent);
 
   if (catalog.providers.length === 0) {
-    return { source: catalog.source, appliedFilters: filters, results: [] };
+    return {
+      source: catalog.source,
+      appliedFilters: filters,
+      ranking: RANKING_METADATA,
+      results: [],
+    };
   }
 
   const date = requestedDate(intent);
@@ -44,15 +44,10 @@ export async function searchProviders(intent: Intent): Promise<SearchData> {
   const servicesById = new Map(
     catalog.providers.map((provider) => [provider.serviceId, provider]),
   );
-  const results = availability.slots
-    .map((slot): SearchResult | null => {
+  const eligibleResults = availability.slots
+    .map((slot): RankableSearchResult | null => {
       const service = servicesById.get(slot.serviceId);
       if (!service) return null;
-      const price = service.price;
-      const rating = service.rating;
-      const coverage = serviceCoverage(service.serviceName, intent.services);
-      const locationMatch = locationMatches(service.address, intent.location);
-      const timeDistance = timeDistanceMinutes(slot.startTime, intent);
 
       return {
         id: slot.id,
@@ -61,33 +56,22 @@ export async function searchProviders(intent: Intent): Promise<SearchData> {
         serviceId: service.serviceId,
         serviceName: service.serviceName,
         address: service.address,
-        price,
+        price: service.price,
         currency: service.currency,
         durationMinutes: service.durationMinutes,
-        rating,
+        rating: service.rating,
         verified: service.verified,
         availableTime: slot.startTime,
-        matchScore: matchScore({
-          coverage,
-          price,
-          budgetMax: intent.budget_max,
-          timeDistance,
-          rating,
-          locationMatch,
-        }),
-        reasons: buildReasons({
-          coverage,
-          price,
-          budgetMax: intent.budget_max,
-          timeDistance,
-          verified: service.verified,
-        }),
       };
     })
-    .filter((result): result is SearchResult => Boolean(result))
-    .filter((result) => resultMatchesFilters(result, intent))
-    .sort(compareSearchResults)
-    .slice(0, 6);
+    .filter((result): result is RankableSearchResult => Boolean(result))
+    .filter((result) => resultMatchesFilters(result, intent));
+  const results = rankSearchResults(eligibleResults, intent, 6);
 
-  return { source: catalog.source, appliedFilters: filters, results };
+  return {
+    source: catalog.source,
+    appliedFilters: filters,
+    ranking: RANKING_METADATA,
+    results,
+  };
 }

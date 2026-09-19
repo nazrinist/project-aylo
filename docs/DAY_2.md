@@ -15,8 +15,9 @@ React components.
 
 - `app/page.tsx`: owns browser state and renders result cards.
 - `app/api/search/route.ts`: validates untrusted request JSON at the server boundary.
-- `lib/search/providers.ts`: fetches real rows and orchestrates ranking.
-- `lib/search/shared.ts`: deterministic matching and scoring functions.
+- `lib/search/providers.ts`: orchestrates provider, availability, and ranking stages.
+- `lib/search/shared.ts`: deterministic matching and time functions.
+- `lib/search/ranking.ts`: explainable scoring and stable result ordering.
 - `lib/supabase/server.ts`: keeps privileged database access on the server.
 - `types/search.ts`: shared contract between API and UI.
 

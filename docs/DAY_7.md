@@ -30,6 +30,8 @@ Eligible results are ordered by:
 4. business name and ID as stable tie-breakers.
 
 The home page displays the applied constraints as chips above the results.
+The factor weights and score breakdown introduced later are documented in
+[DAY_12.md](./DAY_12.md).
 
 ## Validation and tests
 

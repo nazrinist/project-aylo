@@ -137,31 +137,6 @@ export function resultMatchesFilters(
   return serviceMatchesFilters(candidate, intent) && timeMatches(candidate.availableTime, intent);
 }
 
-export function compareSearchResults(
-  a: {
-    matchScore: number;
-    price: number;
-    availableTime: string;
-    businessName: string;
-    id: string;
-  },
-  b: {
-    matchScore: number;
-    price: number;
-    availableTime: string;
-    businessName: string;
-    id: string;
-  },
-) {
-  return (
-    b.matchScore - a.matchScore ||
-    a.price - b.price ||
-    a.availableTime.localeCompare(b.availableTime) ||
-    a.businessName.localeCompare(b.businessName, "az") ||
-    a.id.localeCompare(b.id)
-  );
-}
-
 export function appliedFilters(intent: Intent) {
   const filters: string[] = [];
   if (intent.services.length > 0) filters.push(intent.services.join(" + "));
@@ -182,39 +157,4 @@ export function appliedFilters(intent: Intent) {
     filters.push(`Up to ${intent.budget_max} ${intent.currency}`);
   }
   return filters;
-}
-
-export function buildReasons(input: {
-  coverage: number;
-  price: number;
-  budgetMax: number | null;
-  timeDistance: number;
-  verified: boolean;
-}) {
-  const reasons: string[] = [];
-  if (input.coverage === 1) reasons.push("Requested services match");
-  if (input.budgetMax && input.price <= input.budgetMax) reasons.push("Within budget");
-  if (input.timeDistance <= 60) reasons.push("Close to your preferred time");
-  if (input.verified) reasons.push("Verified provider");
-  return reasons.slice(0, 3);
-}
-
-export function matchScore(input: {
-  coverage: number;
-  price: number;
-  budgetMax: number | null;
-  timeDistance: number;
-  rating: number | null;
-  locationMatch: boolean;
-}) {
-  const service = input.coverage * 40;
-  const time = Math.max(0, 25 - input.timeDistance / 12);
-  const budget = !input.budgetMax
-    ? 15
-    : input.price <= input.budgetMax
-      ? 15
-      : Math.max(0, 15 - ((input.price - input.budgetMax) / input.budgetMax) * 30);
-  const rating = ((input.rating ?? 4) / 5) * 10;
-  const location = input.locationMatch ? 10 : 2;
-  return Math.round((service + time + budget + rating + location) * 10) / 10;
 }

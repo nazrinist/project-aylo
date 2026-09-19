@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import type { Intent } from "../types/intent.ts";
 import {
-  compareSearchResults,
   resultMatchesFilters,
   serviceCoverage,
   timeMatches,
@@ -70,22 +69,4 @@ test("explicit and overnight time windows are supported", () => {
   assert.equal(timeMatches("2026-09-20T23:00:00+04:00", overnight), true);
   assert.equal(timeMatches("2026-09-20T01:00:00+04:00", overnight), true);
   assert.equal(timeMatches("2026-09-20T12:00:00+04:00", overnight), false);
-});
-
-test("ranking has stable tie-breakers", () => {
-  const later = {
-    id: "b",
-    businessName: "Beta",
-    matchScore: 90,
-    price: 100,
-    availableTime: "2026-09-20T18:30:00+04:00",
-  };
-  const cheaper = {
-    id: "a",
-    businessName: "Alpha",
-    matchScore: 90,
-    price: 90,
-    availableTime: "2026-09-20T19:00:00+04:00",
-  };
-  assert.deepEqual([later, cheaper].sort(compareSearchResults), [cheaper, later]);
 });
