@@ -43,8 +43,9 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=...
 ```
 
 Legacy Supabase projects can use `NEXT_PUBLIC_SUPABASE_ANON_KEY`. Server-only
-write operations can later use `SUPABASE_SECRET_KEY`; never expose it in browser
-code or commit `.env.local`.
+write operations use `SUPABASE_SECRET_KEY` (or the legacy
+`SUPABASE_SERVICE_ROLE_KEY`); never expose either key in browser code or commit
+`.env.local`.
 
 Then open `http://localhost:3000`.
 
@@ -74,7 +75,8 @@ Run the SQL files in this order inside a Supabase project:
 3. `supabase/migrations/0003_api_grants.sql`
 4. `supabase/migrations/0004_availability_integrity.sql`
 5. `supabase/migrations/0005_request_persistence.sql`
-6. `supabase/seed.sql`
+6. `supabase/migrations/0006_booking_persistence.sql`
+7. `supabase/seed.sql`
 
 See [docs/DAY_2.md](./docs/DAY_2.md) for the data flow and setup checklist.
 
@@ -195,15 +197,27 @@ checks. No new database migration is required.
 
 ## Day 15 proof
 
-Every ranked offer now opens an explicit booking review before any future
-mutation. The user checks provider, service, Baku time, duration, price, and
-location, then enables the confirmation action with a separate acknowledgement.
-Aylo keeps the confirmed draft in the current browser session and clearly says
-that it has not created a booking or contacted the provider yet.
+Day 15 established an explicit review before any booking write. The user checks
+provider, service, Baku time, duration, price, and location, then enables the
+confirmation action with a separate acknowledgement. Demo confirmations remain
+in the current browser session; eligible live confirmations continue through
+the Day 16 server-validation path.
 
 See [docs/DAY_15.md](./docs/DAY_15.md) for the draft contract, accessibility
 behavior, and Day 16 server-validation boundary. No new database migration is
 required.
+
+## Day 16 proof
+
+Explicitly confirmed live offers now create private `bookings` rows through a
+strict server API and one atomic PostgreSQL function. The server verifies an
+HMAC-signed offer, locks the request and slot, rechecks the service, time,
+price, and currency, then creates one pending booking while marking the slot
+`booked` and request `completed`. Safe retries return the same booking.
+
+Run `supabase/migrations/0006_booking_persistence.sql`, then follow
+[docs/DAY_16.md](./docs/DAY_16.md) for setup, security boundaries, and the
+end-to-end test. Demo searches still use an honest browser-only confirmation.
 
 ## Product rules
 1. AI interprets intent; deterministic code handles filtering and permissions.

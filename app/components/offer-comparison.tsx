@@ -11,9 +11,10 @@ type OfferComparisonProps = {
   results: SearchResult[];
   weights: RankingWeights;
   confirmedOfferId: string | null;
+  lockedOfferId: string | null;
   onRemove: (resultId: string) => void;
   onClear: () => void;
-  onBook: (result: SearchResult) => void;
+  onBook: (resultId: string) => void;
 };
 
 type ComparisonRowProps = {
@@ -53,6 +54,7 @@ export function OfferComparison({
   results,
   weights,
   confirmedOfferId,
+  lockedOfferId,
   onRemove,
   onClear,
   onBook,
@@ -122,9 +124,14 @@ export function OfferComparison({
                       <button
                         type="button"
                         className="comparisonBook"
-                        onClick={() => onBook(result)}
+                        onClick={() => onBook(result.id)}
+                        disabled={Boolean(lockedOfferId && lockedOfferId !== result.id)}
                       >
-                        {confirmedOfferId === result.id ? "Review booking" : "Book offer"}
+                        {confirmedOfferId === result.id
+                          ? "Review booking"
+                          : lockedOfferId
+                            ? "Booking locked"
+                            : "Book offer"}
                       </button>
                       <button
                         type="button"

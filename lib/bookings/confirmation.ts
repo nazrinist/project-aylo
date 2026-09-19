@@ -1,12 +1,13 @@
 import type { BookingConfirmation, BookingDraft } from "@/types/booking";
-import type { SearchResult } from "@/types/search";
+import type { BookableSearchResult } from "@/types/search";
 
 export function createBookingDraft(
-  result: SearchResult,
+  result: BookableSearchResult,
   requestId: string | null,
 ): BookingDraft {
   return {
     requestId,
+    bookingToken: result.bookingToken,
     availabilityId: result.id,
     businessId: result.businessId,
     businessName: result.businessName,

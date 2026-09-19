@@ -36,6 +36,10 @@ export type SearchResult = {
   reasons: string[];
 };
 
+export type BookableSearchResult = SearchResult & {
+  bookingToken: string | null;
+};
+
 export type RankableSearchResult = Omit<
   SearchResult,
   "matchScore" | "scoreBreakdown" | "reasons"
@@ -48,6 +52,7 @@ export type SearchData = {
   results: SearchResult[];
 };
 
-export type SearchResponse = SearchData & {
+export type SearchResponse = Omit<SearchData, "results"> & {
+  results: BookableSearchResult[];
   requestPersistence: RequestPersistence;
 };

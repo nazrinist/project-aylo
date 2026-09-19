@@ -14,7 +14,8 @@ type ResultCardProps = {
   weights: RankingWeights;
   selectedForCompare: boolean;
   compareDisabled: boolean;
-  bookingConfirmed: boolean;
+  bookingState: "idle" | "local" | "saved";
+  bookingDisabled: boolean;
   onCompareToggle: () => void;
   onBook: () => void;
 };
@@ -25,7 +26,8 @@ export function ResultCard({
   weights,
   selectedForCompare,
   compareDisabled,
-  bookingConfirmed,
+  bookingState,
+  bookingDisabled,
   onCompareToggle,
   onBook,
 }: ResultCardProps) {
@@ -144,15 +146,27 @@ export function ResultCard({
       </details>
 
       <div className="resultFooter">
-        <span className={bookingConfirmed ? "bookingConfirmedLabel" : undefined}>
-          {bookingConfirmed ? "✓ Details confirmed · not sent" : "Review before confirming"}
+        <span className={bookingState !== "idle" ? "bookingConfirmedLabel" : undefined}>
+          {bookingState === "saved"
+            ? "✓ Slot booked · provider pending"
+            : bookingState === "local"
+              ? "✓ Details confirmed · not saved"
+              : bookingDisabled
+                ? "Another offer is already booked"
+                : "Review before confirming"}
         </span>
         <button
           type="button"
-          className={bookingConfirmed ? "bookingReviewButton" : undefined}
+          className={bookingState !== "idle" ? "bookingReviewButton" : undefined}
           onClick={onBook}
+          disabled={bookingDisabled}
+          title={bookingDisabled ? "This request already has a booking" : undefined}
         >
-          {bookingConfirmed ? "Review confirmation" : "Book appointment"}
+          {bookingState !== "idle"
+            ? "Review booking"
+            : bookingDisabled
+              ? "Booking created"
+              : "Book appointment"}
         </button>
       </div>
     </article>

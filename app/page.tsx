@@ -5,12 +5,17 @@ import { FormEvent, useEffect, useState } from "react";
 import type { FollowUpQuestion } from "@/types/follow-up";
 import type { Intent } from "@/types/intent";
 import type { RequestPersistence } from "@/types/request";
-import type { BookingConfirmation as ConfirmedBooking } from "@/types/booking";
 import type {
+  BookingConfirmation as ConfirmedBooking,
+  BookingSubmissionResult,
+  PersistedBooking,
+} from "@/types/booking";
+import type {
+  BookableSearchResult,
   RankingMetadata,
-  SearchResult,
   SearchResponse,
 } from "@/types/search";
+import { bookingInputFromConfirmation } from "@/lib/bookings/shared";
 import {
   MAX_COMPARISON_OFFERS,
   selectedComparisonResults,
@@ -28,6 +33,10 @@ type SearchApiResponse =
   | ({ ok: true } & SearchResponse)
   | { ok: false; error: string };
 
+type BookingApiResponse =
+  | { ok: true; booking: PersistedBooking; created: boolean }
+  | { ok: false; code: string; error: string };
+
 type DatabaseHealth = {
   status: "checking" | "demo" | "live" | "error";
   database?: string;
@@ -44,14 +53,15 @@ export default function Home() {
   const [intent, setIntent] = useState<Intent | null>(null);
   const [followUp, setFollowUp] = useState<FollowUpQuestion | null>(null);
   const [conversationRequest, setConversationRequest] = useState("");
-  const [results, setResults] = useState<SearchResult[]>([]);
+  const [results, setResults] = useState<BookableSearchResult[]>([]);
   const [source, setSource] = useState<SearchResponse["source"] | null>(null);
   const [ranking, setRanking] = useState<RankingMetadata | null>(null);
   const [appliedFilters, setAppliedFilters] = useState<string[]>([]);
   const [requestPersistence, setRequestPersistence] = useState<RequestPersistence | null>(null);
   const [comparisonIds, setComparisonIds] = useState<string[]>([]);
-  const [bookingOffer, setBookingOffer] = useState<SearchResult | null>(null);
+  const [bookingOffer, setBookingOffer] = useState<BookableSearchResult | null>(null);
   const [confirmedBooking, setConfirmedBooking] = useState<ConfirmedBooking | null>(null);
+  const [persistedBooking, setPersistedBooking] = useState<PersistedBooking | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [health, setHealth] = useState<DatabaseHealth>({
@@ -95,6 +105,7 @@ export default function Home() {
     setComparisonIds([]);
     setBookingOffer(null);
     setConfirmedBooking(null);
+    setPersistedBooking(null);
     setFollowUp(null);
 
     try {
@@ -148,6 +159,7 @@ export default function Home() {
     setComparisonIds([]);
     setBookingOffer(null);
     setConfirmedBooking(null);
+    setPersistedBooking(null);
     setError(null);
   }
 
@@ -158,6 +170,36 @@ export default function Home() {
 
   function toggleComparison(resultId: string) {
     setComparisonIds((current) => toggleComparisonSelection(current, resultId));
+  }
+
+  function openBooking(resultId: string) {
+    const result = results.find((candidate) => candidate.id === resultId);
+    if (result) setBookingOffer(result);
+  }
+
+  async function saveConfirmedBooking(
+    confirmation: ConfirmedBooking,
+  ): Promise<BookingSubmissionResult> {
+    const input = bookingInputFromConfirmation(confirmation);
+    if (!input) {
+      setConfirmedBooking(confirmation);
+      setPersistedBooking(null);
+      return { status: "local", booking: null };
+    }
+
+    const response = await fetch("/api/bookings", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(input),
+    });
+    const data = (await response.json()) as BookingApiResponse;
+    if (!response.ok || !data.ok) {
+      throw new Error(data.ok ? "The booking could not be created" : data.error);
+    }
+
+    setConfirmedBooking(confirmation);
+    setPersistedBooking(data.booking);
+    return { status: "saved", booking: data.booking };
   }
 
   return (
@@ -265,11 +307,20 @@ export default function Home() {
               </div>
             )}
             {confirmedBooking && confirmedOffer && (
-              <section className="bookingDraftStatus" aria-live="polite">
+              <section
+                className={`bookingDraftStatus ${persistedBooking ? "saved" : "local"}`}
+                aria-live="polite"
+              >
                 <span aria-hidden="true">✓</span>
                 <div>
-                  <strong>Booking details confirmed</strong>
-                  <small>{confirmedOffer.businessName} · Not sent yet</small>
+                  <strong>
+                    {persistedBooking ? "Booking request created" : "Booking details confirmed locally"}
+                  </strong>
+                  <small>
+                    {confirmedOffer.businessName} · {persistedBooking
+                      ? "Pending provider confirmation"
+                      : "Not saved"}
+                  </small>
                 </div>
                 <button type="button" onClick={() => setBookingOffer(confirmedOffer)}>
                   Review
@@ -302,7 +353,16 @@ export default function Home() {
                 comparisonIds.length >= MAX_COMPARISON_OFFERS
                 && !comparisonIds.includes(result.id)
               }
-              bookingConfirmed={confirmedBooking?.availabilityId === result.id}
+              bookingState={
+                persistedBooking?.availabilityId === result.id
+                  ? "saved"
+                  : confirmedBooking?.availabilityId === result.id
+                    ? "local"
+                    : "idle"
+              }
+              bookingDisabled={Boolean(
+                persistedBooking && persistedBooking.availabilityId !== result.id,
+              )}
               onCompareToggle={() => toggleComparison(result.id)}
               onBook={() => setBookingOffer(result)}
             />
@@ -314,9 +374,10 @@ export default function Home() {
             results={comparedResults}
             weights={ranking.weights}
             confirmedOfferId={confirmedBooking?.availabilityId ?? null}
+            lockedOfferId={persistedBooking?.availabilityId ?? null}
             onRemove={toggleComparison}
             onClear={() => setComparisonIds([])}
-            onBook={setBookingOffer}
+            onBook={openBooking}
           />
         )}
       </section>
@@ -326,7 +387,8 @@ export default function Home() {
           offer={bookingOffer}
           requestId={requestPersistence?.requestId ?? null}
           confirmedBooking={confirmedBooking}
-          onConfirm={setConfirmedBooking}
+          persistedBooking={persistedBooking}
+          onConfirm={saveConfirmedBooking}
           onClose={() => setBookingOffer(null)}
         />
       )}

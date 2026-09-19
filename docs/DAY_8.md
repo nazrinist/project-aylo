@@ -21,8 +21,10 @@ The `requests` table has RLS enabled and no public read or write policy. The
 migration also explicitly revokes access from `anon` and `authenticated`.
 Persistence uses `SUPABASE_SECRET_KEY` only inside the server route.
 
-The browser receives only the generated request ID and persistence status. It
-does not receive private request rows.
+The browser receives the generated request ID and persistence status, but not
+the private request row. From Day 16 onward, live search results also include
+opaque signed offer tokens that authorize only their exact request, slot, time,
+and price; the signing secret remains server-only.
 
 ## Database upgrade
 

@@ -1,8 +1,9 @@
 # Day 15 — Booking confirmation flow
 
-Day 15 adds the explicit user-confirmation step between ranked offers and a
-future persisted booking. It intentionally performs no database write and sends
-nothing to the provider; booking persistence belongs to Day 16.
+Day 15 added the explicit user-confirmation step between ranked offers and a
+persisted booking. At that milestone it intentionally performed no database
+write. Day 16 now keeps the same review boundary and persists eligible live
+confirmations; demo confirmations still remain browser-only.
 
 ## User flow
 
@@ -11,9 +12,9 @@ nothing to the provider; booking persistence belongs to Day 16.
 2. Review the provider, service, Baku date/time, duration, total price, and
    location in an accessible dialog.
 3. Acknowledge that every displayed detail was checked.
-4. Select **Confirm booking details**.
-5. Aylo records the explicit confirmation in the current browser session and
-   marks the selected offer as confirmed but not sent.
+4. Select the explicit confirmation action.
+5. In demo mode, Aylo records the confirmation only in the current browser
+   session. With Day 16 live persistence, the server revalidates and saves it.
 
 The action can be cancelled with the visible button, close button, backdrop, or
 Escape key. Opening the confirmed offer again shows the reviewed summary and
@@ -24,6 +25,7 @@ the persistence boundary.
 `createBookingDraft` snapshots the selected offer with:
 
 - saved `requestId`, when Supabase request persistence is enabled;
+- opaque `bookingToken`, when the live offer is eligible for persistence;
 - availability slot, business, and service IDs;
 - booking time, duration, price, and currency;
 - provider, service, and address display values.
@@ -32,9 +34,10 @@ the persistence boundary.
 timestamp. Demo mode supports a null `requestId`, so the complete interface can
 still be tested without credentials.
 
-This draft is not trusted server data. Day 16 must re-read the slot and service,
-recheck availability and price, reject replayed/stale requests, and then create
-the private booking with the server-only Supabase client.
+This draft is not trusted server data. Day 16 re-reads the slot and service,
+rechecks availability and price, rejects changed or replayed requests, and then
+creates the private booking with the server-only Supabase client. See
+[DAY_16.md](./DAY_16.md) for that write path.
 
 ## Accessibility
 
@@ -55,4 +58,5 @@ npm run build
 
 Tests cover draft mapping, demo mode, timestamp validation, both dialog states,
 the explicit acknowledgement guard, card state, and comparison booking actions.
-No migration or new environment variable is required.
+Day 15 itself requires no migration; live persistence additionally requires the
+Day 16 migration.

@@ -7,8 +7,12 @@ import {
   useRef,
   useState,
 } from "react";
-import type { BookingConfirmation as ConfirmedBooking } from "@/types/booking";
-import type { SearchResult } from "@/types/search";
+import type {
+  BookingConfirmation as ConfirmedBooking,
+  BookingSubmissionResult,
+  PersistedBooking,
+} from "@/types/booking";
+import type { BookableSearchResult, SearchResult } from "@/types/search";
 import {
   confirmBookingDraft,
   createBookingDraft,
@@ -20,10 +24,13 @@ import {
 } from "@/lib/search/presentation";
 
 type BookingConfirmationProps = {
-  offer: SearchResult;
+  offer: BookableSearchResult;
   requestId: string | null;
   confirmedBooking: ConfirmedBooking | null;
-  onConfirm: (confirmation: ConfirmedBooking) => void;
+  persistedBooking: PersistedBooking | null;
+  onConfirm: (
+    confirmation: ConfirmedBooking,
+  ) => Promise<BookingSubmissionResult>;
   onClose: () => void;
 };
 
@@ -65,16 +72,23 @@ export function BookingConfirmation({
   offer,
   requestId,
   confirmedBooking,
+  persistedBooking,
   onConfirm,
   onClose,
 }: BookingConfirmationProps) {
   const [acknowledged, setAcknowledged] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const isConfirmed = confirmedBooking?.availabilityId === offer.id;
+  const isPersisted = persistedBooking?.availabilityId === offer.id;
+  const persistenceAvailable = Boolean(requestId && offer.bookingToken);
 
   useEffect(() => {
     setAcknowledged(false);
+    setSubmitting(false);
+    setSaveError(null);
   }, [offer.id]);
 
   useEffect(() => {
@@ -98,7 +112,7 @@ export function BookingConfirmation({
   function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
     if (event.key === "Escape") {
       event.preventDefault();
-      onClose();
+      if (!submitting) onClose();
       return;
     }
 
@@ -121,18 +135,31 @@ export function BookingConfirmation({
     }
   }
 
-  function submitConfirmation(event: FormEvent<HTMLFormElement>) {
+  async function submitConfirmation(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!acknowledged) return;
+    if (!acknowledged || submitting) return;
     const draft = createBookingDraft(offer, requestId);
-    onConfirm(confirmBookingDraft(draft, new Date().toISOString()));
+    setSubmitting(true);
+    setSaveError(null);
+
+    try {
+      await onConfirm(confirmBookingDraft(draft, new Date().toISOString()));
+    } catch (error) {
+      setSaveError(
+        error instanceof Error
+          ? error.message
+          : "The booking could not be created. Please try again",
+      );
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
     <div
       className="bookingBackdrop"
       onMouseDown={(event) => {
-        if (event.target === event.currentTarget) onClose();
+        if (event.target === event.currentTarget && !submitting) onClose();
       }}
     >
       <div
@@ -148,6 +175,7 @@ export function BookingConfirmation({
           type="button"
           className="bookingClose"
           onClick={onClose}
+          disabled={submitting}
           aria-label="Close booking confirmation"
         >
           ×
@@ -156,20 +184,30 @@ export function BookingConfirmation({
         {isConfirmed ? (
           <div className="bookingSuccess" aria-live="polite">
             <div className="bookingSuccessIcon" aria-hidden="true">✓</div>
-            <p className="eyebrow">User confirmed</p>
+            <p className="eyebrow">
+              {isPersisted ? "Booking created" : "Local confirmation"}
+            </p>
             <h2 id="booking-heading" ref={headingRef} tabIndex={-1}>
-              Booking details confirmed
+              {isPersisted ? "Booking request created" : "Booking details confirmed"}
             </h2>
             <p id="booking-description">
-              Your explicit confirmation is captured for this browser session.
+              {isPersisted
+                ? "The slot is secured and waiting for provider confirmation."
+                : "Your explicit confirmation is captured for this browser session."}
             </p>
 
             <OfferSummary offer={offer} />
 
-            <div className="bookingPendingNotice">
-              <strong>Not booked or sent yet</strong>
-              Day 16 will securely recheck this slot and save the booking on the
-              server.
+            <div className={`bookingPendingNotice${isPersisted ? " saved" : ""}`}>
+              <strong>
+                {isPersisted ? "Pending provider confirmation" : "Not saved in demo mode"}
+              </strong>
+              {isPersisted
+                ? "Aylo rechecked the offer, created the private booking, and marked the slot booked."
+                : "Connect Supabase and run the Day 16 migration to persist bookings."}
+              {isPersisted && persistedBooking && (
+                <small>Reference · {persistedBooking.id.slice(0, 8).toUpperCase()}</small>
+              )}
             </div>
 
             <div className="bookingDialogActions single">
@@ -201,6 +239,7 @@ export function BookingConfirmation({
                 <input
                   type="checkbox"
                   checked={acknowledged}
+                  disabled={submitting}
                   onChange={(event) => setAcknowledged(event.target.checked)}
                 />
                 <span>
@@ -209,19 +248,35 @@ export function BookingConfirmation({
                 </span>
               </label>
 
+              {saveError && (
+                <div className="bookingSaveError" role="alert">
+                  {saveError}
+                </div>
+              )}
+
               <div className="bookingDialogActions">
-                <button type="button" className="bookingCancel" onClick={onClose}>
+                <button
+                  type="button"
+                  className="bookingCancel"
+                  onClick={onClose}
+                  disabled={submitting}
+                >
                   Cancel
                 </button>
-                <button type="submit" disabled={!acknowledged}>
-                  Confirm booking details
+                <button type="submit" disabled={!acknowledged || submitting}>
+                  {submitting
+                    ? "Creating booking…"
+                    : persistenceAvailable
+                      ? "Confirm & create booking"
+                      : "Confirm demo details"}
                 </button>
               </div>
             </form>
 
             <p className="bookingPersistenceNote">
-              Day 15 preview: this confirmation stays in the current browser
-              session and is not sent to the provider.
+              {persistenceAvailable
+                ? "Aylo will recheck the signed offer and available slot on the server before writing anything."
+                : "Persistence is unavailable for this search; confirmation will stay in this browser session and is not sent to the provider."}
             </p>
           </>
         )}

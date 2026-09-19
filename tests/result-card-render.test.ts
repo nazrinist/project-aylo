@@ -52,7 +52,8 @@ test("result card renders ranking, offer facts, and accessible score details", (
       weights,
       selectedForCompare: true,
       compareDisabled: false,
-      bookingConfirmed: false,
+      bookingState: "idle",
+      bookingDisabled: false,
       onCompareToggle: () => undefined,
       onBook: () => undefined,
     }),
@@ -80,12 +81,13 @@ test("result card shows the confirmed session state", () => {
       weights,
       selectedForCompare: false,
       compareDisabled: false,
-      bookingConfirmed: true,
+      bookingState: "saved",
+      bookingDisabled: false,
       onCompareToggle: () => undefined,
       onBook: () => undefined,
     }),
   );
 
-  assert.match(html, /✓ Details confirmed · not sent/);
-  assert.match(html, /Review confirmation/);
+  assert.match(html, /✓ Slot booked · provider pending/);
+  assert.match(html, /Review booking/);
 });

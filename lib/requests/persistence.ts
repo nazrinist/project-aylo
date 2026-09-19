@@ -49,10 +49,12 @@ export async function finishSearchRequest(
         : { status };
     const { error } = await supabase.from("requests").update(updates).eq("id", requestId);
     if (error) throw error;
+    return true;
   } catch (error) {
     console.error(
       "Request status update failed:",
       error instanceof Error ? error.message : "Unknown database error",
     );
+    return false;
   }
 }

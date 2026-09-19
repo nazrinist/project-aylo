@@ -7,9 +7,10 @@ import {
   confirmBookingDraft,
   createBookingDraft,
 } from "../lib/bookings/confirmation.ts";
-import type { SearchResult } from "../types/search.ts";
+import type { PersistedBooking } from "../types/booking.ts";
+import type { BookableSearchResult } from "../types/search.ts";
 
-const offer: SearchResult = {
+const offer: BookableSearchResult = {
   id: "slot-1",
   businessId: "business-1",
   businessName: "Glow Studio",
@@ -33,6 +34,7 @@ const offer: SearchResult = {
     total: 95.7,
   },
   reasons: ["Matches request"],
+  bookingToken: null,
 };
 
 test("booking review requires explicit acknowledgement and states its boundary", () => {
@@ -41,14 +43,15 @@ test("booking review requires explicit acknowledgement and states its boundary",
       offer,
       requestId: "request-1",
       confirmedBooking: null,
-      onConfirm: () => undefined,
+      persistedBooking: null,
+      onConfirm: async () => ({ status: "local" as const, booking: null }),
       onClose: () => undefined,
     }),
   );
 
   assert.match(html, /role="dialog"/);
   assert.match(html, /aria-modal="true"/);
-  assert.match(html, /Confirm booking details/);
+  assert.match(html, /Confirm demo details/);
   assert.match(html, /Nothing is booked until you explicitly confirm/);
   assert.match(html, /Glow Studio/);
   assert.match(html, /Hair \+ Makeup/);
@@ -69,13 +72,51 @@ test("confirmed view clearly distinguishes confirmation from persistence", () =>
       offer,
       requestId: "request-1",
       confirmedBooking,
-      onConfirm: () => undefined,
+      persistedBooking: null,
+      onConfirm: async () => ({ status: "local" as const, booking: null }),
       onClose: () => undefined,
     }),
   );
 
   assert.match(html, /Booking details confirmed/);
-  assert.match(html, /Not booked or sent yet/);
-  assert.match(html, /Day 16 will securely recheck this slot/);
+  assert.match(html, /Not saved in demo mode/);
   assert.doesNotMatch(html, /type="checkbox"/);
+});
+
+test("persisted view shows the booking status and reference", () => {
+  const liveOffer = { ...offer, bookingToken: "a".repeat(64) };
+  const confirmedBooking = confirmBookingDraft(
+    createBookingDraft(liveOffer, "20000000-0000-4000-8000-000000000001"),
+    "2026-09-19T20:00:00.000Z",
+  );
+  const persistedBooking: PersistedBooking = {
+    id: "40000000-0000-4000-8000-000000000001",
+    requestId: "20000000-0000-4000-8000-000000000001",
+    availabilityId: offer.id,
+    businessId: offer.businessId,
+    serviceId: offer.serviceId,
+    bookedFor: offer.availableTime,
+    price: 95,
+    currency: "AZN",
+    status: "pending_confirmation",
+    userConfirmedAt: "2026-09-19T20:00:01.000Z",
+    createdAt: "2026-09-19T20:00:01.000Z",
+  };
+  const html = renderToStaticMarkup(
+    createElement(BookingConfirmation, {
+      offer: liveOffer,
+      requestId: confirmedBooking.requestId,
+      confirmedBooking,
+      persistedBooking,
+      onConfirm: async () => ({
+        status: "saved" as const,
+        booking: persistedBooking,
+      }),
+      onClose: () => undefined,
+    }),
+  );
+
+  assert.match(html, /Booking request created/);
+  assert.match(html, /Pending provider confirmation/);
+  assert.match(html, /Reference · 40000000/);
 });
