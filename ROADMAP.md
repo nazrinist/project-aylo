@@ -12,7 +12,7 @@
 ## Week 2 — AI → search → results
 - [x] Day 8: request persistence
 - [x] Day 9: missing-field follow-up questions
-- [ ] Day 10: searchProviders tool
+- [x] Day 10: searchProviders tool
 - [ ] Day 11: checkAvailability tool
 - [ ] Day 12: ranking engine
 - [ ] Day 13: result cards

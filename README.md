@@ -143,6 +143,17 @@ start only when the required intent is complete.
 
 See [docs/DAY_9.md](./docs/DAY_9.md) for the conversation test.
 
+## Day 10 proof
+
+Provider discovery is now the reusable `searchProviders` tool. It has a strict
+OpenAI function schema, a matching Zod boundary, deterministic demo/Supabase
+execution, and a direct `POST /api/tools/search-providers` proof endpoint. The
+main `/api/search` flow uses this executor before it checks slots and ranks
+results.
+
+See [docs/DAY_10.md](./docs/DAY_10.md) for the request payload and verification
+steps. No new database migration is required.
+
 ## Product rules
 1. AI interprets intent; deterministic code handles filtering and permissions.
 2. No irreversible action without explicit user confirmation.

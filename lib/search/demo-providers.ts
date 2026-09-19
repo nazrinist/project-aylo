@@ -1,4 +1,5 @@
 import type { Intent } from "@/types/intent";
+import type { ProviderCandidate } from "@/types/provider";
 import type { SearchResult } from "@/types/search";
 import {
   buildReasons,
@@ -11,28 +12,27 @@ import {
   timeDistanceMinutes,
 } from "./shared";
 
-const providers = [
-  ["Glow Studio", "Ağ Şəhər, Bakı", "Hair + Makeup", 95, 90, 4.9, true],
-  ["Luna Beauty Bar", "Ağ Şəhər, Bakı", "Makeup", 70, 60, 4.8, true],
-  ["Mira Studio", "Xətai, Bakı", "Hair + Makeup", 110, 105, 4.9, true],
-  ["Nail Spot", "Ağ Şəhər, Bakı", "Manicure", 35, 60, 4.7, true],
-  ["Aura Beauty", "Nərimanov, Bakı", "Hair + Makeup", 85, 90, 4.6, false],
-  ["Soleil Studio", "Səbail, Bakı", "Hair styling", 50, 60, 4.8, true],
-  ["Brow Lab", "28 May, Bakı", "Brows + Lashes", 55, 75, 4.9, true],
-  ["Velvet Beauty", "Ağ Şəhər, Bakı", "Hair + Makeup", 120, 120, 4.7, true],
-  ["Muse Makeup", "İçərişəhər, Bakı", "Makeup", 80, 60, 4.8, false],
-  ["Blush Room", "Gənclik, Bakı", "Hair + Makeup", 100, 90, 4.7, true],
-  ["Iris Nails", "Xətai, Bakı", "Manicure + Pedicure", 60, 100, 4.6, true],
-  ["Nova Beauty House", "Ağ Şəhər, Bakı", "Hair + Makeup", 105, 100, 4.9, true],
-] as const;
-
-export function searchDemoProviders(intent: Intent): SearchResult[] {
+export function searchDemoProviders(
+  intent: Intent,
+  providers: ProviderCandidate[],
+): SearchResult[] {
   const date = requestedDate(intent);
   const [baseHour, baseMinute] = (intent.time_from ?? "18:00").split(":").map(Number);
 
   return providers
     .map((provider, index) => {
-      const [businessName, address, serviceName, price, duration, rating, verified] = provider;
+      const {
+        businessId,
+        businessName,
+        serviceId,
+        serviceName,
+        address,
+        price,
+        currency,
+        durationMinutes,
+        rating,
+        verified,
+      } = provider;
       const coverage = serviceCoverage(serviceName, intent.services);
       const totalMinutes = baseHour * 60 + baseMinute + (index % 3) * 30;
       const hour = Math.floor(totalMinutes / 60) % 24;
@@ -51,14 +51,14 @@ export function searchDemoProviders(intent: Intent): SearchResult[] {
 
       return {
         id: `demo-${index + 1}`,
-        businessId: `demo-business-${index + 1}`,
+        businessId,
         businessName,
-        serviceId: `demo-service-${index + 1}`,
+        serviceId,
         serviceName,
         address,
         price,
-        currency: "AZN",
-        durationMinutes: duration,
+        currency,
+        durationMinutes,
         rating,
         verified,
         availableTime,

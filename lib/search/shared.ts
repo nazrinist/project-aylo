@@ -1,5 +1,10 @@
 import type { Intent } from "@/types/intent";
 
+type ProviderFilterIntent = Pick<
+  Intent,
+  "category" | "services" | "location" | "budget_min" | "budget_max" | "currency"
+>;
+
 export const SINGLE_TIME_TOLERANCE_MINUTES = 60;
 
 const aliases: Record<string, string[]> = {
@@ -105,7 +110,7 @@ export function serviceMatchesFilters(
     price: number;
     currency: string;
   },
-  intent: Intent,
+  intent: ProviderFilterIntent,
 ) {
   if (intent.category !== "beauty") return false;
   if (serviceCoverage(candidate.serviceName, intent.services) < 1) return false;
