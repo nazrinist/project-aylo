@@ -240,6 +240,7 @@ export function DashboardOverview({
           <h2 id="dashboard-actions-title">Keep the catalog ready</h2>
         </div>
         <nav aria-label="Dashboard quick actions">
+          <Link href="/leads">Open lead inbox</Link>
           <Link href="/businesses">Edit profile</Link>
           <Link href="/services">Manage services</Link>
           <Link href="/availability">Add availability</Link>
@@ -249,9 +250,10 @@ export function DashboardOverview({
       <aside className="dashboardNextDay">
         <span>Day 18</span>
         <div>
-          <strong>Lead inbox comes next</strong>
-          <p>Today stays read-only. Customer request details are not exposed on this dashboard.</p>
+          <strong>Lead inbox is ready</strong>
+          <p>Review privacy-minimized booking leads. Accept and reject actions arrive on Day 19.</p>
         </div>
+        <Link href="/leads">Open inbox →</Link>
       </aside>
     </div>
   );

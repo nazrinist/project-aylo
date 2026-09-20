@@ -1,0 +1,80 @@
+import {
+  LEAD_STATUSES,
+  type LeadCounts,
+  type LeadFilter,
+  type LeadStatus,
+  type LeadSummary,
+} from "@/types/lead";
+
+export const LEAD_INBOX_LIMIT = 50;
+
+const statusPriority: Record<LeadStatus, number> = {
+  pending_confirmation: 0,
+  accepted: 1,
+  rejected: 2,
+  cancelled: 3,
+};
+
+function nonNegativeCount(value: number) {
+  return Number.isFinite(value) ? Math.max(0, Math.trunc(value)) : 0;
+}
+
+export function buildLeadCounts(leads: LeadSummary[]): LeadCounts {
+  const counts: LeadCounts = {
+    all: leads.length,
+    pending_confirmation: 0,
+    accepted: 0,
+    rejected: 0,
+    cancelled: 0,
+  };
+
+  for (const lead of leads) {
+    counts[lead.status] = (counts[lead.status] ?? 0) + 1;
+  }
+
+  return counts;
+}
+
+export function unavailableLeadCounts(): LeadCounts {
+  return {
+    all: null,
+    pending_confirmation: null,
+    accepted: null,
+    rejected: null,
+    cancelled: null,
+  };
+}
+
+export function filterLeads(leads: LeadSummary[], filter: LeadFilter) {
+  return filter === "all"
+    ? [...leads]
+    : leads.filter((lead) => lead.status === filter);
+}
+
+export function sortLeads(leads: LeadSummary[]) {
+  return [...leads].sort(
+    (left, right) =>
+      statusPriority[left.status] - statusPriority[right.status] ||
+      right.receivedAt.localeCompare(left.receivedAt) ||
+      left.reference.localeCompare(right.reference, "en"),
+  );
+}
+
+export function countRecord(
+  all: number,
+  statusCounts: readonly number[],
+): LeadCounts {
+  const counts: LeadCounts = {
+    all: nonNegativeCount(all),
+    pending_confirmation: 0,
+    accepted: 0,
+    rejected: 0,
+    cancelled: 0,
+  };
+
+  LEAD_STATUSES.forEach((status, index) => {
+    counts[status] = nonNegativeCount(statusCounts[index] ?? 0);
+  });
+
+  return counts;
+}

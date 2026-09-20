@@ -232,6 +232,21 @@ See [docs/DAY_17.md](./docs/DAY_17.md) for the three data modes, API contract,
 privacy boundary, and end-to-end checklist. No new database migration is
 required.
 
+## Day 18 proof
+
+`/leads` is a read-only merchant inbox for confirmed booking requests. It
+supports business and status filters, exact queue counts, a 50-lead display
+limit, honest demo/catalog fallbacks, and a responsive triage view. Live rows
+are reduced to service, appointment, price, status, received time, and a short
+reference; the requests table and customer identity are never loaded.
+
+Live access requires both the Supabase secret key and a 32+ character
+`AYLO_OPERATOR_TOKEN`. The token is checked with a constant-time comparison and
+is held only in the current page's memory. Accept/reject actions remain Day 19.
+
+See [docs/DAY_18.md](./docs/DAY_18.md) for setup, privacy boundaries, API
+responses, and the end-to-end checklist. No new database migration is required.
+
 ## Product rules
 1. AI interprets intent; deterministic code handles filtering and permissions.
 2. No irreversible action without explicit user confirmation.

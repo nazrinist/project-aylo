@@ -209,6 +209,7 @@ export default function Home() {
           <div className="brand">AYLO <span>alpha</span></div>
           <div className="topActions">
             <Link href="/dashboard" className="manageLink">Dashboard →</Link>
+            <Link href="/leads" className="manageLink">Lead inbox →</Link>
             <Link href="/businesses" className="manageLink">Manage businesses →</Link>
             <Link href="/availability" className="manageLink">Availability →</Link>
             <div className={`databaseStatus ${health.status}`}>

@@ -47,6 +47,7 @@ export default function DashboardPage() {
         <div>
           <div className="adminNav">
             <Link href="/" className="backLink">← Aylo search</Link>
+            <Link href="/leads" className="backLink">Leads</Link>
             <Link href="/businesses" className="backLink">Businesses</Link>
             <Link href="/services" className="backLink">Services</Link>
             <Link href="/availability" className="backLink">Availability</Link>
