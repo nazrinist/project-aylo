@@ -76,7 +76,8 @@ Run the SQL files in this order inside a Supabase project:
 4. `supabase/migrations/0004_availability_integrity.sql`
 5. `supabase/migrations/0005_request_persistence.sql`
 6. `supabase/migrations/0006_booking_persistence.sql`
-7. `supabase/seed.sql`
+7. `supabase/migrations/0007_lead_decisions.sql`
+8. `supabase/seed.sql`
 
 See [docs/DAY_2.md](./docs/DAY_2.md) for the data flow and setup checklist.
 
@@ -242,10 +243,28 @@ reference; the requests table and customer identity are never loaded.
 
 Live access requires both the Supabase secret key and a 32+ character
 `AYLO_OPERATOR_TOKEN`. The token is checked with a constant-time comparison and
-is held only in the current page's memory. Accept/reject actions remain Day 19.
+is held only in the current page's memory. Day 19 builds the confirmed
+accept/reject flow on this read-only foundation.
 
 See [docs/DAY_18.md](./docs/DAY_18.md) for setup, privacy boundaries, API
 responses, and the end-to-end checklist. No new database migration is required.
+
+## Day 19 proof
+
+Pending leads now expose **Accept** and **Reject** controls behind a separate
+final-confirmation dialog. Every live mutation re-checks the operator Bearer
+token and uses a short-lived encrypted action token instead of exposing a full
+booking ID. Demo decisions stay in page memory and are clearly labeled as
+non-persistent; catalog mode still cannot mutate private bookings.
+
+The `decide_booking_lead` SQL function locks the booking and appointment slot
+in one transaction. Acceptance keeps the slot booked; rejection releases a
+future slot, records `merchant_responded_at`, rejects invalid transitions, and
+makes same-decision retries idempotent.
+
+Run `supabase/migrations/0007_lead_decisions.sql`, then follow
+[docs/DAY_19.md](./docs/DAY_19.md) for the transition rules, API contract,
+security boundary, and end-to-end checklist.
 
 ## Product rules
 1. AI interprets intent; deterministic code handles filtering and permissions.

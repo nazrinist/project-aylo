@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 import {
-  getLeadInboxData,
   LeadAccessNotConfiguredError,
   LeadBusinessNotFoundError,
   LeadUnauthorizedError,
-} from "@/lib/leads/data";
+} from "@/lib/leads/errors";
+import { getLeadInboxData } from "@/lib/leads/data";
 import { LeadQuerySchema } from "@/types/lead";
 
 export const dynamic = "force-dynamic";

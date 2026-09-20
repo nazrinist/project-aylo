@@ -58,8 +58,8 @@ test("dashboard renders profile, readiness, services and upcoming slots", () => 
   assert.match(html, /95 AZN/);
   assert.match(html, /Upcoming slots/);
   assert.match(html, /Unavailable in this data mode/);
-  assert.match(html, /Lead inbox is ready/);
-  assert.match(html, /Accept and reject actions arrive on Day 19/);
+  assert.match(html, /Lead decisions are ready/);
+  assert.match(html, /explicit, re-authorized confirmation/);
   assert.match(html, /href="\/leads"/);
 });
 

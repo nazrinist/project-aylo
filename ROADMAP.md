@@ -23,7 +23,7 @@
 - [x] Day 16: booking persistence
 - [x] Day 17: business dashboard
 - [x] Day 18: lead inbox
-- [ ] Day 19: accept/reject lead
+- [x] Day 19: accept/reject lead
 - [ ] Day 20: availability management
 - [ ] Day 21: basic analytics
 

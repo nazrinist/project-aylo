@@ -1,14 +1,18 @@
 import type {
+  LeadDecision,
   LeadFilter,
   LeadInboxData,
   LeadSource,
   LeadStatus,
+  LeadSummary,
 } from "@/types/lead";
 
 type LeadInboxProps = {
   data: LeadInboxData;
   loading: boolean;
+  decidingReference: string | null;
   onFilterChange: (filter: LeadFilter) => void;
+  onDecisionRequest: (lead: LeadSummary, decision: LeadDecision) => void;
 };
 
 const filterOptions: { value: LeadFilter; label: string }[] = [
@@ -69,7 +73,13 @@ function formatPrice(price: number | null, currency: string) {
   }).format(price)} ${currency}`;
 }
 
-export function LeadInbox({ data, loading, onFilterChange }: LeadInboxProps) {
+export function LeadInbox({
+  data,
+  loading,
+  decidingReference,
+  onFilterChange,
+  onDecisionRequest,
+}: LeadInboxProps) {
   const selectedBusiness = data.businesses.find(
     (business) => business.id === data.selectedBusinessId,
   );
@@ -193,7 +203,32 @@ export function LeadInbox({ data, loading, onFilterChange }: LeadInboxProps) {
 
                   <footer>
                     <span>Customer identity and request text are not included.</span>
-                    <strong>Read-only · Actions arrive Day 19</strong>
+                    {lead.status === "pending_confirmation" && lead.actionToken ? (
+                      <div className="leadActions" aria-label={`Actions for ${lead.reference}`}>
+                        <button
+                          type="button"
+                          className="leadRejectAction"
+                          disabled={loading || decidingReference === lead.reference}
+                          onClick={() => onDecisionRequest(lead, "rejected")}
+                        >
+                          Reject
+                        </button>
+                        <button
+                          type="button"
+                          className="leadAcceptAction"
+                          disabled={loading || decidingReference === lead.reference}
+                          onClick={() => onDecisionRequest(lead, "accepted")}
+                        >
+                          Accept
+                        </button>
+                      </div>
+                    ) : (
+                      <strong>
+                        {lead.status === "pending_confirmation"
+                          ? "Actions unavailable"
+                          : "Decision recorded"}
+                      </strong>
+                    )}
                   </footer>
                 </article>
               ))}

@@ -1,5 +1,6 @@
 import "server-only";
 
+import { createLeadActionToken } from "@/lib/leads/action-token";
 import {
   isLeadAccessConfigured,
   verifyLeadAuthorization,
@@ -12,6 +13,11 @@ import {
   sortLeads,
   unavailableLeadCounts,
 } from "@/lib/leads/shared";
+import {
+  LeadAccessNotConfiguredError,
+  LeadBusinessNotFoundError,
+  LeadUnauthorizedError,
+} from "@/lib/leads/errors";
 import { DEMO_PROVIDER_CATALOG } from "@/lib/search/demo-catalog";
 import {
   getSupabaseAdminClient,
@@ -43,27 +49,6 @@ type BookingRow = {
   created_at: string;
   services: { name: string } | { name: string }[] | null;
 };
-
-export class LeadAccessNotConfiguredError extends Error {
-  constructor() {
-    super("Lead access is not configured");
-    this.name = "LeadAccessNotConfiguredError";
-  }
-}
-
-export class LeadUnauthorizedError extends Error {
-  constructor() {
-    super("Lead access is required");
-    this.name = "LeadUnauthorizedError";
-  }
-}
-
-export class LeadBusinessNotFoundError extends Error {
-  constructor() {
-    super("Business not found");
-    this.name = "LeadBusinessNotFoundError";
-  }
-}
 
 function numberOrNull(value: number | string | null) {
   if (value === null) return null;
@@ -125,8 +110,9 @@ function demoLeads(businessId: string, now: Date): LeadSummary[] {
 
   return statuses.map((status, index) => {
     const service = services[index % services.length];
+    const reference = `DMO-${businessId.slice(-4)}-${String(index + 1).padStart(2, "0")}`;
     return {
-      reference: `DMO-${businessId.slice(-4)}-${String(index + 1).padStart(2, "0")}`,
+      reference,
       serviceName: service.serviceName,
       bookedFor: `${bakuDateAfter(now, index + 1)}T${String(hours[index]).padStart(2, "0")}:00:00+04:00`,
       price: service.price,
@@ -135,6 +121,8 @@ function demoLeads(businessId: string, now: Date): LeadSummary[] {
       receivedAt: new Date(
         now.getTime() - receivedHoursAgo[index] * 60 * 60 * 1000,
       ).toISOString(),
+      actionToken:
+        status === "pending_confirmation" ? `demo:${reference}` : null,
     };
   });
 }
@@ -264,15 +252,22 @@ async function getOperationsLeadInbox(filters: LeadQuery): Promise<LeadInboxData
   }
 
   const leads = ((leadsResult.data ?? []) as unknown as BookingRow[]).map(
-    (booking): LeadSummary => ({
-      reference: booking.id.slice(0, 8).toUpperCase(),
-      serviceName: relatedServiceName(booking.services),
-      bookedFor: booking.booked_for,
-      price: numberOrNull(booking.price),
-      currency: booking.currency,
-      status: LeadStatusSchema.parse(booking.status),
-      receivedAt: booking.created_at,
-    }),
+    (booking): LeadSummary => {
+      const status = LeadStatusSchema.parse(booking.status);
+      return {
+        reference: booking.id.slice(0, 8).toUpperCase(),
+        serviceName: relatedServiceName(booking.services),
+        bookedFor: booking.booked_for,
+        price: numberOrNull(booking.price),
+        currency: booking.currency,
+        status,
+        receivedAt: booking.created_at,
+        actionToken:
+          status === "pending_confirmation"
+            ? createLeadActionToken(booking.id, businessId)
+            : null,
+      };
+    },
   );
   const counts = countRecord(
     allCountResult.count ?? 0,

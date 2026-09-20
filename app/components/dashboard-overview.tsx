@@ -248,10 +248,10 @@ export function DashboardOverview({
       </section>
 
       <aside className="dashboardNextDay">
-        <span>Day 18</span>
+        <span>Day 19</span>
         <div>
-          <strong>Lead inbox is ready</strong>
-          <p>Review privacy-minimized booking leads. Accept and reject actions arrive on Day 19.</p>
+          <strong>Lead decisions are ready</strong>
+          <p>Accept or reject pending leads with an explicit, re-authorized confirmation.</p>
         </div>
         <Link href="/leads">Open inbox →</Link>
       </aside>

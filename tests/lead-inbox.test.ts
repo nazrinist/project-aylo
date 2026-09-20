@@ -20,6 +20,7 @@ const leads: LeadSummary[] = [
     currency: "AZN",
     status: "accepted",
     receivedAt: "2026-09-20T12:00:00.000Z",
+    actionToken: null,
   },
   {
     reference: "NEW-OLDER",
@@ -29,6 +30,7 @@ const leads: LeadSummary[] = [
     currency: "AZN",
     status: "pending_confirmation",
     receivedAt: "2026-09-19T12:00:00.000Z",
+    actionToken: "demo:new-older",
   },
   {
     reference: "NEW-LATEST",
@@ -38,6 +40,7 @@ const leads: LeadSummary[] = [
     currency: "AZN",
     status: "pending_confirmation",
     receivedAt: "2026-09-20T10:00:00.000Z",
+    actionToken: "demo:new-latest",
   },
   {
     reference: "REJECTED",
@@ -47,6 +50,7 @@ const leads: LeadSummary[] = [
     currency: "AZN",
     status: "rejected",
     receivedAt: "2026-09-18T12:00:00.000Z",
+    actionToken: null,
   },
 ];
 

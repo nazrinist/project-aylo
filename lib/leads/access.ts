@@ -20,14 +20,19 @@ function tokenDigest(value: string) {
 }
 
 export function isLeadAccessConfigured() {
-  return configuredToken().length >= MINIMUM_OPERATOR_TOKEN_LENGTH;
+  return getLeadAccessSecret() !== null;
+}
+
+export function getLeadAccessSecret() {
+  const token = configuredToken();
+  return token.length >= MINIMUM_OPERATOR_TOKEN_LENGTH ? token : null;
 }
 
 export function verifyLeadAuthorization(authorization: string | null) {
-  const expected = configuredToken();
+  const expected = getLeadAccessSecret();
   const provided = bearerToken(authorization);
 
-  if (expected.length < MINIMUM_OPERATOR_TOKEN_LENGTH || !provided) {
+  if (!expected || !provided) {
     return false;
   }
 

@@ -33,17 +33,20 @@ const liveInbox: LeadInboxData = {
       currency: "AZN",
       status: "pending_confirmation",
       receivedAt: "2026-09-20T12:00:00.000Z",
+      actionToken: "v1.test.action.token.that.is-long-enough",
     },
   ],
   resultsLimited: false,
 };
 
-test("lead inbox renders triage facts without action controls", () => {
+test("lead inbox renders triage facts with explicit decision controls", () => {
   const html = renderToStaticMarkup(
     createElement(LeadInbox, {
       data: liveInbox,
       loading: false,
+      decidingReference: null,
       onFilterChange: () => undefined,
+      onDecisionRequest: () => undefined,
     }),
   );
 
@@ -54,9 +57,8 @@ test("lead inbox renders triage facts without action controls", () => {
   assert.match(html, /Ref · 4A90C2F1/);
   assert.match(html, /New lead/);
   assert.match(html, /Baku time/);
-  assert.match(html, /Read-only · Actions arrive Day 19/);
-  assert.doesNotMatch(html, />Accept<\/button>/);
-  assert.doesNotMatch(html, />Reject<\/button>/);
+  assert.match(html, />Accept<\/button>/);
+  assert.match(html, />Reject<\/button>/);
   assert.doesNotMatch(html, /customer@example\.com/);
 });
 
@@ -78,7 +80,9 @@ test("catalog mode clearly marks private leads unavailable", () => {
         leads: [],
       },
       loading: false,
+      decidingReference: null,
       onFilterChange: () => undefined,
+      onDecisionRequest: () => undefined,
     }),
   );
 

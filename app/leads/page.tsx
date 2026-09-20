@@ -1,18 +1,36 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useCallback, useEffect, useState } from "react";
+import {
+  FormEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { LeadInbox } from "@/app/components/lead-inbox";
+import {
+  applyDemoLeadDecisions,
+  type DemoLeadDecisionRecord,
+} from "@/lib/leads/shared";
 import type {
   LeadApiResponse,
+  LeadDecision,
+  LeadDecisionApiResponse,
   LeadFilter,
   LeadInboxData,
+  LeadSummary,
 } from "@/types/lead";
 
 type LoadOptions = {
   businessId?: string;
   status: LeadFilter;
   token: string;
+};
+
+type PendingDecision = {
+  lead: LeadSummary;
+  decision: LeadDecision;
 };
 
 export default function LeadsPage() {
@@ -25,6 +43,12 @@ export default function LeadsPage() {
   const [accessError, setAccessError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [pendingDecision, setPendingDecision] =
+    useState<PendingDecision | null>(null);
+  const [decisionLoading, setDecisionLoading] = useState(false);
+  const [decisionError, setDecisionError] = useState<string | null>(null);
+  const [decisionNotice, setDecisionNotice] = useState<string | null>(null);
+  const demoDecisions = useRef<Record<string, DemoLeadDecisionRecord>>({});
 
   const loadLeads = useCallback(async ({ businessId, status, token }: LoadOptions) => {
     setLoading(true);
@@ -63,7 +87,11 @@ export default function LeadsPage() {
       }
 
       if (!response.ok) throw new Error("Lead inbox could not be loaded.");
-      const { ok: _ok, ...nextData } = result;
+      const { ok: _ok, ...loadedData } = result;
+      const nextData = applyDemoLeadDecisions(
+        loadedData,
+        Object.values(demoDecisions.current),
+      );
       setData(nextData);
       setSelectedBusinessId(nextData.selectedBusinessId ?? "");
       setStatus(nextData.filter);
@@ -95,6 +123,105 @@ export default function LeadsPage() {
     setNeedsAccess(true);
     setAccessError(null);
     setError(null);
+    setPendingDecision(null);
+    setDecisionError(null);
+    setDecisionNotice(null);
+  }
+
+  function requestDecision(lead: LeadSummary, decision: LeadDecision) {
+    if (lead.status !== "pending_confirmation" || !lead.actionToken) return;
+    setDecisionError(null);
+    setDecisionNotice(null);
+    setPendingDecision({ lead, decision });
+  }
+
+  async function confirmDecision() {
+    if (!pendingDecision || !data?.selectedBusinessId) return;
+
+    setDecisionLoading(true);
+    setDecisionError(null);
+    setDecisionNotice(null);
+
+    try {
+      if (data.source === "demo") {
+        const key = `${data.selectedBusinessId}:${pendingDecision.lead.reference}`;
+        demoDecisions.current[key] = {
+          businessId: data.selectedBusinessId,
+          lead: pendingDecision.lead,
+          decision: pendingDecision.decision,
+        };
+        const decision = pendingDecision.decision;
+        setPendingDecision(null);
+        await loadLeads({
+          businessId: data.selectedBusinessId,
+          status,
+          token: operatorToken,
+        });
+        setDecisionNotice(
+          `Demo lead ${decision === "accepted" ? "accepted" : "rejected"}. No database row was changed.`,
+        );
+        return;
+      }
+
+      if (data.source !== "operations") {
+        throw new Error("Live lead actions are unavailable in catalog mode.");
+      }
+
+      const response = await fetch("/api/leads/decision", {
+        method: "POST",
+        cache: "no-store",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${operatorToken.trim()}`,
+        },
+        body: JSON.stringify({
+          actionToken: pendingDecision.lead.actionToken,
+          decision: pendingDecision.decision,
+          confirmed: true,
+        }),
+      });
+      const result = (await response.json()) as LeadDecisionApiResponse;
+
+      if (!result.ok) {
+        if (result.code === "LEAD_ACCESS_REQUIRED") {
+          lockInbox();
+          setAccessError(result.error);
+          return;
+        }
+        if (result.code === "LEAD_ACCESS_NOT_CONFIGURED") {
+          setData(null);
+          setOperatorToken("");
+          setNeedsAccess(false);
+          setConfigurationMissing(true);
+          setPendingDecision(null);
+          return;
+        }
+        throw new Error(result.error);
+      }
+
+      if (!response.ok) throw new Error("The lead decision could not be saved.");
+      const decision = result.status;
+      const changed = result.changed;
+      setPendingDecision(null);
+      await loadLeads({
+        businessId: data.selectedBusinessId,
+        status,
+        token: operatorToken,
+      });
+      setDecisionNotice(
+        changed
+          ? `Lead ${decision === "accepted" ? "accepted" : "rejected"} successfully.`
+          : `This lead was already ${decision}.`,
+      );
+    } catch (caught) {
+      setDecisionError(
+        caught instanceof Error
+          ? caught.message
+          : "The lead decision could not be saved.",
+      );
+    } finally {
+      setDecisionLoading(false);
+    }
   }
 
   return (
@@ -173,6 +300,9 @@ export default function LeadsPage() {
               onChange={(event) => {
                 const businessId = event.target.value;
                 setSelectedBusinessId(businessId);
+                setPendingDecision(null);
+                setDecisionError(null);
+                setDecisionNotice(null);
                 void loadLeads({ businessId, status, token: operatorToken });
               }}
             >
@@ -209,21 +339,97 @@ export default function LeadsPage() {
         {loading && !data && !needsAccess && "Loading lead inbox…"}
         {loading && data && "Refreshing leads…"}
         {error && <span className="error">{error}</span>}
+        {decisionError && <span className="error">{decisionError}</span>}
+        {decisionNotice && <span className="leadDecisionSuccess">{decisionNotice}</span>}
       </div>
 
       {data && (
         <LeadInbox
           data={data}
           loading={loading}
+          decidingReference={
+            decisionLoading ? pendingDecision?.lead.reference ?? null : null
+          }
           onFilterChange={(nextStatus) => {
             setStatus(nextStatus);
+            setPendingDecision(null);
+            setDecisionError(null);
             void loadLeads({
               businessId: selectedBusinessId || undefined,
               status: nextStatus,
               token: operatorToken,
             });
           }}
+          onDecisionRequest={requestDecision}
         />
+      )}
+
+      {pendingDecision && (
+        <div className="leadDecisionBackdrop">
+          <section
+            className={`leadDecisionDialog ${pendingDecision.decision}`}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="lead-decision-title"
+            aria-describedby="lead-decision-description"
+          >
+            <p className="eyebrow">Final confirmation</p>
+            <h2 id="lead-decision-title">
+              {pendingDecision.decision === "accepted"
+                ? "Accept this lead?"
+                : "Reject this lead?"}
+            </h2>
+            <p id="lead-decision-description">
+              {pendingDecision.decision === "accepted"
+                ? "The appointment will be marked accepted and its slot will stay reserved."
+                : "The booking will be marked rejected and a future appointment slot will become available again."}
+              {" "}This final decision cannot be switched from this inbox.
+            </p>
+            <dl className="leadDecisionSummary">
+              <div>
+                <dt>Service</dt>
+                <dd>{pendingDecision.lead.serviceName}</dd>
+              </div>
+              <div>
+                <dt>Reference</dt>
+                <dd>{pendingDecision.lead.reference}</dd>
+              </div>
+            </dl>
+            <p className="leadDecisionAuthNote">
+              The operator token is checked again when this decision is saved.
+            </p>
+            {decisionError && (
+              <p className="leadDecisionDialogError" role="alert">
+                {decisionError}
+              </p>
+            )}
+            <div className="leadDecisionDialogActions">
+              <button
+                type="button"
+                disabled={decisionLoading}
+                onClick={() => setPendingDecision(null)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className={
+                  pendingDecision.decision === "accepted"
+                    ? "leadAcceptAction"
+                    : "leadRejectAction"
+                }
+                disabled={decisionLoading}
+                onClick={() => void confirmDecision()}
+              >
+                {decisionLoading
+                  ? "Saving…"
+                  : pendingDecision.decision === "accepted"
+                    ? "Confirm acceptance"
+                    : "Confirm rejection"}
+              </button>
+            </div>
+          </section>
+        </div>
       )}
     </main>
   );

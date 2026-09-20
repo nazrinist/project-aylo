@@ -4,8 +4,8 @@ Day 18 adds `/leads`, a read-only inbox for booking requests. Merchants can
 select a business, review status counts, filter the queue, and inspect the
 service, appointment, price, received time, and short booking reference.
 
-Accept and reject actions are intentionally not part of this day. They remain
-Day 19 work and must re-authorize the operator before every mutation.
+Accept and reject actions were intentionally not part of this day's scope.
+Day 19 adds them with operator re-authorization before every mutation.
 
 ## Privacy-minimized lead DTO
 
