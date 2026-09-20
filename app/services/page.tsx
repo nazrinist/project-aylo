@@ -157,6 +157,7 @@ export default function ServicesPage() {
         <div>
           <div className="adminNav">
             <Link href="/" className="backLink">← Aylo search</Link>
+            <Link href="/dashboard" className="backLink">Dashboard</Link>
             <Link href="/businesses" className="backLink">Businesses</Link>
             <Link href="/availability" className="backLink">Availability</Link>
           </div>

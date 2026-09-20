@@ -21,7 +21,7 @@
 ## Week 3 — Booking & merchant side
 - [x] Day 15: booking confirmation flow
 - [x] Day 16: booking persistence
-- [ ] Day 17: business dashboard
+- [x] Day 17: business dashboard
 - [ ] Day 18: lead inbox
 - [ ] Day 19: accept/reject lead
 - [ ] Day 20: availability management

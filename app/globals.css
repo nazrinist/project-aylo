@@ -16,7 +16,7 @@ a { color: inherit; }
 .databaseStatus.demo i { background: #d7a514; box-shadow: 0 0 0 4px #fff2cc; }
 .databaseStatus.error { color: #9b2c2c; }
 .databaseStatus.error i { background: #dc2626; box-shadow: 0 0 0 4px #fee2e2; }
-.topActions { display: flex; align-items: center; gap: 18px; }
+.topActions { display: flex; align-items: center; flex-wrap: wrap; gap: 18px; }
 .manageLink, .backLink { color: #555550; font-size: 12px; font-weight: 750; text-decoration: none; }
 .manageLink:hover, .backLink:hover { color: #111; text-decoration: underline; }
 h1 { font-size: clamp(44px, 8vw, 78px); line-height: .96; letter-spacing: -.055em; margin: 0; }
@@ -245,9 +245,97 @@ pre { margin: 0; font-size: 13px; line-height: 1.55; }
 .slotDetails { flex: 1; min-width: 0; }
 .slotDetails h2 { margin: 0; font-size: 17px; }
 .slotDetails p { margin: 5px 0 8px; color: #73736d; font-size: 12px; }
+.dashboardShell { width: min(1180px, calc(100% - 40px)); }
+.dashboardHeader { align-items: flex-end; }
+.dashboardHeaderBadge, .dashboardSourceBadge { display: inline-flex; align-items: center; width: fit-content; border-radius: 999px; font-size: 11px; font-weight: 800; }
+.dashboardHeaderBadge { padding: 8px 11px; white-space: nowrap; }
+.dashboardHeaderBadge.operations, .dashboardSourceBadge.operations { background: #dcfce7; color: #166534; }
+.dashboardHeaderBadge.catalog, .dashboardSourceBadge.catalog { background: #e8edf7; color: #344969; }
+.dashboardHeaderBadge.demo, .dashboardSourceBadge.demo { background: #fff2cc; color: #6e5200; }
+.dashboardToolbar { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 14px; border: 1px solid #ddddda; border-radius: 18px; padding: 14px 16px; background: white; }
+.dashboardToolbar label { display: grid; flex: 1; gap: 6px; color: #686862; font-size: 11px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
+.dashboardToolbar select { width: min(360px, 100%); border: 1px solid #d8d8d3; border-radius: 11px; outline: none; padding: 10px 12px; background: #fbfbf9; color: #252522; font: inherit; font-size: 13px; font-weight: 700; letter-spacing: 0; text-transform: none; }
+.dashboardToolbar select:focus { border-color: #6c6c66; box-shadow: 0 0 0 3px rgba(50,50,47,.08); }
+.dashboardRefresh { border-radius: 11px; padding: 10px 14px; font-size: 11px; }
+.dashboardLiveStatus { min-height: 28px; color: #6e6e68; font-size: 12px; }
+.dashboardOverview { display: grid; gap: 24px; }
+.dashboardProfileGrid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(300px, .85fr); gap: 18px; }
+.dashboardProfileCard, .dashboardReadinessCard, .dashboardPanel, .dashboardQuickActions, .dashboardNextDay, .dashboardBlankState { border: 1px solid #ddddda; border-radius: 22px; background: white; box-shadow: 0 12px 38px rgba(0,0,0,.04); }
+.dashboardProfileCard { padding: 24px; background: linear-gradient(145deg, #fff 45%, #f1f7f2 100%); }
+.dashboardProfileTopline, .dashboardCardHeading, .dashboardSectionHeading, .dashboardPanelHeading, .dashboardQuickActions { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.dashboardSourceBadge { padding: 6px 9px; }
+.dashboardVerifyState { border-radius: 999px; padding: 6px 9px; font-size: 10px; font-weight: 800; }
+.dashboardVerifyState.on { background: #e8f7eb; color: #267036; }
+.dashboardVerifyState.off { background: #eeeeea; color: #6f6f69; }
+.dashboardIdentity { display: flex; align-items: center; gap: 16px; margin: 30px 0 25px; }
+.dashboardIdentity > span { display: grid; flex: 0 0 58px; width: 58px; height: 58px; place-items: center; border-radius: 18px; background: #173f22; color: white; font-size: 17px; font-weight: 900; letter-spacing: -.03em; }
+.dashboardIdentity h2 { margin: 3px 0 4px; font-size: 29px; letter-spacing: -.035em; }
+.dashboardIdentity p:last-child { margin: 0; color: #686862; font-size: 13px; }
+.dashboardProfileMeta { display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; border: 1px solid #dfe5df; border-radius: 14px; background: rgba(255,255,255,.72); }
+.dashboardProfileMeta > span { display: grid; gap: 4px; padding: 13px 14px; border-right: 1px solid #dfe5df; }
+.dashboardProfileMeta > span:last-child { border-right: 0; }
+.dashboardProfileMeta small { color: #7c7c76; font-size: 9px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
+.dashboardProfileMeta strong { font-size: 12px; }
+.dashboardSourceNote { margin: 14px 2px 0; color: #74746e; font-size: 11px; line-height: 1.5; }
+.dashboardReadinessCard { padding: 24px; }
+.dashboardCardHeading { align-items: flex-start; }
+.dashboardCardHeading h2, .dashboardSectionHeading h2, .dashboardPanelHeading h2, .dashboardQuickActions h2, .dashboardBlankState h2 { margin: 4px 0 0; font-size: 22px; letter-spacing: -.025em; }
+.dashboardCardHeading > strong { color: #2e683a; font-size: 20px; }
+.dashboardReadinessCard progress { width: 100%; height: 8px; margin: 20px 0 17px; overflow: hidden; border: 0; border-radius: 999px; background: #e7ece7; }
+.dashboardReadinessCard progress::-webkit-progress-bar { border-radius: 999px; background: #e7ece7; }
+.dashboardReadinessCard progress::-webkit-progress-value { border-radius: 999px; background: #4c8c5b; }
+.dashboardReadinessCard progress::-moz-progress-bar { border-radius: 999px; background: #4c8c5b; }
+.dashboardChecklist { display: grid; gap: 9px; margin: 0; padding: 0; list-style: none; }
+.dashboardChecklist li { display: grid; grid-template-columns: 24px 1fr auto; align-items: center; gap: 8px; color: #454541; font-size: 12px; font-weight: 700; }
+.dashboardChecklist li > span { display: grid; width: 23px; height: 23px; place-items: center; border-radius: 50%; background: #eeeeea; color: #777771; font-size: 11px; }
+.dashboardChecklist li.complete > span { background: #dcf0e0; color: #267036; }
+.dashboardChecklist small { color: #8b8b85; font-size: 9px; font-weight: 750; }
+.dashboardSection { display: grid; gap: 13px; }
+.dashboardSectionHeading { align-items: flex-end; padding: 0 2px; }
+.dashboardSectionHeading > span { color: #7a7a74; font-size: 10px; }
+.dashboardMetricGrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.dashboardMetric { display: grid; min-height: 145px; align-content: space-between; border: 1px solid #ddddda; border-radius: 19px; padding: 18px; background: white; box-shadow: 0 9px 28px rgba(0,0,0,.035); }
+.dashboardMetric > span { color: #6e6e68; font-size: 11px; font-weight: 800; }
+.dashboardMetric > strong { margin: 10px 0; color: #1f4629; font-size: 40px; line-height: 1; letter-spacing: -.05em; }
+.dashboardMetric > small { color: #85857f; font-size: 9px; line-height: 1.35; }
+.dashboardMetric.unavailable { background: #f4f4f1; box-shadow: none; }
+.dashboardMetric.unavailable > strong { color: #8b8b85; }
+.dashboardContentGrid { display: grid; grid-template-columns: 1fr 1fr; align-items: start; gap: 18px; }
+.dashboardPanel { overflow: hidden; }
+.dashboardPanelHeading { padding: 20px 21px 16px; }
+.dashboardPanelHeading a { color: #376744; font-size: 11px; font-weight: 800; text-decoration: none; }
+.dashboardPanelHeading a:hover { text-decoration: underline; }
+.dashboardServiceList, .dashboardSlotList { margin: 0; border-top: 1px solid #e7e7e2; padding: 0; list-style: none; }
+.dashboardServiceList li { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 14px 21px; border-bottom: 1px solid #ecece7; }
+.dashboardServiceList li:last-child, .dashboardSlotList li:last-child { border-bottom: 0; }
+.dashboardServiceList li > div { display: grid; gap: 4px; }
+.dashboardServiceList li > div:last-child { justify-items: end; text-align: right; }
+.dashboardServiceList strong, .dashboardSlotList strong { color: #30302d; font-size: 12px; }
+.dashboardServiceList span, .dashboardSlotList span { color: #82827c; font-size: 10px; }
+.dashboardStatus { display: inline-flex; width: fit-content; border-radius: 999px; padding: 4px 7px; font-size: 8px !important; font-weight: 850; letter-spacing: .035em; text-transform: uppercase; }
+.dashboardStatus.available { background: #e8f7eb; color: #267036; }
+.dashboardStatus.held { background: #fff2cc; color: #6e5200; }
+.dashboardStatus.booked { background: #e8edf7; color: #344969; }
+.dashboardStatus.blocked { background: #eeeeea; color: #6f6f69; }
+.dashboardSlotList li { display: grid; grid-template-columns: 112px 1fr auto; align-items: center; gap: 12px; padding: 13px 21px; border-bottom: 1px solid #ecece7; }
+.dashboardSlotList time { color: #365d40; font-size: 10px; font-weight: 800; }
+.dashboardSlotList li > div { display: grid; gap: 3px; min-width: 0; }
+.dashboardEmpty { margin: 0; border-top: 1px solid #e7e7e2; padding: 26px 21px; color: #73736d; font-size: 12px; line-height: 1.5; }
+.dashboardQuickActions { padding: 20px 22px; }
+.dashboardQuickActions nav { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+.dashboardQuickActions nav a, .dashboardBlankState a { border: 1px solid #d5ddd5; border-radius: 999px; padding: 9px 11px; background: #f8faf8; color: #315d3a; font-size: 10px; font-weight: 800; text-decoration: none; }
+.dashboardQuickActions nav a:hover, .dashboardBlankState a:hover { border-color: #8eae95; }
+.dashboardNextDay { display: flex; align-items: center; gap: 15px; border-color: #ded7bb; padding: 18px 20px; background: #fffaf0; box-shadow: none; }
+.dashboardNextDay > span { border-radius: 999px; padding: 6px 9px; background: #f2e5ba; color: #6d5715; font-size: 9px; font-weight: 850; text-transform: uppercase; }
+.dashboardNextDay div { display: grid; gap: 3px; }
+.dashboardNextDay strong { color: #51451f; font-size: 12px; }
+.dashboardNextDay p { margin: 0; color: #7b714e; font-size: 10px; line-height: 1.45; }
+.dashboardBlankState { padding: 28px; }
+.dashboardBlankState a { display: inline-block; margin-top: 18px; }
 @media (max-width: 680px) {
   .brandRow { align-items: flex-start; flex-direction: column; margin-bottom: 46px; }
-  .topActions { width: 100%; justify-content: space-between; }
+  .topActions { width: 100%; justify-content: flex-start; }
+  .topActions .databaseStatus { flex-basis: 100%; }
   .resultsGrid { grid-template-columns: 1fr; }
   .resultsHeader { align-items: center; }
   .resultsBadges { align-items: flex-end; flex-direction: column; }
@@ -274,7 +362,7 @@ pre { margin: 0; font-size: 13px; line-height: 1.55; }
   .bookingDraftStatus { align-items: flex-start; flex-wrap: wrap; }
   .bookingDraftStatus button { margin-left: 39px; }
   .businessHeader { align-items: flex-start; flex-direction: column; }
-  .adminNav { margin-bottom: 34px; }
+  .adminNav { flex-wrap: wrap; row-gap: 9px; margin-bottom: 34px; }
   .businessLayout { grid-template-columns: 1fr; }
   .businessForm { position: static; }
   .businessCard { align-items: flex-start; flex-direction: column; }
@@ -283,10 +371,25 @@ pre { margin: 0; font-size: 13px; line-height: 1.55; }
   .formColumns { grid-template-columns: 1fr; }
   .serviceToolbar label { align-items: stretch; flex-direction: column; }
   .serviceToolbar select { width: 100%; }
-  .availabilityHeader .adminNav { flex-wrap: wrap; }
   .availabilityToolbar { grid-template-columns: 1fr; }
   .availabilityCard { align-items: stretch; }
   .slotTime { flex-basis: auto; }
+  .dashboardHeader .adminNav { flex-wrap: wrap; row-gap: 9px; }
+  .dashboardToolbar { align-items: stretch; flex-direction: column; }
+  .dashboardToolbar select { width: 100%; }
+  .dashboardRefresh { width: 100%; }
+  .dashboardProfileGrid, .dashboardContentGrid { grid-template-columns: 1fr; }
+  .dashboardMetricGrid { grid-template-columns: 1fr 1fr; }
+  .dashboardIdentity { align-items: flex-start; }
+  .dashboardProfileMeta { grid-template-columns: 1fr; }
+  .dashboardProfileMeta > span { border-right: 0; border-bottom: 1px solid #dfe5df; }
+  .dashboardProfileMeta > span:last-child { border-bottom: 0; }
+  .dashboardSectionHeading { align-items: flex-start; flex-direction: column; gap: 5px; }
+  .dashboardSlotList li { grid-template-columns: 1fr auto; }
+  .dashboardSlotList time { grid-column: 1 / -1; }
+  .dashboardQuickActions { align-items: flex-start; flex-direction: column; }
+  .dashboardQuickActions nav { justify-content: flex-start; }
+  .dashboardNextDay { align-items: flex-start; }
 }
 
 @media (prefers-reduced-motion: reduce) {

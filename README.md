@@ -219,6 +219,19 @@ Run `supabase/migrations/0006_booking_persistence.sql`, then follow
 [docs/DAY_16.md](./docs/DAY_16.md) for setup, security boundaries, and the
 end-to-end test. Demo searches still use an honest browser-only confirmation.
 
+## Day 17 proof
+
+`/dashboard` is the first read-only merchant overview. A business can inspect
+profile readiness, active services, open availability, and upcoming slots for
+the next 30 days. Server-only Supabase access adds aggregate pending-booking and
+booked-slot counts without exposing request text, user identity, or raw booking
+rows. Public catalog and local demo modes mark those private metrics as
+unavailable instead of inventing data.
+
+See [docs/DAY_17.md](./docs/DAY_17.md) for the three data modes, API contract,
+privacy boundary, and end-to-end checklist. No new database migration is
+required.
+
 ## Product rules
 1. AI interprets intent; deterministic code handles filtering and permissions.
 2. No irreversible action without explicit user confirmation.
