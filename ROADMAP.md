@@ -24,7 +24,7 @@
 - [x] Day 17: business dashboard
 - [x] Day 18: lead inbox
 - [x] Day 19: accept/reject lead
-- [ ] Day 20: availability management
+- [x] Day 20: availability management
 - [ ] Day 21: basic analytics
 
 ## Week 4 — Reliability & beta

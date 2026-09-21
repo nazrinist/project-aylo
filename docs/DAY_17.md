@@ -16,7 +16,7 @@ raw booking rows to the browser.
 - quick links to the existing business, service, and availability screens.
 
 The page is intentionally read-only. Day 18 adds the lead inbox, Day 19 adds
-accept/reject actions, and Days 20–21 expand availability management and
+accept/reject actions, Day 20 expands availability management, and Day 21 adds
 analytics.
 
 ## Data modes

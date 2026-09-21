@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { availabilityWriteError, validateAvailabilitySlot } from "@/lib/availability";
 import {
+  isOperatorAccessConfigured,
+  verifyOperatorAuthorization,
+} from "@/lib/operator-access";
+import {
   getSupabaseAdminClient,
   isSupabaseAdminConfigured,
 } from "@/lib/supabase/server";
@@ -21,11 +25,43 @@ function missingAdminKey() {
   );
 }
 
+function missingOperatorAccess() {
+  return NextResponse.json(
+    {
+      ok: false,
+      code: "AVAILABILITY_ACCESS_NOT_CONFIGURED",
+      error: "Add a strong AYLO_OPERATOR_TOKEN and restart the server",
+    },
+    { status: 503, headers: { "Cache-Control": "private, no-store" } },
+  );
+}
+
+function unauthorized() {
+  return NextResponse.json(
+    {
+      ok: false,
+      code: "AVAILABILITY_ACCESS_REQUIRED",
+      error: "The operator token is missing or invalid",
+    },
+    {
+      status: 401,
+      headers: {
+        "Cache-Control": "private, no-store",
+        "WWW-Authenticate": 'Bearer realm="Aylo availability"',
+      },
+    },
+  );
+}
+
 export async function PATCH(
   request: Request,
   context: { params: Promise<{ id: string }> },
 ) {
   if (!isSupabaseAdminConfigured()) return missingAdminKey();
+  if (!isOperatorAccessConfigured()) return missingOperatorAccess();
+  if (!verifyOperatorAuthorization(request.headers.get("authorization"))) {
+    return unauthorized();
+  }
 
   try {
     const { id: rawId } = await context.params;
@@ -40,6 +76,9 @@ export async function PATCH(
 
     if (currentError || !current) throw new Error("Availability slot was not found");
     const input = AvailabilityInputSchema.parse({ ...current, ...changes });
+    if (new Date(input.start_time).getTime() <= Date.now()) {
+      throw new Error("Past slots cannot be updated");
+    }
     await validateAvailabilitySlot(supabase, input, id);
 
     const { data, error } = await supabase
@@ -60,17 +99,29 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _request: Request,
+  request: Request,
   context: { params: Promise<{ id: string }> },
 ) {
   if (!isSupabaseAdminConfigured()) return missingAdminKey();
+  if (!isOperatorAccessConfigured()) return missingOperatorAccess();
+  if (!verifyOperatorAuthorization(request.headers.get("authorization"))) {
+    return unauthorized();
+  }
 
   try {
     const { id: rawId } = await context.params;
     const id = AvailabilityIdSchema.parse(rawId);
     const supabase = getSupabaseAdminClient();
-    const { error } = await supabase.from("availability").delete().eq("id", id);
+    const { data, error } = await supabase
+      .from("availability")
+      .delete()
+      .eq("id", id)
+      .in("status", ["available", "blocked"])
+      .gt("start_time", new Date().toISOString())
+      .select("id")
+      .maybeSingle();
     if (error) throw error;
+    if (!data) throw new Error("Only future unreserved slots can be deleted");
     return NextResponse.json({ ok: true, deletedId: id });
   } catch (error) {
     return NextResponse.json(

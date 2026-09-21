@@ -23,7 +23,7 @@ test("lead DAL selects a minimal booking DTO and never queries requests", async 
 
 test("live lead access uses a server-only constant-time bearer check", async () => {
   const access = await readFile(
-    new URL("../lib/leads/access.ts", import.meta.url),
+    new URL("../lib/operator-access.ts", import.meta.url),
     "utf8",
   );
   const route = await readFile(

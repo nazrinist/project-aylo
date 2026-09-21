@@ -42,3 +42,8 @@ already exists.
 6. Edit the original slot, then delete it.
 
 No new environment variable is required for Day 6.
+
+> **Day 20 security update:** availability writes now also require the
+> `AYLO_OPERATOR_TOKEN` Bearer header. Run
+> `supabase/migrations/0008_availability_management.sql` and use the upgraded
+> seven-day UI described in `docs/DAY_20.md`.

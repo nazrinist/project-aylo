@@ -77,7 +77,8 @@ Run the SQL files in this order inside a Supabase project:
 5. `supabase/migrations/0005_request_persistence.sql`
 6. `supabase/migrations/0006_booking_persistence.sql`
 7. `supabase/migrations/0007_lead_decisions.sql`
-8. `supabase/seed.sql`
+8. `supabase/migrations/0008_availability_management.sql`
+9. `supabase/seed.sql`
 
 See [docs/DAY_2.md](./docs/DAY_2.md) for the data flow and setup checklist.
 
@@ -112,7 +113,8 @@ See [docs/DAY_5.md](./docs/DAY_5.md) for validation rules and the end-to-end tes
 `/availability` manages bookable times for each service. Slots are entered in
 Baku time, public reads respect RLS, and server-side writes reject invalid or
 overlapping intervals. PostgreSQL also enforces the overlap rule so concurrent
-requests cannot create conflicting slots.
+requests cannot create conflicting slots. Day 20 additionally protects every
+write with `AYLO_OPERATOR_TOKEN` and an atomic management function.
 
 Run `supabase/migrations/0004_availability_integrity.sql`, then follow
 [docs/DAY_6.md](./docs/DAY_6.md) for the CRUD and overlap test.
@@ -265,6 +267,23 @@ makes same-decision retries idempotent.
 Run `supabase/migrations/0007_lead_decisions.sql`, then follow
 [docs/DAY_19.md](./docs/DAY_19.md) for the transition rules, API contract,
 security boundary, and end-to-end checklist.
+
+## Day 20 proof
+
+`/availability` is now a seven-day merchant schedule covering available, held,
+booked, and blocked slots. Operators can create and edit future free slots, or
+explicitly confirm block, reopen, and delete actions. Held and booked times are
+read-only because the booking flow owns them.
+
+Live reads and every write re-check the same in-memory `AYLO_OPERATOR_TOKEN`
+used by the lead inbox. The `manage_availability_slot` database function locks
+the target row, validates business and service ownership, rejects overlaps and
+past changes, and applies one atomic mutation. Demo mode simulates changes in
+page memory; catalog mode remains honestly read-only.
+
+Run `supabase/migrations/0008_availability_management.sql`, then follow
+[docs/DAY_20.md](./docs/DAY_20.md) for the status rules, API contract, security
+boundary, and end-to-end checklist.
 
 ## Product rules
 1. AI interprets intent; deterministic code handles filtering and permissions.

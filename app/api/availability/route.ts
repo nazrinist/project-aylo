@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { availabilityWriteError, validateAvailabilitySlot } from "@/lib/availability";
 import {
+  isOperatorAccessConfigured,
+  verifyOperatorAuthorization,
+} from "@/lib/operator-access";
+import {
   getSupabaseAdminClient,
   getSupabaseServerClient,
   isSupabaseAdminConfigured,
@@ -33,6 +37,34 @@ function missingAdminKey() {
       error: "Add SUPABASE_SECRET_KEY to .env.local and restart the server",
     },
     { status: 503 },
+  );
+}
+
+function missingOperatorAccess() {
+  return NextResponse.json(
+    {
+      ok: false,
+      code: "AVAILABILITY_ACCESS_NOT_CONFIGURED",
+      error: "Add a strong AYLO_OPERATOR_TOKEN and restart the server",
+    },
+    { status: 503, headers: { "Cache-Control": "private, no-store" } },
+  );
+}
+
+function unauthorized() {
+  return NextResponse.json(
+    {
+      ok: false,
+      code: "AVAILABILITY_ACCESS_REQUIRED",
+      error: "The operator token is missing or invalid",
+    },
+    {
+      status: 401,
+      headers: {
+        "Cache-Control": "private, no-store",
+        "WWW-Authenticate": 'Bearer realm="Aylo availability"',
+      },
+    },
   );
 }
 
@@ -93,9 +125,16 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   if (!isSupabaseAdminConfigured()) return missingAdminKey();
+  if (!isOperatorAccessConfigured()) return missingOperatorAccess();
+  if (!verifyOperatorAuthorization(request.headers.get("authorization"))) {
+    return unauthorized();
+  }
 
   try {
     const input = AvailabilityInputSchema.parse(await request.json());
+    if (new Date(input.start_time).getTime() <= Date.now()) {
+      throw new Error("Past slots cannot be created");
+    }
     const supabase = getSupabaseAdminClient();
     await validateAvailabilitySlot(supabase, input);
 

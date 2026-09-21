@@ -248,12 +248,12 @@ export function DashboardOverview({
       </section>
 
       <aside className="dashboardNextDay">
-        <span>Day 19</span>
+        <span>Day 20</span>
         <div>
-          <strong>Lead decisions are ready</strong>
-          <p>Accept or reject pending leads with an explicit, re-authorized confirmation.</p>
+          <strong>Availability management is ready</strong>
+          <p>Manage seven-day schedules while booking-owned slots stay protected.</p>
         </div>
-        <Link href="/leads">Open inbox →</Link>
+        <Link href="/availability">Open schedule →</Link>
       </aside>
     </div>
   );

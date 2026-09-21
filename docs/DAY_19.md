@@ -10,7 +10,7 @@ final confirmation first.
 | Current status | Requested decision | Result |
 | --- | --- | --- |
 | `pending_confirmation` | `accepted` | Booking becomes accepted; slot stays `booked` |
-| `pending_confirmation` | `rejected` | Booking becomes rejected; a future slot becomes `available` |
+| `pending_confirmation` | `rejected` | Booking becomes rejected; a future slot becomes reusable and `available` |
 | `accepted` | `accepted` | Safe retry; no second transition |
 | `rejected` | `rejected` | Safe retry; no second transition |
 | Any final status | Different decision | `409 LEAD_ALREADY_DECIDED` |
@@ -18,6 +18,8 @@ final confirmation first.
 Rejecting a lead whose appointment is already in the past marks its slot
 `blocked` instead of advertising an unusable time. A past pending lead cannot be
 accepted. Cancellation remains outside the Day 19 merchant action contract.
+Day 20 detaches a rejected historical booking from its released availability
+row so the same future slot can safely receive a new booking.
 
 ## Atomic database mutation
 
