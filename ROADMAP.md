@@ -25,7 +25,7 @@
 - [x] Day 18: lead inbox
 - [x] Day 19: accept/reject lead
 - [x] Day 20: availability management
-- [ ] Day 21: basic analytics
+- [x] Day 21: basic analytics
 
 ## Week 4 — Reliability & beta
 - [ ] Day 22: request history

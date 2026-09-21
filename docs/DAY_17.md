@@ -17,7 +17,7 @@ raw booking rows to the browser.
 
 The page is intentionally read-only. Day 18 adds the lead inbox, Day 19 adds
 accept/reject actions, Day 20 expands availability management, and Day 21 adds
-analytics.
+operator-protected analytics at `/analytics`.
 
 ## Data modes
 

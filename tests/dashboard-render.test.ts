@@ -58,9 +58,9 @@ test("dashboard renders profile, readiness, services and upcoming slots", () => 
   assert.match(html, /95 AZN/);
   assert.match(html, /Upcoming slots/);
   assert.match(html, /Unavailable in this data mode/);
-  assert.match(html, /Availability management is ready/);
-  assert.match(html, /booking-owned slots stay protected/);
-  assert.match(html, /href="\/availability"/);
+  assert.match(html, /Basic analytics are ready/);
+  assert.match(html, /lead demand, decisions, value, and response time/);
+  assert.match(html, /href="\/analytics"/);
 });
 
 test("dashboard view does not render private request fields", () => {

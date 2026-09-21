@@ -231,6 +231,7 @@ export default function LeadsPage() {
           <div className="adminNav">
             <Link href="/" className="backLink">← Aylo search</Link>
             <Link href="/dashboard" className="backLink">Dashboard</Link>
+            <Link href="/analytics" className="backLink">Analytics</Link>
             <Link href="/businesses" className="backLink">Businesses</Link>
             <Link href="/services" className="backLink">Services</Link>
             <Link href="/availability" className="backLink">Availability</Link>

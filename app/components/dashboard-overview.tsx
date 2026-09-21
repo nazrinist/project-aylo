@@ -240,6 +240,7 @@ export function DashboardOverview({
           <h2 id="dashboard-actions-title">Keep the catalog ready</h2>
         </div>
         <nav aria-label="Dashboard quick actions">
+          <Link href="/analytics">View analytics</Link>
           <Link href="/leads">Open lead inbox</Link>
           <Link href="/businesses">Edit profile</Link>
           <Link href="/services">Manage services</Link>
@@ -248,12 +249,12 @@ export function DashboardOverview({
       </section>
 
       <aside className="dashboardNextDay">
-        <span>Day 20</span>
+        <span>Day 21</span>
         <div>
-          <strong>Availability management is ready</strong>
-          <p>Manage seven-day schedules while booking-owned slots stay protected.</p>
+          <strong>Basic analytics are ready</strong>
+          <p>Track privacy-safe lead demand, decisions, value, and response time.</p>
         </div>
-        <Link href="/availability">Open schedule →</Link>
+        <Link href="/analytics">Open analytics →</Link>
       </aside>
     </div>
   );

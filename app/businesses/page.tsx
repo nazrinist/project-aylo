@@ -131,6 +131,7 @@ export default function BusinessesPage() {
             <Link href="/" className="backLink">← Aylo search</Link>
             <Link href="/dashboard" className="backLink">Dashboard</Link>
             <Link href="/leads" className="backLink">Leads</Link>
+            <Link href="/analytics" className="backLink">Analytics</Link>
             <Link href="/services" className="backLink">Services</Link>
             <Link href="/availability" className="backLink">Availability</Link>
           </div>

@@ -285,6 +285,24 @@ Run `supabase/migrations/0008_availability_management.sql`, then follow
 [docs/DAY_20.md](./docs/DAY_20.md) for the status rules, API contract, security
 boundary, and end-to-end checklist.
 
+## Day 21 proof
+
+`/analytics` adds operator-protected 7, 30, and 90-day reporting for each
+business. It shows lead volume, decision mix, acceptance rate, accepted booking
+value, average merchant response time, a daily trend, and top-service
+performance. Accepted value is explicitly not presented as collected revenue
+because Aylo does not yet track payment or service completion.
+
+Live reads validate `AYLO_OPERATOR_TOKEN` on every request and reduce paginated
+booking rows to aggregate DTOs on the server. Booking IDs, request IDs, user
+IDs, request text, and customer identity never enter the response. Demo mode
+uses clearly labeled sample metrics, while catalog mode keeps private analytics
+unavailable instead of inventing zeros.
+
+No new database migration is required. Follow
+[docs/DAY_21.md](./docs/DAY_21.md) for metric definitions, data modes, privacy
+boundaries, API behavior, and the end-to-end checklist.
+
 ## Product rules
 1. AI interprets intent; deterministic code handles filtering and permissions.
 2. No irreversible action without explicit user confirmation.

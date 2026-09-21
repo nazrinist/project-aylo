@@ -139,3 +139,6 @@ Then verify:
 9. Lock the page and confirm the token and live schedule disappear from memory.
 10. Reject a future lead, then confirm its released slot can receive a new
     booking.
+
+Day 21 adds privacy-minimized booking analytics at `/analytics`; it does not
+change the availability mutation contract or require another migration.

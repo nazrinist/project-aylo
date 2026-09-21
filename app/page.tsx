@@ -210,6 +210,7 @@ export default function Home() {
           <div className="topActions">
             <Link href="/dashboard" className="manageLink">Dashboard →</Link>
             <Link href="/leads" className="manageLink">Lead inbox →</Link>
+            <Link href="/analytics" className="manageLink">Analytics →</Link>
             <Link href="/businesses" className="manageLink">Manage businesses →</Link>
             <Link href="/availability" className="manageLink">Availability →</Link>
             <div className={`databaseStatus ${health.status}`}>
