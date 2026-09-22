@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { IntentSchema } from "@/types/intent";
 import type { BookableSearchResult } from "@/types/search";
 import {
@@ -6,13 +6,18 @@ import {
   signBookingOffer,
 } from "@/lib/bookings/offer-token";
 import { bookingClaimsFromResult } from "@/lib/bookings/shared";
+import {
+  REQUEST_HISTORY_COOKIE,
+  requestHistoryCookieOptions,
+  rollRequestHistoryToken,
+} from "@/lib/history/session";
 import { searchProviders } from "@/lib/search/providers";
 import {
   createSearchRequest,
   finishSearchRequest,
 } from "@/lib/requests/persistence";
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   let savedRequestId: string | null = null;
 
   try {
@@ -44,12 +49,28 @@ export async function POST(request: Request) {
             )
           : null,
     }));
-    return NextResponse.json({
+    const response = NextResponse.json({
       ok: true,
       requestPersistence,
       ...search,
       results,
+    }, {
+      headers: { "Cache-Control": "private, no-store" },
     });
+    if (bookingRequestId) {
+      const historyToken = rollRequestHistoryToken(
+        request.cookies.get(REQUEST_HISTORY_COOKIE)?.value,
+        bookingRequestId,
+      );
+      if (historyToken) {
+        response.cookies.set({
+          name: REQUEST_HISTORY_COOKIE,
+          value: historyToken,
+          ...requestHistoryCookieOptions(),
+        });
+      }
+    }
+    return response;
   } catch (error) {
     if (savedRequestId) await finishSearchRequest(savedRequestId, "failed");
     const message = error instanceof Error ? error.message : "Unknown error";

@@ -303,6 +303,18 @@ No new database migration is required. Follow
 [docs/DAY_21.md](./docs/DAY_21.md) for metric definitions, data modes, privacy
 boundaries, API behavior, and the end-to-end checklist.
 
+## Day 22 proof
+
+`/history` shows up to 20 successful live searches created by the current
+browser. Access uses a 30-day AES-GCM-encrypted reference token in an
+`HttpOnly`, `SameSite=Lax` cookie. `/api/history` never accepts caller-supplied
+request IDs and never returns a full request UUID or `user_id`. Demo and public
+catalog modes keep private history unavailable instead of fabricating records.
+
+Users can explicitly forget the token on this browser without deleting rows
+that may be needed by bookings or audit data. No new migration is required.
+See [docs/DAY_22.md](./docs/DAY_22.md) for the ownership and privacy model.
+
 ## Product rules
 1. AI interprets intent; deterministic code handles filtering and permissions.
 2. No irreversible action without explicit user confirmation.

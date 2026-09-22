@@ -28,7 +28,7 @@
 - [x] Day 21: basic analytics
 
 ## Week 4 — Reliability & beta
-- [ ] Day 22: request history
+- [x] Day 22: request history
 - [ ] Day 23: preferences
 - [ ] Day 24: observability + agent_runs
 - [ ] Day 25: permission/safety checks
