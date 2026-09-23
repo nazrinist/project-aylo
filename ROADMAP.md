@@ -29,7 +29,7 @@
 
 ## Week 4 — Reliability & beta
 - [x] Day 22: request history
-- [ ] Day 23: preferences
+- [x] Day 23: preferences
 - [ ] Day 24: observability + agent_runs
 - [ ] Day 25: permission/safety checks
 - [ ] Day 26: prompt test suite

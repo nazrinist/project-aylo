@@ -5,6 +5,7 @@ import { FormEvent, useEffect, useState } from "react";
 import type { FollowUpQuestion } from "@/types/follow-up";
 import type { Intent } from "@/types/intent";
 import type { RequestPersistence } from "@/types/request";
+import type { AppliedPreference } from "@/types/preferences";
 import type {
   BookingConfirmation as ConfirmedBooking,
   BookingSubmissionResult,
@@ -26,7 +27,12 @@ import { BookingConfirmation } from "@/app/components/booking-confirmation";
 import { ResultCard } from "@/app/components/result-card";
 
 type IntentApiResponse =
-  | { ok: true; intent: Intent; followUp: FollowUpQuestion | null }
+  | {
+      ok: true;
+      intent: Intent;
+      followUp: FollowUpQuestion | null;
+      appliedPreferences: AppliedPreference[];
+    }
   | { ok: false; error: string };
 
 type SearchApiResponse =
@@ -52,6 +58,7 @@ export default function Home() {
   const [request, setRequest] = useState("");
   const [intent, setIntent] = useState<Intent | null>(null);
   const [followUp, setFollowUp] = useState<FollowUpQuestion | null>(null);
+  const [appliedPreferences, setAppliedPreferences] = useState<AppliedPreference[]>([]);
   const [conversationRequest, setConversationRequest] = useState("");
   const [results, setResults] = useState<BookableSearchResult[]>([]);
   const [source, setSource] = useState<SearchResponse["source"] | null>(null);
@@ -107,6 +114,7 @@ export default function Home() {
     setConfirmedBooking(null);
     setPersistedBooking(null);
     setFollowUp(null);
+    setAppliedPreferences([]);
 
     try {
       const intentResponse = await fetch("/api/intent", {
@@ -117,6 +125,7 @@ export default function Home() {
       const intentData = (await intentResponse.json()) as IntentApiResponse;
       if (!intentData.ok) throw new Error(intentData.error || "Intent request failed");
       setIntent(intentData.intent);
+      setAppliedPreferences(intentData.appliedPreferences);
 
       if (intentData.followUp) {
         setFollowUp(intentData.followUp);
@@ -151,6 +160,7 @@ export default function Home() {
     setConversationRequest("");
     setIntent(null);
     setFollowUp(null);
+    setAppliedPreferences([]);
     setResults([]);
     setSource(null);
     setRanking(null);
@@ -209,6 +219,7 @@ export default function Home() {
           <div className="brand">AYLO <span>alpha</span></div>
           <div className="topActions">
             <Link href="/history" className="manageLink">History →</Link>
+            <Link href="/preferences" className="manageLink">Preferences →</Link>
             <Link href="/dashboard" className="manageLink">Dashboard →</Link>
             <Link href="/leads" className="manageLink">Lead inbox →</Link>
             <Link href="/analytics" className="manageLink">Analytics →</Link>
@@ -276,6 +287,22 @@ export default function Home() {
         </form>
 
         {error && <div className="panel error">{error}</div>}
+
+        {appliedPreferences.length > 0 && (
+          <div className="preferenceApplied" aria-live="polite">
+            <span aria-hidden="true">✓</span>
+            <div>
+              <strong>Saved preferences applied</strong>
+              <small>
+                {appliedPreferences.map((field) =>
+                  field === "location" ? "location" : "maximum budget",
+                ).join(" · ")}
+                {" · "}Your request always wins when it includes a value.
+              </small>
+            </div>
+            <Link href="/preferences">Edit</Link>
+          </div>
+        )}
 
         {intent && (
           <details className="panel intentPanel">

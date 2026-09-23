@@ -315,6 +315,18 @@ Users can explicitly forget the token on this browser without deleting rows
 that may be needed by bookings or audit data. No new migration is required.
 See [docs/DAY_22.md](./docs/DAY_22.md) for the ownership and privacy model.
 
+## Day 23 proof
+
+`/preferences` stores optional default location and maximum-budget values for
+the current browser. The server encrypts them in an authenticated `HttpOnly`
+cookie; browser JavaScript never receives the plaintext cookie. A value stated
+in the current request always overrides its saved default, and Aylo deliberately
+does not save a default service, date, or time.
+
+Add an optional 32+ character `PREFERENCES_SECRET` to `.env.local`. No database
+migration is required. See [docs/DAY_23.md](./docs/DAY_23.md) for merge rules,
+security details, and the end-to-end check.
+
 ## Product rules
 1. AI interprets intent; deterministic code handles filtering and permissions.
 2. No irreversible action without explicit user confirmation.

@@ -587,6 +587,39 @@ pre { margin: 0; font-size: 13px; line-height: 1.55; }
 .historyPrivacyNote { display: flex; align-items: flex-start; gap: 10px; margin-top: 17px; border: 1px solid #d9e2da; border-radius: 14px; padding: 13px 15px; background: #f6faf7; }
 .historyPrivacyNote > span { display: grid; flex: 0 0 22px; width: 22px; height: 22px; place-items: center; border-radius: 50%; background: #dfeee2; color: #315d3a; font-size: 10px; font-weight: 900; }
 .historyPrivacyNote p { margin: 2px 0 0; color: #657067; font-size: 10px; line-height: 1.5; }
+.preferenceApplied { display: flex; align-items: center; gap: 11px; margin-top: 14px; border: 1px solid #d7e4d9; border-radius: 14px; padding: 11px 13px; background: #f5faf6; color: #2c6237; }
+.preferenceApplied > span { display: grid; flex: 0 0 26px; width: 26px; height: 26px; place-items: center; border-radius: 50%; background: #dfeee2; font-size: 11px; font-weight: 900; }
+.preferenceApplied > div { display: grid; flex: 1; gap: 2px; }
+.preferenceApplied strong { font-size: 11px; }
+.preferenceApplied small { color: #67756a; font-size: 9px; line-height: 1.45; }
+.preferenceApplied a { font-size: 9px; font-weight: 850; }
+.preferencesShell { min-height: 100vh; }
+.preferencesHeader { align-items: flex-end; }
+.preferencesHeaderBadge { display: inline-flex; align-items: center; border-radius: 999px; padding: 8px 11px; background: #e8f7eb; color: #267036; font-size: 11px; font-weight: 850; white-space: nowrap; }
+.preferencesUnavailable { display: flex; align-items: flex-start; gap: 16px; border: 1px solid #d8dfef; border-radius: 21px; padding: 23px; background: #f7f9ff; }
+.preferencesUnavailable > span { display: grid; flex: 0 0 42px; width: 42px; height: 42px; place-items: center; border-radius: 13px; background: #e4eaf7; color: #344969; font-size: 18px; }
+.preferencesUnavailable h2 { margin: 4px 0 7px; font-size: 24px; letter-spacing: -.03em; }
+.preferencesUnavailable p:not(.eyebrow) { margin-bottom: 0; color: #676c78; font-size: 12px; line-height: 1.55; }
+.preferencesUnavailable code { font-weight: 800; }
+.preferencesCard { overflow: hidden; border: 1px solid #ddddda; border-radius: 23px; background: white; box-shadow: 0 12px 38px rgba(0,0,0,.045); }
+.preferencesIntro { display: grid; grid-template-columns: 1fr 1fr; align-items: end; gap: 28px; border-bottom: 1px solid #e8e8e3; padding: 23px; background: #fafaf8; }
+.preferencesIntro h2 { margin: 5px 0 0; font-size: 25px; letter-spacing: -.03em; }
+.preferencesIntro > p { margin: 0; color: #6f6f69; font-size: 11px; line-height: 1.6; }
+.preferencesFields { display: grid; grid-template-columns: 1fr 1fr; gap: 17px; padding: 23px; }
+.preferencesFields label { display: grid; align-content: start; gap: 7px; color: #555550; font-size: 11px; font-weight: 800; }
+.preferencesFields input, .preferencesFields select { width: 100%; border: 1px solid #d8d8d3; border-radius: 12px; outline: none; padding: 12px; background: #fbfbf9; color: #252522; font: inherit; font-size: 13px; }
+.preferencesFields input:focus, .preferencesFields select:focus { border-color: #6c8f73; box-shadow: 0 0 0 3px rgba(69,120,81,.1); }
+.preferencesFields small { color: #898983; font-size: 9px; font-weight: 600; line-height: 1.45; }
+.preferencesBudget { display: grid; grid-template-columns: 1fr 88px; gap: 7px; }
+.preferencesMessage { margin: 0 23px 15px; border-radius: 11px; padding: 10px 12px; font-size: 10px; font-weight: 750; }
+.preferencesMessage.error { background: #fff2f2; color: #8e2020; }
+.preferencesMessage.success { background: #e8f7eb; color: #267036; }
+.preferencesActions { display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid #e8e8e3; padding: 15px 23px; }
+.preferencesActions button { border-radius: 11px; padding: 10px 13px; font-size: 10px; }
+.preferencesActions .preferencesClear { border: 1px solid #e2c9c9; background: white; color: #8a3030; }
+.preferencesPrivacyNote { display: flex; align-items: flex-start; gap: 10px; margin-top: 17px; border: 1px solid #d9e2da; border-radius: 14px; padding: 13px 15px; background: #f6faf7; }
+.preferencesPrivacyNote > span { display: grid; flex: 0 0 22px; width: 22px; height: 22px; place-items: center; border-radius: 50%; background: #dfeee2; color: #315d3a; font-size: 10px; font-weight: 900; }
+.preferencesPrivacyNote p { margin: 2px 0 0; color: #657067; font-size: 10px; line-height: 1.5; }
 @media (max-width: 680px) {
   .brandRow { align-items: flex-start; flex-direction: column; margin-bottom: 46px; }
   .topActions { width: 100%; justify-content: flex-start; }
@@ -705,6 +738,13 @@ pre { margin: 0; font-size: 13px; line-height: 1.55; }
   .historyFacts { grid-template-columns: 1fr 1fr; }
   .historyFacts > div:nth-child(2n) { border-right: 0; }
   .historyFacts > div:nth-child(-n+2) { border-bottom: 1px solid #e6e6e1; }
+  .preferenceApplied { align-items: flex-start; flex-wrap: wrap; }
+  .preferenceApplied a { margin-left: 37px; }
+  .preferencesHeader { align-items: flex-start; flex-direction: column; }
+  .preferencesUnavailable { flex-direction: column; }
+  .preferencesIntro, .preferencesFields { grid-template-columns: 1fr; }
+  .preferencesActions { flex-direction: column-reverse; }
+  .preferencesActions button { width: 100%; }
 }
 
 @media (prefers-reduced-motion: reduce) {
