@@ -354,6 +354,17 @@ safe error codes, without returning raw server errors. No database migration is
 required. See [docs/DAY_25.md](./docs/DAY_25.md) for the full permission matrix
 and verification flow.
 
+## Day 26 proof
+
+The intent prompt is now a versioned contract with deterministic golden evals
+for Azerbaijani and English requests, fixed relative dates, missing fields,
+malformed model output, strict schema validation, and Day 25 safety decisions.
+Production and tests share the same prompt builder and response parser.
+
+Run `npm run test:prompts` without an API key or network access. The complete
+suite still runs through `npm test`. No database migration is required. See
+[docs/DAY_26.md](./docs/DAY_26.md) for the corpus and update rules.
+
 ## Product rules
 1. AI interprets intent; deterministic code handles filtering and permissions.
 2. No irreversible action without explicit user confirmation.

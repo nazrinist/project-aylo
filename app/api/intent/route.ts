@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { extractIntentWithTelemetry } from "@/lib/ai/intent";
+import { INTENT_MODEL } from "@/lib/ai/intent-prompt";
 import { nextFollowUpQuestion } from "@/lib/intent/follow-up";
 import { recordAgentRun } from "@/lib/observability/agent-runs";
 import {
@@ -59,7 +60,7 @@ export async function POST(req: NextRequest) {
       requestId: null,
       operation: "intent_extraction",
       source: process.env.OPENAI_API_KEY ? "openai" : "demo",
-      model: process.env.OPENAI_API_KEY ? "gpt-5.6-mini" : null,
+      model: process.env.OPENAI_API_KEY ? INTENT_MODEL : null,
       status: "failed",
       latencyMs,
       inputTokens: null,

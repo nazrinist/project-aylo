@@ -29,7 +29,7 @@ export const IntentSchema = z.object({
   currency: z.string().trim().length(3).transform((value) => value.toUpperCase()).default("AZN"),
   missing_fields: z.array(z.string()).default([]),
   original_request: z.string().max(1000),
-}).refine(
+}).strict().refine(
   (intent) =>
     intent.budget_min === null ||
     intent.budget_max === null ||

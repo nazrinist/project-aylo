@@ -32,7 +32,7 @@
 - [x] Day 23: preferences
 - [x] Day 24: observability + agent_runs
 - [x] Day 25: permission/safety checks
-- [ ] Day 26: prompt test suite
+- [x] Day 26: prompt test suite
 - [ ] Day 27: edge cases
 - [ ] Day 28: seed 30–50 real providers
 - [ ] Day 29: closed beta

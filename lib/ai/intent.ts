@@ -1,10 +1,11 @@
 import OpenAI from "openai";
 import { IntentSchema, type Intent } from "@/types/intent";
 import { normalizeMissingFields } from "@/lib/intent/follow-up";
-
-function cleanJson(text: string) {
-  return text.trim().replace(/^```json\s*/i, "").replace(/```$/i, "").trim();
-}
+import {
+  buildIntentMessages,
+  INTENT_MODEL,
+  parseIntentModelOutput,
+} from "@/lib/ai/intent-prompt";
 
 function addDays(date: Date, days: number) {
   const result = new Date(date);
@@ -12,7 +13,7 @@ function addDays(date: Date, days: number) {
   return result.toISOString().slice(0, 10);
 }
 
-export function demoIntent(request: string): Intent {
+export function demoIntent(request: string, today = new Date()): Intent {
   const text = request.toLocaleLowerCase("az");
   const services: string[] = [];
   if (/saç|sac|hair|fen|styling/.test(text)) services.push("hair");
@@ -49,7 +50,6 @@ export function demoIntent(request: string): Intent {
     location = known.find((place) => text.includes(place)) ?? null;
   }
 
-  const today = new Date();
   const explicitDate = text.match(/\b(20\d{2}-\d{2}-\d{2})\b/)?.[1] ?? null;
   const date = explicitDate ?? (/birigün|birigun|day after tomorrow/.test(text)
       ? addDays(today, 2)
@@ -96,24 +96,15 @@ export async function extractIntentWithTelemetry(request: string): Promise<Inten
 
   const client = new OpenAI({ apiKey });
   const today = new Date().toISOString().slice(0, 10);
-  const model = "gpt-5.6-mini";
-
   const response = await client.responses.create({
-    model,
-    input: [
-      {
-        role: "system",
-        content: `You are the intent parser for Aylo, a consumer action agent.\nToday is ${today}.\nFor V1, only beauty services are supported.\nReturn ONLY valid JSON with these fields: category, services, location, date, time_from, time_to, budget_min, budget_max, currency, missing_fields, original_request.\nUse category \"beauty\" for hair, makeup, nails, lashes, brows and non-medical beauty services; otherwise \"unknown\".\nNormalize relative dates when possible. Use YYYY-MM-DD for date and HH:mm for times.\nIf a field is unknown, use null. missing_fields should include only information required to search meaningfully.\nDo not invent facts.`,
-      },
-      { role: "user", content: request },
-    ],
+    model: INTENT_MODEL,
+    input: buildIntentMessages(request, today),
   });
 
-  const parsed = JSON.parse(cleanJson(response.output_text));
   return {
-    intent: normalizeMissingFields(IntentSchema.parse(parsed)),
+    intent: parseIntentModelOutput(response.output_text, request),
     source: "openai",
-    model,
+    model: INTENT_MODEL,
     inputTokens: response.usage?.input_tokens ?? null,
     outputTokens: response.usage?.output_tokens ?? null,
   };

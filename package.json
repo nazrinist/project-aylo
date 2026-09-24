@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "test": "node --import tsx --test tests/*.test.ts",
+    "test:prompts": "node --import tsx --test tests/prompt-*.test.ts",
     "typecheck": "tsc --noEmit"
   },
   "engines": {
