@@ -1,13 +1,19 @@
 import type { FunctionTool } from "openai/resources/responses/responses";
 import { z } from "zod";
+import { SUPPORTED_SERVICES } from "@/types/intent";
+
+const BudgetSchema = z.number().finite().nonnegative().max(1_000_000);
 
 export const SearchProvidersToolInputSchema = z
   .object({
     category: z.enum(["beauty", "unknown"]),
-    services: z.array(z.string().trim().min(1).max(100)).max(10),
+    services: z
+      .array(z.enum(SUPPORTED_SERVICES))
+      .max(SUPPORTED_SERVICES.length)
+      .transform((services) => [...new Set(services)]),
     location: z.string().trim().min(1).max(200).nullable(),
-    budget_min: z.number().nonnegative().nullable(),
-    budget_max: z.number().nonnegative().nullable(),
+    budget_min: BudgetSchema.nullable(),
+    budget_max: BudgetSchema.nullable(),
     currency: z
       .string()
       .trim()
@@ -16,6 +22,15 @@ export const SearchProvidersToolInputSchema = z
     limit: z.number().int().min(1).max(250),
   })
   .strict()
+  .superRefine((input, context) => {
+    if (input.category === "unknown" && input.services.length > 0) {
+      context.addIssue({
+        code: "custom",
+        message: "Unknown categories cannot contain supported beauty services",
+        path: ["services"],
+      });
+    }
+  })
   .refine(
     (input) =>
       input.budget_min === null ||
@@ -45,7 +60,9 @@ export const SEARCH_PROVIDERS_TOOL = {
       },
       services: {
         type: "array",
-        items: { type: "string" },
+        items: { type: "string", enum: [...SUPPORTED_SERVICES] },
+        maxItems: SUPPORTED_SERVICES.length,
+        uniqueItems: true,
         description: "All requested services; every item must be covered.",
       },
       location: {
@@ -55,11 +72,13 @@ export const SEARCH_PROVIDERS_TOOL = {
       budget_min: {
         type: ["number", "null"],
         minimum: 0,
+        maximum: 1000000,
         description: "Minimum total service price, or null.",
       },
       budget_max: {
         type: ["number", "null"],
         minimum: 0,
+        maximum: 1000000,
         description: "Maximum total service price, or null.",
       },
       currency: {

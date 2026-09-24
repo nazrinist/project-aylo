@@ -4,6 +4,7 @@ import type { Intent } from "@/types/intent";
 import type { RankableSearchResult, SearchData } from "@/types/search";
 import { executeCheckAvailabilityTool } from "@/lib/tools/check-availability";
 import { executeSearchProvidersTool } from "@/lib/tools/search-providers";
+import { assertCurrentSearchIntent } from "./edge-cases";
 import { rankSearchResults, RANKING_METADATA } from "./ranking";
 import {
   appliedFilters,
@@ -11,7 +12,11 @@ import {
   resultMatchesFilters,
 } from "./shared";
 
-export async function searchProviders(intent: Intent): Promise<SearchData> {
+export async function searchProviders(
+  intent: Intent,
+  now = new Date(),
+): Promise<SearchData> {
+  assertCurrentSearchIntent(intent, now);
   const catalog = await executeSearchProvidersTool({
     category: intent.category,
     services: intent.services,
@@ -39,7 +44,7 @@ export async function searchProviders(intent: Intent): Promise<SearchData> {
     time_from: intent.time_from,
     time_to: intent.time_to,
     limit: 500,
-  });
+  }, now);
 
   const servicesById = new Map(
     catalog.providers.map((provider) => [provider.serviceId, provider]),
@@ -47,7 +52,7 @@ export async function searchProviders(intent: Intent): Promise<SearchData> {
   const eligibleResults = availability.slots
     .map((slot): RankableSearchResult | null => {
       const service = servicesById.get(slot.serviceId);
-      if (!service) return null;
+      if (!service || slot.businessId !== service.businessId) return null;
 
       return {
         id: slot.id,

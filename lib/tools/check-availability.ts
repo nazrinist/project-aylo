@@ -5,9 +5,11 @@ import type {
   CheckAvailabilityToolResult,
 } from "@/types/availability-tool";
 import { DEMO_PROVIDER_CATALOG } from "@/lib/search/demo-catalog";
+import { assertCurrentAvailabilityRequest } from "@/lib/search/edge-cases";
 import { getSupabaseServerClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import { CheckAvailabilityToolInputSchema } from "./check-availability-contract";
 import {
+  availabilityQueryBounds,
   buildDemoAvailabilitySlots,
   filterAvailabilitySlots,
 } from "./check-availability-shared";
@@ -22,29 +24,32 @@ type RawAvailability = {
 
 export async function executeCheckAvailabilityTool(
   rawInput: unknown,
+  now = new Date(),
 ): Promise<CheckAvailabilityToolResult> {
   const input = CheckAvailabilityToolInputSchema.parse(rawInput);
+  assertCurrentAvailabilityRequest(input, now);
 
   if (!isSupabaseConfigured()) {
     return {
       source: "demo",
-      slots: buildDemoAvailabilitySlots(DEMO_PROVIDER_CATALOG, input),
+      slots: buildDemoAvailabilitySlots(DEMO_PROVIDER_CATALOG, input, now),
     };
   }
 
-  const dayStart = `${input.date}T00:00:00+04:00`;
-  const next = new Date(`${input.date}T00:00:00Z`);
-  next.setUTCDate(next.getUTCDate() + 1);
-  const dayEnd = `${next.toISOString().slice(0, 10)}T00:00:00+04:00`;
+  const bounds = availabilityQueryBounds(input);
 
   const supabase = getSupabaseServerClient();
-  const { data, error } = await supabase
+  const boundedQuery = supabase
     .from("availability")
     .select("id,business_id,service_id,start_time,end_time")
     .in("service_id", input.service_ids)
     .eq("status", "available")
-    .gte("start_time", dayStart)
-    .lt("start_time", dayEnd)
+    .gte("start_time", bounds.start);
+  const { data, error } = await (
+    bounds.inclusiveEnd
+      ? boundedQuery.lte("start_time", bounds.end)
+      : boundedQuery.lt("start_time", bounds.end)
+  )
     .order("start_time", { ascending: true })
     .limit(500);
 
@@ -62,6 +67,6 @@ export async function executeCheckAvailabilityTool(
 
   return {
     source: "supabase",
-    slots: filterAvailabilitySlots(slots, input),
+    slots: filterAvailabilitySlots(slots, input, now),
   };
 }

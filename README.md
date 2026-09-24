@@ -365,6 +365,22 @@ Run `npm run test:prompts` without an API key or network access. The complete
 suite still runs through `npm test`. No database migration is required. See
 [docs/DAY_26.md](./docs/DAY_26.md) for the corpus and update rules.
 
+## Day 27 proof
+
+Searches now stop before persistence when the category is unsupported, required
+intent fields are absent, or the requested Baku date/time has passed. Intent
+and tool contracts accept only the five V1 service identifiers, remove
+duplicates, and reject contradictory or unbounded payloads.
+
+Availability filtering drops expired, malformed, overlong, duplicate, and
+cross-business slots before ranking. Explicit overnight windows correctly span
+the requested Baku date into the next day, while a single preferred time no
+longer wraps to the opposite end of the same date.
+
+Run `npm run test:edge-cases` for the focused regression suite. No database
+migration is required. See [docs/DAY_27.md](./docs/DAY_27.md) for the edge-case
+contract and stable API error codes.
+
 ## Product rules
 1. AI interprets intent; deterministic code handles filtering and permissions.
 2. No irreversible action without explicit user confirmation.

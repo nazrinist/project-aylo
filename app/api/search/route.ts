@@ -27,6 +27,10 @@ import {
   assertSafeRequest,
   RequestSafetyError,
 } from "@/lib/safety/request-policy";
+import {
+  assertCurrentSearchIntent,
+  SearchEdgeCaseError,
+} from "@/lib/search/edge-cases";
 
 export async function POST(request: NextRequest) {
   const traceId = randomUUID();
@@ -36,9 +40,11 @@ export async function POST(request: NextRequest) {
   try {
     const intent = IntentSchema.parse(await request.json());
     assertSafeRequest(intent.original_request);
+    const now = new Date();
+    assertCurrentSearchIntent(intent, now);
     let requestPersistence = await createSearchRequest(intent);
     savedRequestId = requestPersistence.requestId;
-    const search = await searchProviders(intent);
+    const search = await searchProviders(intent, now);
     let bookingRequestId: string | null = null;
     if (savedRequestId) {
       const requestReady = await finishSearchRequest(
@@ -101,6 +107,8 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     if (savedRequestId) await finishSearchRequest(savedRequestId, "failed");
     const latencyMs = normalizeLatency(startedAt);
+    const safetyError = error instanceof RequestSafetyError ? error : null;
+    const edgeCaseError = error instanceof SearchEdgeCaseError ? error : null;
     await recordAgentRun({
       traceId,
       requestId: savedRequestId,
@@ -111,17 +119,18 @@ export async function POST(request: NextRequest) {
       latencyMs,
       inputTokens: null,
       outputTokens: null,
-      errorCode: error instanceof RequestSafetyError
-        ? error.code
-        : "PROVIDER_SEARCH_ERROR",
+      errorCode:
+        safetyError?.code ?? edgeCaseError?.code ?? "PROVIDER_SEARCH_ERROR",
     });
-    const safetyError = error instanceof RequestSafetyError ? error : null;
     return NextResponse.json({
       ok: false,
-      code: safetyError?.code ?? "SEARCH_REQUEST_INVALID",
-      error: safetyError?.message ?? "Search could not be completed. Check the request and try again.",
+      code: safetyError?.code ?? edgeCaseError?.code ?? "SEARCH_REQUEST_INVALID",
+      error:
+        safetyError?.message ??
+        edgeCaseError?.message ??
+        "Search could not be completed. Check the request and try again.",
     }, {
-      status: safetyError ? 422 : 400,
+      status: safetyError ? 422 : edgeCaseError?.status ?? 400,
       headers: observabilityHeaders(traceId, latencyMs),
     });
   }

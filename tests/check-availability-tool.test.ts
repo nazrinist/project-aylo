@@ -16,6 +16,8 @@ const serviceIds = [
   "10000000-0000-4000-8000-000000000013",
 ];
 
+const now = new Date("2026-09-19T08:00:00.000Z");
+
 const baseInput = {
   service_ids: serviceIds,
   date: "2026-09-20",
@@ -80,7 +82,7 @@ test("duplicate service IDs are normalized before execution", () => {
 
 test("demo availability returns stable slots inside the requested time window", () => {
   const input = CheckAvailabilityToolInputSchema.parse(baseInput);
-  const slots = buildDemoAvailabilitySlots(DEMO_PROVIDER_CATALOG, input);
+  const slots = buildDemoAvailabilitySlots(DEMO_PROVIDER_CATALOG, input, now);
 
   assert.equal(slots.length, 3);
   assert.deepEqual(
@@ -101,6 +103,7 @@ test("explicit and overnight windows are filtered deterministically", () => {
   const daytime = buildDemoAvailabilitySlots(
     DEMO_PROVIDER_CATALOG,
     daytimeInput,
+    now,
   );
   assert.deepEqual(
     daytime.map((slot) => slot.startTime.slice(11, 16)),
@@ -126,8 +129,8 @@ test("explicit and overnight windows are filtered deterministically", () => {
         id: "early",
         businessId: "business",
         serviceId: serviceIds[0],
-        startTime: "2026-09-20T01:00:00+04:00",
-        endTime: "2026-09-20T02:30:00+04:00",
+        startTime: "2026-09-21T01:00:00+04:00",
+        endTime: "2026-09-21T02:30:00+04:00",
       },
       {
         id: "noon",
@@ -138,10 +141,11 @@ test("explicit and overnight windows are filtered deterministically", () => {
       },
     ],
     overnightInput,
+    now,
   );
   assert.deepEqual(
     overnight.map((slot) => slot.id),
-    ["early", "late"],
+    ["late", "early"],
   );
 });
 
@@ -154,6 +158,7 @@ test("availability results respect a stable limit", () => {
   const slots = buildDemoAvailabilitySlots(
     [...DEMO_PROVIDER_CATALOG].reverse(),
     input,
+    now,
   );
 
   assert.equal(slots.length, 2);

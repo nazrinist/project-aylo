@@ -35,6 +35,13 @@ test("searchProviders has a strict OpenAI function-tool contract", () => {
 
 test("tool input is normalized and invalid budget ranges are rejected", () => {
   assert.equal(SearchProvidersToolInputSchema.parse(baseInput).currency, "AZN");
+  assert.deepEqual(
+    SearchProvidersToolInputSchema.parse({
+      ...baseInput,
+      services: ["hair", "hair", "makeup"],
+    }).services,
+    ["hair", "makeup"],
+  );
   assert.equal(
     SearchProvidersToolInputSchema.safeParse({
       ...baseInput,
@@ -49,6 +56,20 @@ test("tool input is normalized and invalid budget ranges are rejected", () => {
   );
   assert.equal(
     SearchProvidersToolInputSchema.safeParse({ ...baseInput, unexpected: true }).success,
+    false,
+  );
+  assert.equal(
+    SearchProvidersToolInputSchema.safeParse({
+      ...baseInput,
+      services: ["massage"],
+    }).success,
+    false,
+  );
+  assert.equal(
+    SearchProvidersToolInputSchema.safeParse({
+      ...baseInput,
+      budget_max: 1_000_001,
+    }).success,
     false,
   );
 });
@@ -88,6 +109,7 @@ test("unsupported categories return no provider candidates", () => {
   const input = SearchProvidersToolInputSchema.parse({
     ...baseInput,
     category: "unknown",
+    services: [],
   });
   assert.deepEqual(filterProviderCandidates(DEMO_PROVIDER_CATALOG, input), []);
 });

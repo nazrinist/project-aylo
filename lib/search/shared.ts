@@ -75,8 +75,7 @@ export function timeDistanceMinutes(iso: string, intent: Pick<TimeIntent, "time_
   if (wanted === null) return 0;
   const date = new Date(iso);
   const available = date.getUTCHours() * 60 + date.getUTCMinutes() + 4 * 60;
-  const directDistance = Math.abs((available % (24 * 60)) - wanted);
-  return Math.min(directDistance, 24 * 60 - directDistance);
+  return Math.abs((available % (24 * 60)) - wanted);
 }
 
 function clockMinutes(value: string) {
@@ -96,9 +95,7 @@ export function timeMatches(iso: string, intent: TimeIntent) {
 
   if (from === null && to === null) return true;
   if (from !== null && to === null) {
-    const directDistance = Math.abs(slotMinutes - from);
-    const circularDistance = Math.min(directDistance, 24 * 60 - directDistance);
-    return circularDistance <= SINGLE_TIME_TOLERANCE_MINUTES;
+    return Math.abs(slotMinutes - from) <= SINGLE_TIME_TOLERANCE_MINUTES;
   }
   if (from === null && to !== null) return slotMinutes <= to;
   if (from === null || to === null) return true;
