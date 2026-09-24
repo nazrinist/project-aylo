@@ -33,6 +33,8 @@ export default function ServicesPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [operatorToken, setOperatorToken] = useState("");
+  const operatorReady = operatorToken.trim().length > 0;
 
   async function loadData() {
     setLoading(true);
@@ -115,7 +117,10 @@ export default function ServicesPage() {
         editingId ? `/api/services/${editingId}` : "/api/services",
         {
           method: editingId ? "PATCH" : "POST",
-          headers: { "content-type": "application/json" },
+          headers: {
+            "content-type": "application/json",
+            Authorization: `Bearer ${operatorToken.trim()}`,
+          },
           body: JSON.stringify(payload),
         },
       );
@@ -140,7 +145,10 @@ export default function ServicesPage() {
     setError(null);
     setNotice(null);
     try {
-      const response = await fetch(`/api/services/${service.id}`, { method: "DELETE" });
+      const response = await fetch(`/api/services/${service.id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${operatorToken.trim()}` },
+      });
       const data = await response.json();
       if (!data.ok) throw new Error(data.error || "Delete failed");
       setNotice(`${service.name} deleted.`);
@@ -169,6 +177,27 @@ export default function ServicesPage() {
         </div>
         <span className="catalogCount">{visibleServices.length} services</span>
       </header>
+
+      <section className="catalogAccessCard">
+        <div>
+          <p className="eyebrow">Protected writes</p>
+          <strong>Operator access</strong>
+          <small>Required to create, update, or delete services.</small>
+        </div>
+        <label>
+          <span className="srOnly">AYLO operator token</span>
+          <input
+            type="password"
+            value={operatorToken}
+            onChange={(event) => setOperatorToken(event.target.value)}
+            placeholder="AYLO_OPERATOR_TOKEN"
+            autoComplete="off"
+          />
+        </label>
+        <span className={operatorReady ? "ready" : "locked"}>
+          {operatorReady ? "Token ready" : "Read-only"}
+        </span>
+      </section>
 
       <div className="businessLayout">
         <form className="businessForm" onSubmit={submit}>
@@ -256,7 +285,7 @@ export default function ServicesPage() {
             Available in Aylo search
           </label>
 
-          <button className="primaryButton" disabled={saving || businesses.length === 0}>
+          <button className="primaryButton" disabled={saving || businesses.length === 0 || !operatorReady}>
             {saving ? "Saving…" : editingId ? "Save changes" : "Create service"}
           </button>
         </form>
@@ -301,7 +330,7 @@ export default function ServicesPage() {
               </div>
               <div className="cardActions">
                 <button type="button" className="secondaryButton" onClick={() => editService(service)}>Edit</button>
-                <button type="button" className="dangerButton" onClick={() => removeService(service)}>Delete</button>
+                <button type="button" className="dangerButton" disabled={!operatorReady} onClick={() => removeService(service)}>Delete</button>
               </div>
             </article>
           ))}

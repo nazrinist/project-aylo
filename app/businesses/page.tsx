@@ -26,6 +26,8 @@ export default function BusinessesPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [operatorToken, setOperatorToken] = useState("");
+  const operatorReady = operatorToken.trim().length > 0;
 
   async function loadBusinesses() {
     setLoading(true);
@@ -85,7 +87,10 @@ export default function BusinessesPage() {
         editingId ? `/api/businesses/${editingId}` : "/api/businesses",
         {
           method: editingId ? "PATCH" : "POST",
-          headers: { "content-type": "application/json" },
+          headers: {
+            "content-type": "application/json",
+            Authorization: `Bearer ${operatorToken.trim()}`,
+          },
           body: JSON.stringify(payload),
         },
       );
@@ -112,6 +117,7 @@ export default function BusinessesPage() {
     try {
       const response = await fetch(`/api/businesses/${business.id}`, {
         method: "DELETE",
+        headers: { Authorization: `Bearer ${operatorToken.trim()}` },
       });
       const data = await response.json();
       if (!data.ok) throw new Error(data.error || "Delete failed");
@@ -141,6 +147,27 @@ export default function BusinessesPage() {
         </div>
         <span className="catalogCount">{businesses.length} providers</span>
       </header>
+
+      <section className="catalogAccessCard">
+        <div>
+          <p className="eyebrow">Protected writes</p>
+          <strong>Operator access</strong>
+          <small>Required to create, update, or delete providers.</small>
+        </div>
+        <label>
+          <span className="srOnly">AYLO operator token</span>
+          <input
+            type="password"
+            value={operatorToken}
+            onChange={(event) => setOperatorToken(event.target.value)}
+            placeholder="AYLO_OPERATOR_TOKEN"
+            autoComplete="off"
+          />
+        </label>
+        <span className={operatorReady ? "ready" : "locked"}>
+          {operatorReady ? "Token ready" : "Read-only"}
+        </span>
+      </section>
 
       <div className="businessLayout">
         <form className="businessForm" onSubmit={submit}>
@@ -202,12 +229,12 @@ export default function BusinessesPage() {
             Verified provider
           </label>
 
-          <button className="primaryButton" disabled={saving}>
+          <button className="primaryButton" disabled={saving || !operatorReady}>
             {saving ? "Saving…" : editingId ? "Save changes" : "Create business"}
           </button>
 
           <p className="securityNote">
-            Write operations run only on the server with the Supabase secret key.
+            The token stays only in this page&apos;s memory. It is never saved in browser storage.
           </p>
         </form>
 
@@ -236,7 +263,7 @@ export default function BusinessesPage() {
                 <button type="button" className="secondaryButton" onClick={() => editBusiness(business)}>
                   Edit
                 </button>
-                <button type="button" className="dangerButton" onClick={() => removeBusiness(business)}>
+                <button type="button" className="dangerButton" disabled={!operatorReady} onClick={() => removeBusiness(business)}>
                   Delete
                 </button>
               </div>

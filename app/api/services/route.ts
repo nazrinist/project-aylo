@@ -7,6 +7,7 @@ import {
 } from "@/lib/supabase/server";
 import { ServiceInputSchema } from "@/types/service";
 import { z } from "zod";
+import { requireOperatorAuthorization } from "@/lib/operator-response";
 
 export const dynamic = "force-dynamic";
 
@@ -82,6 +83,8 @@ export async function POST(request: Request) {
       { status: 503 },
     );
   }
+  const accessError = requireOperatorAuthorization(request, "Aylo service management");
+  if (accessError) return accessError;
 
   try {
     const input = ServiceInputSchema.parse(await request.json());

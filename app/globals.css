@@ -587,6 +587,15 @@ pre { margin: 0; font-size: 13px; line-height: 1.55; }
 .historyPrivacyNote { display: flex; align-items: flex-start; gap: 10px; margin-top: 17px; border: 1px solid #d9e2da; border-radius: 14px; padding: 13px 15px; background: #f6faf7; }
 .historyPrivacyNote > span { display: grid; flex: 0 0 22px; width: 22px; height: 22px; place-items: center; border-radius: 50%; background: #dfeee2; color: #315d3a; font-size: 10px; font-weight: 900; }
 .historyPrivacyNote p { margin: 2px 0 0; color: #657067; font-size: 10px; line-height: 1.5; }
+.catalogAccessCard { display: grid; grid-template-columns: 1fr minmax(220px, 340px) auto; align-items: center; gap: 14px; margin-bottom: 18px; border: 1px solid #d9dfd9; border-radius: 17px; padding: 14px 16px; background: #f8faf8; }
+.catalogAccessCard > div { display: grid; gap: 4px; }
+.catalogAccessCard strong { font-size: 13px; }
+.catalogAccessCard small { color: #75756f; font-size: 9px; }
+.catalogAccessCard input { width: 100%; border: 1px solid #d5d5cf; border-radius: 10px; outline: none; padding: 10px 11px; background: white; color: #282825; font: inherit; font-size: 11px; }
+.catalogAccessCard input:focus { border-color: #6c8f73; box-shadow: 0 0 0 3px rgba(69,120,81,.1); }
+.catalogAccessCard > span { border-radius: 999px; padding: 6px 9px; font-size: 9px; font-weight: 850; white-space: nowrap; }
+.catalogAccessCard > span.ready { background: #e8f7eb; color: #267036; }
+.catalogAccessCard > span.locked { background: #eeeeea; color: #6f6f69; }
 .preferenceApplied { display: flex; align-items: center; gap: 11px; margin-top: 14px; border: 1px solid #d7e4d9; border-radius: 14px; padding: 11px 13px; background: #f5faf6; color: #2c6237; }
 .preferenceApplied > span { display: grid; flex: 0 0 26px; width: 26px; height: 26px; place-items: center; border-radius: 50%; background: #dfeee2; font-size: 11px; font-weight: 900; }
 .preferenceApplied > div { display: grid; flex: 1; gap: 2px; }
@@ -738,6 +747,8 @@ pre { margin: 0; font-size: 13px; line-height: 1.55; }
   .historyFacts { grid-template-columns: 1fr 1fr; }
   .historyFacts > div:nth-child(2n) { border-right: 0; }
   .historyFacts > div:nth-child(-n+2) { border-bottom: 1px solid #e6e6e1; }
+  .catalogAccessCard { grid-template-columns: 1fr; align-items: stretch; }
+  .catalogAccessCard > span { width: fit-content; }
   .preferenceApplied { align-items: flex-start; flex-wrap: wrap; }
   .preferenceApplied a { margin-left: 37px; }
   .preferencesHeader { align-items: flex-start; flex-direction: column; }

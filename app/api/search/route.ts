@@ -23,6 +23,10 @@ import {
   observabilityHeaders,
 } from "@/lib/observability/shared";
 import { isSupabaseConfigured } from "@/lib/supabase/server";
+import {
+  assertSafeRequest,
+  RequestSafetyError,
+} from "@/lib/safety/request-policy";
 
 export async function POST(request: NextRequest) {
   const traceId = randomUUID();
@@ -31,6 +35,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const intent = IntentSchema.parse(await request.json());
+    assertSafeRequest(intent.original_request);
     let requestPersistence = await createSearchRequest(intent);
     savedRequestId = requestPersistence.requestId;
     const search = await searchProviders(intent);
@@ -106,11 +111,17 @@ export async function POST(request: NextRequest) {
       latencyMs,
       inputTokens: null,
       outputTokens: null,
-      errorCode: "PROVIDER_SEARCH_ERROR",
+      errorCode: error instanceof RequestSafetyError
+        ? error.code
+        : "PROVIDER_SEARCH_ERROR",
     });
-    const message = error instanceof Error ? error.message : "Unknown error";
-    return NextResponse.json({ ok: false, error: message }, {
-      status: 400,
+    const safetyError = error instanceof RequestSafetyError ? error : null;
+    return NextResponse.json({
+      ok: false,
+      code: safetyError?.code ?? "SEARCH_REQUEST_INVALID",
+      error: safetyError?.message ?? "Search could not be completed. Check the request and try again.",
+    }, {
+      status: safetyError ? 422 : 400,
       headers: observabilityHeaders(traceId, latencyMs),
     });
   }

@@ -4,6 +4,7 @@ import {
   isSupabaseAdminConfigured,
 } from "@/lib/supabase/server";
 import { ServiceIdSchema, ServiceUpdateSchema } from "@/types/service";
+import { requireOperatorAuthorization } from "@/lib/operator-response";
 
 function missingAdminKey() {
   return NextResponse.json(
@@ -21,6 +22,8 @@ export async function PATCH(
   context: { params: Promise<{ id: string }> },
 ) {
   if (!isSupabaseAdminConfigured()) return missingAdminKey();
+  const accessError = requireOperatorAuthorization(request, "Aylo service management");
+  if (accessError) return accessError;
 
   try {
     const { id: rawId } = await context.params;
@@ -45,10 +48,12 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _request: Request,
+  request: Request,
   context: { params: Promise<{ id: string }> },
 ) {
   if (!isSupabaseAdminConfigured()) return missingAdminKey();
+  const accessError = requireOperatorAuthorization(request, "Aylo service management");
+  if (accessError) return accessError;
 
   try {
     const { id: rawId } = await context.params;

@@ -10,6 +10,10 @@ import {
 } from "@/lib/observability/shared";
 import { applySearchPreferences } from "@/lib/preferences/shared";
 import {
+  assertSafeRequest,
+  RequestSafetyError,
+} from "@/lib/safety/request-policy";
+import {
   PREFERENCES_COOKIE,
   readPreferences,
 } from "@/lib/preferences/session";
@@ -21,6 +25,7 @@ export async function POST(req: NextRequest) {
   const startedAt = performance.now();
   try {
     const body = BodySchema.parse(await req.json());
+    assertSafeRequest(body.request);
     const extraction = await extractIntentWithTelemetry(body.request);
     const { intent, appliedPreferences } = applySearchPreferences(
       extraction.intent,
@@ -59,11 +64,19 @@ export async function POST(req: NextRequest) {
       latencyMs,
       inputTokens: null,
       outputTokens: null,
-      errorCode: error instanceof z.ZodError ? "VALIDATION_ERROR" : "INTENT_EXTRACTION_ERROR",
+      errorCode: error instanceof z.ZodError
+        ? "VALIDATION_ERROR"
+        : error instanceof RequestSafetyError
+          ? error.code
+          : "INTENT_EXTRACTION_ERROR",
     });
-    const message = error instanceof Error ? error.message : "Unknown error";
-    return NextResponse.json({ ok: false, error: message }, {
-      status: 400,
+    const safetyError = error instanceof RequestSafetyError ? error : null;
+    return NextResponse.json({
+      ok: false,
+      code: safetyError?.code ?? "INTENT_REQUEST_INVALID",
+      error: safetyError?.message ?? "The request could not be understood. Check the details and try again.",
+    }, {
+      status: safetyError ? 422 : 400,
       headers: observabilityHeaders(traceId, latencyMs),
     });
   }

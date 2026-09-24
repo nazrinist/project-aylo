@@ -6,6 +6,7 @@ import {
   isSupabaseConfigured,
 } from "@/lib/supabase/server";
 import { BusinessInputSchema } from "@/types/business";
+import { requireOperatorAuthorization } from "@/lib/operator-response";
 
 export const dynamic = "force-dynamic";
 
@@ -41,6 +42,8 @@ export async function POST(request: Request) {
       { status: 503 },
     );
   }
+  const accessError = requireOperatorAuthorization(request, "Aylo business management");
+  if (accessError) return accessError;
 
   try {
     const input = BusinessInputSchema.parse(await request.json());

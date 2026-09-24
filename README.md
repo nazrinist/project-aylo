@@ -340,6 +340,20 @@ Run `supabase/migrations/0009_agent_run_observability.sql`, then see
 [docs/DAY_24.md](./docs/DAY_24.md) for the schema, privacy boundary, and trace
 verification flow.
 
+## Day 25 proof
+
+All business and service writes now require the same constant-time
+`AYLO_OPERATOR_TOKEN` authorization used by merchant tools; public catalog
+reads remain open. The management pages keep that token only in current React
+memory and never persist it in browser storage.
+
+Intent and structured search endpoints independently apply a deterministic
+safety boundary before model or provider execution. Aylo V1 refuses invasive
+or medical procedure requests and instruction-extraction attacks with stable,
+safe error codes, without returning raw server errors. No database migration is
+required. See [docs/DAY_25.md](./docs/DAY_25.md) for the full permission matrix
+and verification flow.
+
 ## Product rules
 1. AI interprets intent; deterministic code handles filtering and permissions.
 2. No irreversible action without explicit user confirmation.
