@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
+import { randomUUID } from "node:crypto";
 import { IntentSchema } from "@/types/intent";
 import type { BookableSearchResult } from "@/types/search";
 import {
@@ -16,8 +17,16 @@ import {
   createSearchRequest,
   finishSearchRequest,
 } from "@/lib/requests/persistence";
+import { recordAgentRun } from "@/lib/observability/agent-runs";
+import {
+  normalizeLatency,
+  observabilityHeaders,
+} from "@/lib/observability/shared";
+import { isSupabaseConfigured } from "@/lib/supabase/server";
 
 export async function POST(request: NextRequest) {
+  const traceId = randomUUID();
+  const startedAt = performance.now();
   let savedRequestId: string | null = null;
 
   try {
@@ -49,13 +58,26 @@ export async function POST(request: NextRequest) {
             )
           : null,
     }));
+    const latencyMs = normalizeLatency(startedAt);
+    await recordAgentRun({
+      traceId,
+      requestId: savedRequestId,
+      operation: "provider_search",
+      source: search.source,
+      model: null,
+      status: "succeeded",
+      latencyMs,
+      inputTokens: null,
+      outputTokens: null,
+      errorCode: null,
+    });
     const response = NextResponse.json({
       ok: true,
       requestPersistence,
       ...search,
       results,
     }, {
-      headers: { "Cache-Control": "private, no-store" },
+      headers: observabilityHeaders(traceId, latencyMs),
     });
     if (bookingRequestId) {
       const historyToken = rollRequestHistoryToken(
@@ -73,7 +95,23 @@ export async function POST(request: NextRequest) {
     return response;
   } catch (error) {
     if (savedRequestId) await finishSearchRequest(savedRequestId, "failed");
+    const latencyMs = normalizeLatency(startedAt);
+    await recordAgentRun({
+      traceId,
+      requestId: savedRequestId,
+      operation: "provider_search",
+      source: isSupabaseConfigured() ? "supabase" : "demo",
+      model: null,
+      status: "failed",
+      latencyMs,
+      inputTokens: null,
+      outputTokens: null,
+      errorCode: "PROVIDER_SEARCH_ERROR",
+    });
     const message = error instanceof Error ? error.message : "Unknown error";
-    return NextResponse.json({ ok: false, error: message }, { status: 400 });
+    return NextResponse.json({ ok: false, error: message }, {
+      status: 400,
+      headers: observabilityHeaders(traceId, latencyMs),
+    });
   }
 }

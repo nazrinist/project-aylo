@@ -74,15 +74,32 @@ export function demoIntent(request: string): Intent {
   }));
 }
 
-export async function extractIntent(request: string): Promise<Intent> {
+export type IntentExtraction = {
+  intent: Intent;
+  source: "openai" | "demo";
+  model: string | null;
+  inputTokens: number | null;
+  outputTokens: number | null;
+};
+
+export async function extractIntentWithTelemetry(request: string): Promise<IntentExtraction> {
   const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) return demoIntent(request);
+  if (!apiKey) {
+    return {
+      intent: demoIntent(request),
+      source: "demo",
+      model: null,
+      inputTokens: null,
+      outputTokens: null,
+    };
+  }
 
   const client = new OpenAI({ apiKey });
   const today = new Date().toISOString().slice(0, 10);
+  const model = "gpt-5.6-mini";
 
   const response = await client.responses.create({
-    model: "gpt-5.6-mini",
+    model,
     input: [
       {
         role: "system",
@@ -93,5 +110,15 @@ export async function extractIntent(request: string): Promise<Intent> {
   });
 
   const parsed = JSON.parse(cleanJson(response.output_text));
-  return normalizeMissingFields(IntentSchema.parse(parsed));
+  return {
+    intent: normalizeMissingFields(IntentSchema.parse(parsed)),
+    source: "openai",
+    model,
+    inputTokens: response.usage?.input_tokens ?? null,
+    outputTokens: response.usage?.output_tokens ?? null,
+  };
+}
+
+export async function extractIntent(request: string): Promise<Intent> {
+  return (await extractIntentWithTelemetry(request)).intent;
 }

@@ -78,7 +78,8 @@ Run the SQL files in this order inside a Supabase project:
 6. `supabase/migrations/0006_booking_persistence.sql`
 7. `supabase/migrations/0007_lead_decisions.sql`
 8. `supabase/migrations/0008_availability_management.sql`
-9. `supabase/seed.sql`
+9. `supabase/migrations/0009_agent_run_observability.sql`
+10. `supabase/seed.sql`
 
 See [docs/DAY_2.md](./docs/DAY_2.md) for the data flow and setup checklist.
 
@@ -326,6 +327,18 @@ does not save a default service, date, or time.
 Add an optional 32+ character `PREFERENCES_SECRET` to `.env.local`. No database
 migration is required. See [docs/DAY_23.md](./docs/DAY_23.md) for merge rules,
 security details, and the end-to-end check.
+
+## Day 24 proof
+
+Intent extraction and provider search now create private, best-effort
+`agent_runs` telemetry with an opaque trace ID, operation/source, status,
+latency, and available token counts. Responses expose correlation through
+`X-Aylo-Trace-Id` and timing through `Server-Timing`, while prompts, request
+text, model output, results, cookies, secrets, and raw errors are never logged.
+
+Run `supabase/migrations/0009_agent_run_observability.sql`, then see
+[docs/DAY_24.md](./docs/DAY_24.md) for the schema, privacy boundary, and trace
+verification flow.
 
 ## Product rules
 1. AI interprets intent; deterministic code handles filtering and permissions.
