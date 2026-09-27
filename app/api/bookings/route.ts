@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { BookingCreateInputSchema } from "@/types/booking";
 import { BookingWriteError } from "@/lib/bookings/errors";
@@ -9,6 +9,7 @@ import {
 import { persistConfirmedBooking } from "@/lib/bookings/persistence";
 import { bookingClaimsFromInput } from "@/lib/bookings/shared";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/server";
+import { requireBetaAccess } from "@/lib/beta/response";
 
 export const dynamic = "force-dynamic";
 
@@ -23,7 +24,9 @@ function persistenceUnavailable() {
   );
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  const betaAccessError = requireBetaAccess(request);
+  if (betaAccessError) return betaAccessError;
   if (!isSupabaseAdminConfigured()) return persistenceUnavailable();
   const signingSecret = getBookingSigningSecret();
   if (!signingSecret) return persistenceUnavailable();

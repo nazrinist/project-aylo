@@ -64,8 +64,8 @@ check date.
 Do not mark a candidate verified or create offers from a listing alone. Before
 the provider becomes bookable, an operator must confirm the business details,
 receive the provider's service names and prices, add valid availability, and
-move the profile through the merchant onboarding flow. Day 29 owns that beta
-onboarding step.
+move the profile through a separate merchant onboarding flow. Day 29 validates
+the consumer journey with invited testers; it does not promote candidates.
 
 ## Verification
 

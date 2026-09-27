@@ -35,5 +35,5 @@
 - [x] Day 26: prompt test suite
 - [x] Day 27: edge cases
 - [x] Day 28: seed 30–50 real providers
-- [ ] Day 29: closed beta
+- [x] Day 29: closed beta
 - [ ] Day 30: public beta

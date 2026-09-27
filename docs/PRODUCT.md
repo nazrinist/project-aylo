@@ -21,3 +21,8 @@ Completed intents per week.
 
 ## First funnel
 Request → structured intent → search → ranked offers → user confirmation → booking.
+
+## Closed-beta goal
+Invite 50 real testers to use Aylo for one beauty appointment they could book
+in the current week. Measure useful options, booking requests, no-match cases,
+technical blockers, and ease of use without collecting tester identity.

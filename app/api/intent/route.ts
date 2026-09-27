@@ -18,10 +18,13 @@ import {
   PREFERENCES_COOKIE,
   readPreferences,
 } from "@/lib/preferences/session";
+import { requireBetaAccess } from "@/lib/beta/response";
 
 const BodySchema = z.object({ request: z.string().trim().min(3).max(1000) });
 
 export async function POST(req: NextRequest) {
+  const betaAccessError = requireBetaAccess(req);
+  if (betaAccessError) return betaAccessError;
   const traceId = randomUUID();
   const startedAt = performance.now();
   try {

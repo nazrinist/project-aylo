@@ -31,8 +31,11 @@ import {
   assertCurrentSearchIntent,
   SearchEdgeCaseError,
 } from "@/lib/search/edge-cases";
+import { requireBetaAccess } from "@/lib/beta/response";
 
 export async function POST(request: NextRequest) {
+  const betaAccessError = requireBetaAccess(request);
+  if (betaAccessError) return betaAccessError;
   const traceId = randomUUID();
   const startedAt = performance.now();
   let savedRequestId: string | null = null;

@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { getRequestHistoryData, RequestHistorySecretMissingError } from "@/lib/history/data";
 import { REQUEST_HISTORY_COOKIE, requestHistoryCookieOptions } from "@/lib/history/session";
+import { requireBetaAccess } from "@/lib/beta/response";
 
 export const dynamic = "force-dynamic";
 
@@ -12,6 +13,8 @@ function json(body: unknown, status = 200) {
 }
 
 export async function GET(request: NextRequest) {
+  const betaAccessError = requireBetaAccess(request);
+  if (betaAccessError) return betaAccessError;
   try {
     if (request.nextUrl.searchParams.size > 0) {
       return json({ ok: false, code: "HISTORY_QUERY_INVALID", error: "Request history does not accept query parameters." }, 400);
@@ -27,7 +30,9 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function DELETE() {
+export async function DELETE(request: NextRequest) {
+  const betaAccessError = requireBetaAccess(request);
+  if (betaAccessError) return betaAccessError;
   const response = json({ ok: true });
   response.cookies.set({
     name: REQUEST_HISTORY_COOKIE,

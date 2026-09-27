@@ -80,7 +80,8 @@ Run the SQL files in this order inside a Supabase project:
 8. `supabase/migrations/0008_availability_management.sql`
 9. `supabase/migrations/0009_agent_run_observability.sql`
 10. `supabase/migrations/0010_provider_provenance.sql`
-11. `supabase/seed.sql`
+11. `supabase/migrations/0011_closed_beta.sql`
+12. `supabase/seed.sql`
 
 See [docs/DAY_2.md](./docs/DAY_2.md) for the data flow and setup checklist.
 
@@ -394,6 +395,21 @@ Run `supabase/migrations/0010_provider_provenance.sql`, rerun
 `supabase/seed.sql`, and use `npm run test:providers` for the focused integrity
 suite. See [docs/DAY_28.md](./docs/DAY_28.md) for the provenance boundary and
 Supabase checklist.
+
+## Day 29 proof
+
+Aylo now supports an invitation-only closed beta. `proxy.ts` gates pages and
+APIs when `AYLO_BETA_MODE=closed`; critical consumer routes also re-check an
+encrypted seven-day `HttpOnly` beta session before reading request bodies.
+Invite codes and cookie secrets remain server-only.
+
+Authenticated testers can submit a structured outcome, ease score, and optional
+privacy-guided comment after a search. Supabase stores only a pseudonymous
+browser participant—never an email, IP address, user-agent, or invite code.
+
+Run `supabase/migrations/0011_closed_beta.sql`, configure the three Day 29
+environment values, and use `npm run test:beta` for the focused suite. See
+[docs/DAY_29.md](./docs/DAY_29.md) for launch and monitoring steps.
 
 ## Product rules
 1. AI interprets intent; deterministic code handles filtering and permissions.

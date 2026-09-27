@@ -11,6 +11,7 @@ import {
   EMPTY_SEARCH_PREFERENCES,
   SearchPreferencesSchema,
 } from "@/types/preferences";
+import { requireBetaAccess } from "@/lib/beta/response";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +23,8 @@ function json(body: unknown, status = 200) {
 }
 
 export async function GET(request: NextRequest) {
+  const betaAccessError = requireBetaAccess(request);
+  if (betaAccessError) return betaAccessError;
   if (request.nextUrl.searchParams.size > 0) {
     return json({ ok: false, code: "PREFERENCES_QUERY_INVALID", error: "Preferences do not accept query parameters." }, 400);
   }
@@ -36,6 +39,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
+  const betaAccessError = requireBetaAccess(request);
+  if (betaAccessError) return betaAccessError;
   try {
     if (!getPreferencesSecret()) {
       return json({ ok: false, code: "PREFERENCES_SECRET_MISSING", error: "Add a 32+ character PREFERENCES_SECRET and restart the server." }, 503);
@@ -55,7 +60,9 @@ export async function PUT(request: NextRequest) {
   }
 }
 
-export async function DELETE() {
+export async function DELETE(request: NextRequest) {
+  const betaAccessError = requireBetaAccess(request);
+  if (betaAccessError) return betaAccessError;
   const response = json({ ok: true, configured: Boolean(getPreferencesSecret()), preferences: EMPTY_SEARCH_PREFERENCES });
   response.cookies.set({
     name: PREFERENCES_COOKIE,

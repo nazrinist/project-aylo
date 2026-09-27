@@ -25,6 +25,7 @@ import {
 import { OfferComparison } from "@/app/components/offer-comparison";
 import { BookingConfirmation } from "@/app/components/booking-confirmation";
 import { ResultCard } from "@/app/components/result-card";
+import { BetaFeedback } from "@/app/components/beta-feedback";
 
 type IntentApiResponse =
   | {
@@ -216,7 +217,7 @@ export default function Home() {
     <main className="shell">
       <section className="hero">
         <div className="brandRow">
-          <div className="brand">AYLO <span>alpha</span></div>
+          <div className="brand">AYLO <span>closed beta</span></div>
           <div className="topActions">
             <Link href="/history" className="manageLink">History →</Link>
             <Link href="/preferences" className="manageLink">Preferences →</Link>
@@ -411,6 +412,8 @@ export default function Home() {
             onBook={openBooking}
           />
         )}
+
+        {source && <BetaFeedback />}
       </section>
 
       {bookingOffer && (
