@@ -220,7 +220,11 @@ pre { margin: 0; font-size: 13px; line-height: 1.55; }
 .businessNameRow h2 { margin: 0; font-size: 17px; letter-spacing: -.015em; }
 .businessCardMain p { margin: 5px 0; overflow: hidden; color: #73736d; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
 .verifiedBadge { padding: 4px 6px; border-radius: 6px; background: #e8f7eb; color: #267036; font-size: 10px; font-weight: 800; }
+.candidateBadge { padding: 4px 6px; border-radius: 6px; background: #fff3d6; color: #7a5511; font-size: 10px; font-weight: 800; }
 .businessRating { color: #555550; font-size: 12px; font-weight: 750; }
+.businessSource { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 6px; color: #85857f; font-size: 10px; }
+.businessSource a { color: #4f4f4a; font-weight: 750; text-decoration: underline; text-underline-offset: 2px; }
+.businessSource a:hover { color: #171717; }
 .cardActions { display: flex; gap: 7px; }
 .secondaryButton, .dangerButton { padding: 8px 11px; border: 1px solid #d8d8d3; background: white; color: #333; font-size: 12px; }
 .dangerButton { border-color: #edd0d0; color: #9a2828; }

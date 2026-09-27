@@ -8,6 +8,7 @@
     "start": "next start",
     "test": "node --import tsx --test tests/*.test.ts",
     "test:edge-cases": "node --import tsx --test tests/edge-cases.test.ts",
+    "test:providers": "node --import tsx --test tests/provider-seed.test.ts",
     "test:prompts": "node --import tsx --test tests/prompt-*.test.ts",
     "typecheck": "tsc --noEmit"
   },

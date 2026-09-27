@@ -28,6 +28,9 @@ export default function BusinessesPage() {
   const [notice, setNotice] = useState<string | null>(null);
   const [operatorToken, setOperatorToken] = useState("");
   const operatorReady = operatorToken.trim().length > 0;
+  const candidateCount = businesses.filter(
+    (business) => business.onboarding_status === "candidate",
+  ).length;
 
   async function loadBusinesses() {
     setLoading(true);
@@ -145,7 +148,9 @@ export default function BusinessesPage() {
           <h1>Businesses</h1>
           <p>Manage the providers available to Aylo search.</p>
         </div>
-        <span className="catalogCount">{businesses.length} providers</span>
+        <span className="catalogCount">
+          {businesses.length} providers · {candidateCount} candidates
+        </span>
       </header>
 
       <section className="catalogAccessCard">
@@ -254,9 +259,26 @@ export default function BusinessesPage() {
                   <div className="businessNameRow">
                     <h2>{business.name}</h2>
                     {business.verified && <span className="verifiedBadge">Verified</span>}
+                    {business.onboarding_status === "candidate" && (
+                      <span className="candidateBadge">Candidate</span>
+                    )}
                   </div>
                   <p>{business.address || "Address not set"}</p>
                   <span className="businessRating">★ {business.rating ?? "New"}</span>
+                  {business.source_url && (
+                    <div className="businessSource">
+                      <a
+                        href={business.source_url}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Public source ↗
+                      </a>
+                      {business.source_checked_at && (
+                        <span>Checked {business.source_checked_at}</span>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="cardActions">

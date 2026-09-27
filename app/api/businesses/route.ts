@@ -21,7 +21,9 @@ export async function GET() {
   const supabase = getSupabaseServerClient();
   const { data, error } = await supabase
     .from("businesses")
-    .select("id,name,category,address,latitude,longitude,rating,verified,created_at")
+    .select(
+      "id,name,category,address,latitude,longitude,rating,verified,source_url,source_checked_at,onboarding_status,created_at",
+    )
     .order("name");
 
   if (error) {
@@ -51,7 +53,9 @@ export async function POST(request: Request) {
     const { data, error } = await supabase
       .from("businesses")
       .insert(input)
-      .select("id,name,category,address,latitude,longitude,rating,verified,created_at")
+      .select(
+        "id,name,category,address,latitude,longitude,rating,verified,source_url,source_checked_at,onboarding_status,created_at",
+      )
       .single();
 
     if (error) throw new Error(error.message);

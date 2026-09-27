@@ -34,7 +34,9 @@ export async function PATCH(
       .from("businesses")
       .update(input)
       .eq("id", id)
-      .select("id,name,category,address,latitude,longitude,rating,verified,created_at")
+      .select(
+        "id,name,category,address,latitude,longitude,rating,verified,source_url,source_checked_at,onboarding_status,created_at",
+      )
       .single();
 
     if (error) throw new Error(error.message);

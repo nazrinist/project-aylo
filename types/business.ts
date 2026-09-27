@@ -19,6 +19,8 @@ export const BusinessIdSchema = z.string().uuid();
 
 export type BusinessInput = z.infer<typeof BusinessInputSchema>;
 
+export type BusinessOnboardingStatus = "sample" | "candidate" | "onboarded";
+
 export type Business = {
   id: string;
   name: string;
@@ -28,5 +30,8 @@ export type Business = {
   longitude: number | null;
   rating: number | null;
   verified: boolean;
+  source_url: string | null;
+  source_checked_at: string | null;
+  onboarding_status: BusinessOnboardingStatus;
   created_at: string;
 };

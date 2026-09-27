@@ -17,10 +17,18 @@ Open **SQL Editor** in the Supabase dashboard. Run these files in order:
 1. `supabase/migrations/0001_initial_schema.sql`
 2. `supabase/migrations/0002_search_security.sql`
 3. `supabase/migrations/0003_api_grants.sql`
-4. `supabase/seed.sql`
+4. `supabase/migrations/0004_availability_integrity.sql`
+5. `supabase/migrations/0005_request_persistence.sql`
+6. `supabase/migrations/0006_booking_persistence.sql`
+7. `supabase/migrations/0007_lead_decisions.sql`
+8. `supabase/migrations/0008_availability_management.sql`
+9. `supabase/migrations/0009_agent_run_observability.sql`
+10. `supabase/migrations/0010_provider_provenance.sql`
+11. `supabase/seed.sql`
 
-The seed is safe to run again. It uses fixed IDs and ignores duplicate
-availability slots.
+The seed is safe to run again. It uses fixed IDs, ignores duplicate
+availability slots, and does not overwrite provider candidates already under
+review.
 
 ## 3. Add the public connection values
 
@@ -56,7 +64,7 @@ You can also open `http://localhost:3000/api/health`. A ready database returns:
   "status": "live",
   "database": "connected",
   "counts": {
-    "businesses": 12,
+    "businesses": 52,
     "services": 13,
     "availableSlots": 546
   }

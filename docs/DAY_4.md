@@ -37,7 +37,8 @@ npm run dev
 ## Test the CRUD flow
 
 1. Open `http://localhost:3000/businesses`.
-2. Confirm the 12 seeded providers appear.
+2. Confirm 52 business rows appear on a clean database: 12 sample providers and
+   40 source-backed candidates.
 3. Create a provider named `Day 4 Test Studio`.
 4. Edit its rating or verified status.
 5. Delete only the test provider you created.

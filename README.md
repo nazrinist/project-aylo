@@ -79,7 +79,8 @@ Run the SQL files in this order inside a Supabase project:
 7. `supabase/migrations/0007_lead_decisions.sql`
 8. `supabase/migrations/0008_availability_management.sql`
 9. `supabase/migrations/0009_agent_run_observability.sql`
-10. `supabase/seed.sql`
+10. `supabase/migrations/0010_provider_provenance.sql`
+11. `supabase/seed.sql`
 
 See [docs/DAY_2.md](./docs/DAY_2.md) for the data flow and setup checklist.
 
@@ -380,6 +381,19 @@ longer wraps to the opposite end of the same date.
 Run `npm run test:edge-cases` for the focused regression suite. No database
 migration is required. See [docs/DAY_27.md](./docs/DAY_27.md) for the edge-case
 contract and stable API error codes.
+
+## Day 28 proof
+
+The seed now includes 40 source-backed Baku provider candidates alongside the
+12 fictional MVP sample businesses. Candidates store only a public name,
+address, source URL, and source-check date; they have no invented rating,
+service, price, or availability and cannot enter search results before merchant
+onboarding.
+
+Run `supabase/migrations/0010_provider_provenance.sql`, rerun
+`supabase/seed.sql`, and use `npm run test:providers` for the focused integrity
+suite. See [docs/DAY_28.md](./docs/DAY_28.md) for the provenance boundary and
+Supabase checklist.
 
 ## Product rules
 1. AI interprets intent; deterministic code handles filtering and permissions.
