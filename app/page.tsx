@@ -217,21 +217,17 @@ export default function Home() {
     <main className="shell">
       <section className="hero">
         <div className="brandRow">
-          <div className="brand">AYLO <span>closed beta</span></div>
+          <div className="brand">AYLO <span>public beta</span></div>
           <div className="topActions">
             <Link href="/history" className="manageLink">History →</Link>
             <Link href="/preferences" className="manageLink">Preferences →</Link>
-            <Link href="/dashboard" className="manageLink">Dashboard →</Link>
-            <Link href="/leads" className="manageLink">Lead inbox →</Link>
-            <Link href="/analytics" className="manageLink">Analytics →</Link>
-            <Link href="/businesses" className="manageLink">Manage businesses →</Link>
-            <Link href="/availability" className="manageLink">Availability →</Link>
+            <Link href="/privacy" className="manageLink">Privacy →</Link>
             <div className={`databaseStatus ${health.status}`}>
               <i aria-hidden="true" />
-              {health.status === "checking" && "Checking database…"}
-              {health.status === "demo" && "Demo database"}
-              {health.status === "live" && "Supabase connected"}
-              {health.status === "error" && "Supabase setup needed"}
+              {health.status === "checking" && "Checking catalog…"}
+              {health.status === "demo" && "Preview catalog"}
+              {health.status === "live" && "Live provider catalog"}
+              {health.status === "error" && "Catalog unavailable"}
             </div>
           </div>
         </div>
@@ -248,8 +244,8 @@ export default function Home() {
 
         {health.status === "error" && (
           <div className="setupNotice">
-            Supabase is reachable, but its tables or keys are not ready. Follow
-            <code> docs/DAY_3.md</code> and restart the dev server.
+            The live provider catalog is temporarily unavailable. Please try
+            again later.
           </div>
         )}
 
@@ -414,6 +410,11 @@ export default function Home() {
         )}
 
         {source && <BetaFeedback />}
+
+        <footer className="publicBetaFooter">
+          <span>Aylo is in public beta. Always review details before confirming.</span>
+          <Link href="/privacy">Privacy & fair use →</Link>
+        </footer>
       </section>
 
       {bookingOffer && (

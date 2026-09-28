@@ -24,6 +24,7 @@ test("beta session is encrypted, authenticated, and expires after seven days", (
 
   assert.deepEqual(opened, {
     ...claims,
+    accessMode: "closed",
     issuedAt: now,
     expiresAt: now + BETA_SESSION_TTL_MS,
   });
@@ -79,7 +80,7 @@ test("closed beta secrets stay server-side and use constant-time invite checks",
   assert.match(token, /setAuthTag/);
 });
 
-test("proxy gates pages and APIs while leaving only access and health public", async () => {
+test("proxy gates product routes while leaving access, health, and policy pages public", async () => {
   const proxy = await readFile(new URL("../proxy.ts", import.meta.url), "utf8");
 
   assert.match(proxy, /BETA_SESSION_COOKIE/);
@@ -88,6 +89,8 @@ test("proxy gates pages and APIs while leaving only access and health public", a
   assert.match(proxy, /NextResponse\.redirect\(betaUrl\)/);
   assert.match(proxy, /"\/api\/beta\/access"/);
   assert.match(proxy, /"\/api\/health"/);
+  assert.match(proxy, /"\/privacy"/);
+  assert.match(proxy, /"\/robots\.txt"/);
   assert.match(proxy, /PUBLIC_PAGE_PATHS/);
   assert.match(proxy, /_next\/static\|_next\/image\|favicon\.ico/);
   assert.doesNotMatch(proxy, /localStorage|sessionStorage/);

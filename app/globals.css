@@ -661,6 +661,7 @@ pre { margin: 0; font-size: 13px; line-height: 1.55; }
 .betaPrivacyNote { display: flex; align-items: flex-start; gap: 10px; margin-top: 24px; border-top: 1px solid #e7e7e2; padding-top: 18px; }
 .betaPrivacyNote > span { display: grid; flex: 0 0 22px; width: 22px; height: 22px; place-items: center; border-radius: 50%; background: #ecece8; color: #64645f; font-size: 10px; font-weight: 900; }
 .betaPrivacyNote p { margin: 2px 0 0; color: #7a7a74; font-size: 10px; line-height: 1.55; }
+.betaPrivacyNote a { color: #315d3a; font-weight: 800; }
 .betaFeedback { margin-top: 28px; overflow: hidden; border: 1px solid #cfdccf; border-radius: 24px; background: white; box-shadow: 0 14px 42px rgba(34,101,49,.055); }
 .betaFeedbackIntro { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; border-bottom: 1px solid #e6eae6; padding: 21px 22px 17px; background: #f7faf7; }
 .betaFeedbackIntro h2 { margin: 5px 0 0; font-size: 24px; letter-spacing: -.025em; }
@@ -676,6 +677,26 @@ pre { margin: 0; font-size: 13px; line-height: 1.55; }
 .betaFeedbackMessage { margin: 0 22px 18px; border-radius: 10px; padding: 10px 12px; font-size: 10px; font-weight: 750; }
 .betaFeedbackMessage.success { background: #e8f7eb; color: #267036; }
 .betaFeedbackMessage.error { background: #fff2f2; color: #8e2020; }
+.publicBetaFooter { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 28px; border-top: 1px solid #dfdfda; padding: 18px 2px 0; color: #777771; font-size: 11px; line-height: 1.5; }
+.publicBetaFooter a { color: #315d3a; font-weight: 800; white-space: nowrap; }
+.privacyShell, .stateShell { min-height: 100vh; padding: 32px 20px; background: radial-gradient(circle at 50% 0, #eef5ef 0, #f7f7f5 45%); }
+.privacyCard { width: min(760px, 100%); margin: 0 auto; border: 1px solid #d8ded8; border-radius: 30px; padding: 34px; background: rgba(255,255,255,.97); box-shadow: 0 24px 70px rgba(24,58,31,.08); }
+.privacyNav { display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-bottom: 66px; }
+.privacyNav > span { color: #86867f; font-size: 10px; font-weight: 700; }
+.privacyCard h1 { max-width: 650px; margin-top: 10px; font-size: clamp(40px, 7vw, 66px); }
+.privacyLead { max-width: 650px; margin: 22px 0 35px; color: #63635e; font-size: 17px; line-height: 1.65; }
+.privacyCard section { border-top: 1px solid #e7e7e2; padding: 23px 0 2px; }
+.privacyCard section h2 { margin: 0 0 9px; font-size: 18px; letter-spacing: -.02em; }
+.privacyCard section p { margin: 0; color: #686862; font-size: 13px; line-height: 1.7; }
+.privacyCallout { display: grid; gap: 5px; margin: 26px 0 20px; border: 1px solid #d4e3d6; border-radius: 16px; padding: 16px; background: #f4faf5; }
+.privacyCallout strong { color: #285f34; font-size: 12px; }
+.privacyCallout span { color: #657067; font-size: 11px; line-height: 1.55; }
+.privacyCta, .stateCard a { display: inline-flex; border-radius: 999px; padding: 11px 15px; background: #173f22; color: white; font-size: 11px; font-weight: 800; text-decoration: none; }
+.stateShell { display: grid; place-items: center; }
+.stateCard { width: min(570px, 100%); border: 1px solid #d8ded8; border-radius: 27px; padding: 32px; background: white; box-shadow: 0 22px 60px rgba(24,58,31,.08); }
+.stateCard h1 { margin-top: 9px; font-size: clamp(38px, 7vw, 58px); }
+.stateCard > p:not(.eyebrow) { margin: 20px 0; color: #686862; font-size: 14px; line-height: 1.6; }
+.stateCard button { font-size: 11px; }
 @media (max-width: 680px) {
   .brandRow { align-items: flex-start; flex-direction: column; margin-bottom: 46px; }
   .topActions { width: 100%; justify-content: flex-start; }
@@ -812,6 +833,9 @@ pre { margin: 0; font-size: 13px; line-height: 1.55; }
   .betaFeedback form { grid-template-columns: 1fr; }
   .betaFeedbackComment { grid-column: auto; }
   .betaFeedback form > button { width: 100%; }
+  .publicBetaFooter { align-items: flex-start; flex-direction: column; }
+  .privacyCard, .stateCard { padding: 27px 21px; }
+  .privacyNav { align-items: flex-start; flex-direction: column; margin-bottom: 45px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

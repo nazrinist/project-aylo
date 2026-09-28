@@ -5,9 +5,10 @@ import { FormEvent, useEffect, useState } from "react";
 
 type BetaStatus = {
   ok: boolean;
-  mode: "open" | "closed";
+  mode: "open" | "closed" | "public";
   configured: boolean;
   authenticated: boolean;
+  participantReady: boolean;
   expiresAt: number | null;
   error?: string;
 };
@@ -80,21 +81,39 @@ export default function BetaAccessPage() {
   return (
     <main className="betaShell">
       <section className="betaAccessCard">
-        <div className="betaBrand">AYLO <span>closed beta</span></div>
-        <p className="eyebrow">Day 29 · Invitation only</p>
-        <h1>Try Aylo with a real need.</h1>
+        <div className="betaBrand">AYLO <span>public beta</span></div>
+        <p className="eyebrow">Day 30 · Public beta</p>
+        <h1>Aylo is open for testing.</h1>
         <p className="betaIntro">
-          Use your invite code, search for a beauty appointment in Baku, and
-          tell us where the flow helps or gets stuck.
+          Search for a beauty appointment in Baku, compare real options, and
+          tell us where the flow helps or gets stuck. No account is required.
         </p>
 
         {loading && <div className="betaMessage">Checking access…</div>}
 
         {!loading && status?.mode === "open" && (
           <div className="betaOpenState">
-            <strong>Beta gate is off in this environment.</strong>
-            <span>Local and public-beta mode can enter without a code.</span>
+            <strong>Local preview mode is active.</strong>
+            <span>The public-beta session and launch limits are disabled here.</span>
             <Link href="/">Enter Aylo →</Link>
+          </div>
+        )}
+
+        {!loading && status?.mode === "public" && status.configured && (
+          <div className="betaOpenState">
+            <strong>Public beta is live.</strong>
+            <span>
+              Entry is open. Aylo uses a private seven-day browser session for
+              feedback and fair-use request limits.
+            </span>
+            <Link href="/">Try Aylo →</Link>
+          </div>
+        )}
+
+        {!loading && status?.mode === "public" && !status.configured && (
+          <div className="betaMessage error" role="alert">
+            Public beta is enabled but not configured. The operator must add
+            the Day 30 environment values and restart the server.
           </div>
         )}
 
@@ -144,9 +163,10 @@ export default function BetaAccessPage() {
         <div className="betaPrivacyNote">
           <span aria-hidden="true">i</span>
           <p>
-            Your invite code is never stored in browser storage. Aylo replaces
-            it with an encrypted, HttpOnly seven-day session. The Day 29 beta
-            tables do not store your email, IP address, or browser user-agent.
+            Aylo uses an encrypted, HttpOnly seven-day session. Invite codes
+            are never stored in browser storage, and beta tables do not store
+            your email, IP address, or browser user-agent. See the{" "}
+            <Link href="/privacy">beta privacy note</Link>.
           </p>
         </div>
       </section>

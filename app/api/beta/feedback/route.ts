@@ -6,6 +6,7 @@ import {
   getBetaAccessState,
 } from "@/lib/beta/session";
 import { requireBetaAccess } from "@/lib/beta/response";
+import { requirePublicBetaRateLimit } from "@/lib/beta/rate-limit";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/server";
 import { BetaFeedbackInputSchema } from "@/types/beta";
 
@@ -21,14 +22,16 @@ function json(body: unknown, status = 200) {
 export async function POST(request: NextRequest) {
   const accessError = requireBetaAccess(request);
   if (accessError) return accessError;
+  const rateLimitError = await requirePublicBetaRateLimit(request, "feedback");
+  if (rateLimitError) return rateLimitError;
   const state = getBetaAccessState(
     request.cookies.get(BETA_SESSION_COOKIE)?.value,
   );
-  if (state.mode !== "closed" || !state.claims) {
+  if (state.mode === "open" || !state.claims) {
     return json({
       ok: false,
-      code: "BETA_FEEDBACK_CLOSED_ONLY",
-      error: "Feedback collection is available during the closed beta.",
+      code: "BETA_FEEDBACK_SESSION_REQUIRED",
+      error: "A private beta session is required before feedback can be saved.",
     }, 409);
   }
   if (!isSupabaseAdminConfigured()) {

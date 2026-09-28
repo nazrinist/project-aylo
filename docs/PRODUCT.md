@@ -26,3 +26,9 @@ Request → structured intent → search → ranked offers → user confirmation
 Invite 50 real testers to use Aylo for one beauty appointment they could book
 in the current week. Measure useful options, booking requests, no-match cases,
 technical blockers, and ease of use without collecting tester identity.
+
+## Public-beta goal
+Open the same narrow Baku beauty journey without accounts or invite codes while
+protecting availability and AI cost with pseudonymous session limits. Optimize
+for completed intents per week, useful-option rate, booking-request rate, and
+reliability—not raw traffic or chat volume.

@@ -10,6 +10,7 @@ import { persistConfirmedBooking } from "@/lib/bookings/persistence";
 import { bookingClaimsFromInput } from "@/lib/bookings/shared";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/server";
 import { requireBetaAccess } from "@/lib/beta/response";
+import { requirePublicBetaRateLimit } from "@/lib/beta/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -27,6 +28,8 @@ function persistenceUnavailable() {
 export async function POST(request: NextRequest) {
   const betaAccessError = requireBetaAccess(request);
   if (betaAccessError) return betaAccessError;
+  const betaRateLimitError = await requirePublicBetaRateLimit(request, "booking");
+  if (betaRateLimitError) return betaRateLimitError;
   if (!isSupabaseAdminConfigured()) return persistenceUnavailable();
   const signingSecret = getBookingSigningSecret();
   if (!signingSecret) return persistenceUnavailable();

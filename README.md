@@ -81,7 +81,8 @@ Run the SQL files in this order inside a Supabase project:
 9. `supabase/migrations/0009_agent_run_observability.sql`
 10. `supabase/migrations/0010_provider_provenance.sql`
 11. `supabase/migrations/0011_closed_beta.sql`
-12. `supabase/seed.sql`
+12. `supabase/migrations/0012_public_beta.sql`
+13. `supabase/seed.sql`
 
 See [docs/DAY_2.md](./docs/DAY_2.md) for the data flow and setup checklist.
 
@@ -410,6 +411,26 @@ browser participant—never an email, IP address, user-agent, or invite code.
 Run `supabase/migrations/0011_closed_beta.sql`, configure the three Day 29
 environment values, and use `npm run test:beta` for the focused suite. See
 [docs/DAY_29.md](./docs/DAY_29.md) for launch and monitoring steps.
+
+## Day 30 proof
+
+Aylo now has an explicit `public` beta mode. It removes the invite-code step
+while issuing an encrypted seven-day anonymous browser session for feedback and
+fair-use limits. Public sessions never carry an invite fingerprint, and closed
+beta remains available as a one-variable rollback.
+
+Intent, search, booking, feedback, and both tool endpoints consume atomic
+Supabase rate-limit counters before reading request bodies. The counters use a
+random beta participant ID—not an IP address or user-agent—and return a private
+`429` with `Retry-After` when a window is exhausted. The public home page now
+keeps merchant tools out of consumer navigation, exposes a beta privacy note,
+uses generic health errors, and includes recovery, crawler, metadata, and
+security-header boundaries.
+
+Run `supabase/migrations/0012_public_beta.sql`, set
+`AYLO_BETA_MODE=public`, keep `AYLO_BETA_SECRET` configured, and use
+`npm run test:public-beta`. See [docs/DAY_30.md](./docs/DAY_30.md) for the
+launch, rollback, monitoring, and acceptance checklist.
 
 ## Product rules
 1. AI interprets intent; deterministic code handles filtering and permissions.

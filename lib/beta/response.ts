@@ -18,7 +18,9 @@ export function requireBetaAccess(request: NextRequest) {
       code: state.configured ? "BETA_ACCESS_REQUIRED" : "BETA_NOT_CONFIGURED",
       error: state.configured
         ? "Closed beta access is required."
-        : "Closed beta access is not configured.",
+        : state.mode === "public"
+          ? "Public beta access is not configured."
+          : "Closed beta access is not configured.",
     },
     {
       status: state.configured ? 401 : 503,

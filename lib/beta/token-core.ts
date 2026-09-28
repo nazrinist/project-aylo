@@ -14,7 +14,33 @@ const MAX_CLOCK_SKEW_MS = 30_000;
 
 export const BETA_SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
-const BetaSessionClaimsSchema = z
+const CurrentBetaSessionClaimsSchema = z
+  .object({
+    participantId: z.string().uuid(),
+    accessMode: z.enum(["closed", "public"]),
+    inviteFingerprint: z.string().regex(/^[a-f0-9]{64}$/).nullable(),
+    issuedAt: z.number().int().nonnegative(),
+    expiresAt: z.number().int().positive(),
+  })
+  .strict()
+  .superRefine((claims, context) => {
+    if (claims.accessMode === "closed" && !claims.inviteFingerprint) {
+      context.addIssue({
+        code: "custom",
+        path: ["inviteFingerprint"],
+        message: "Closed beta sessions require an invite fingerprint",
+      });
+    }
+    if (claims.accessMode === "public" && claims.inviteFingerprint !== null) {
+      context.addIssue({
+        code: "custom",
+        path: ["inviteFingerprint"],
+        message: "Public beta sessions do not carry an invite fingerprint",
+      });
+    }
+  });
+
+const LegacyClosedBetaClaimsSchema = z
   .object({
     participantId: z.string().uuid(),
     inviteFingerprint: z.string().regex(/^[a-f0-9]{64}$/),
@@ -23,7 +49,19 @@ const BetaSessionClaimsSchema = z
   })
   .strict();
 
-export type BetaSessionClaims = z.infer<typeof BetaSessionClaimsSchema>;
+export type BetaSessionClaims = z.infer<typeof CurrentBetaSessionClaimsSchema>;
+
+export type BetaSessionSeed =
+  | {
+      participantId: string;
+      accessMode?: "closed";
+      inviteFingerprint: string;
+    }
+  | {
+      participantId: string;
+      accessMode: "public";
+      inviteFingerprint: null;
+    };
 
 function encryptionKey(secret: string) {
   return createHash("sha256")
@@ -44,7 +82,7 @@ function decodeCanonicalBase64url(value: string) {
 }
 
 export function sealBetaSession(
-  claims: Pick<BetaSessionClaims, "participantId" | "inviteFingerprint">,
+  claims: BetaSessionSeed,
   secret: string,
   nowMs = Date.now(),
   iv = randomBytes(TOKEN_IV_BYTES),
@@ -52,8 +90,9 @@ export function sealBetaSession(
   if (!validSecret(secret)) throw new Error("Beta session secret is not configured");
   if (iv.length !== TOKEN_IV_BYTES) throw new Error("Beta session IV must be 12 bytes");
 
-  const payload = BetaSessionClaimsSchema.parse({
+  const payload = CurrentBetaSessionClaimsSchema.parse({
     ...claims,
+    accessMode: claims.accessMode ?? "closed",
     issuedAt: nowMs,
     expiresAt: nowMs + BETA_SESSION_TTL_MS,
   });
@@ -101,10 +140,19 @@ export function openBetaSession(
       decipher.update(ciphertext),
       decipher.final(),
     ]).toString("utf8");
-    const parsed = BetaSessionClaimsSchema.safeParse(JSON.parse(plaintext));
-    if (!parsed.success) return null;
-
-    const claims = parsed.data;
+    const decoded = JSON.parse(plaintext) as unknown;
+    const current = CurrentBetaSessionClaimsSchema.safeParse(decoded);
+    let claims: BetaSessionClaims;
+    if (current.success) {
+      claims = current.data;
+    } else {
+      const legacy = LegacyClosedBetaClaimsSchema.safeParse(decoded);
+      if (!legacy.success) return null;
+      claims = {
+        ...legacy.data,
+        accessMode: "closed",
+      };
+    }
     if (
       claims.issuedAt > nowMs + MAX_CLOCK_SKEW_MS ||
       claims.expiresAt <= nowMs ||

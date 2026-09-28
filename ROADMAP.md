@@ -36,4 +36,4 @@
 - [x] Day 27: edge cases
 - [x] Day 28: seed 30–50 real providers
 - [x] Day 29: closed beta
-- [ ] Day 30: public beta
+- [x] Day 30: public beta

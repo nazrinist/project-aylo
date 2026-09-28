@@ -67,8 +67,10 @@ feedback persistence. Restart the server after changing environment values:
 npm run dev
 ```
 
-`AYLO_BETA_MODE=open` disables the gate for local development and is the Day 30
-public-beta switch. A closed mode with a missing secret or code fails closed.
+`AYLO_BETA_MODE=open` disables beta sessions and the gate for local development.
+Day 30 uses the explicit `public` mode, which removes invite entry but still
+requires `AYLO_BETA_SECRET` for encrypted anonymous sessions. A closed mode
+with a missing secret or code fails closed.
 
 ## 3. Acceptance test
 

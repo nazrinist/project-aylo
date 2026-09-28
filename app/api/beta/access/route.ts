@@ -5,6 +5,7 @@ import {
   BETA_SESSION_COOKIE,
   betaSessionCookieOptions,
   createBetaSession,
+  createPublicBetaSession,
   getBetaAccessState,
   getBetaMode,
 } from "@/lib/beta/session";
@@ -20,21 +21,43 @@ function json(body: unknown, status = 200) {
 }
 
 export async function GET(request: NextRequest) {
-  const state = getBetaAccessState(
-    request.cookies.get(BETA_SESSION_COOKIE)?.value,
-  );
-  return json({
+  const currentToken = request.cookies.get(BETA_SESSION_COOKIE)?.value;
+  let state = getBetaAccessState(currentToken);
+  let tracked = false;
+  let publicSession = null;
+  if (state.mode === "public" && state.configured && !state.claims) {
+    publicSession = createPublicBetaSession(currentToken);
+    if (publicSession) {
+      state = getBetaAccessState(publicSession.token);
+      try {
+        tracked = await registerBetaParticipant(publicSession.claims);
+      } catch {
+        console.error("Public beta participant tracking failed");
+      }
+    }
+  }
+  const response = json({
     ok: true,
     mode: state.mode,
     configured: state.configured,
     authenticated: state.authenticated,
+    participantReady: Boolean(state.claims),
     expiresAt: state.claims?.expiresAt ?? null,
+    tracked,
   });
+  if (publicSession) {
+    response.cookies.set({
+      name: BETA_SESSION_COOKIE,
+      value: publicSession.token,
+      ...betaSessionCookieOptions(),
+    });
+  }
+  return response;
 }
 
 export async function POST(request: NextRequest) {
   try {
-    if (getBetaMode() !== "closed") {
+    if (getBetaMode() === "open") {
       return json({
         ok: true,
         mode: "open",
@@ -44,6 +67,36 @@ export async function POST(request: NextRequest) {
       });
     }
     const currentToken = request.cookies.get(BETA_SESSION_COOKIE)?.value;
+    if (getBetaMode() === "public") {
+      const session = createPublicBetaSession(currentToken);
+      if (!session) {
+        return json({
+          ok: false,
+          code: "BETA_NOT_CONFIGURED",
+          error: "Public beta access is not configured.",
+        }, 503);
+      }
+      let tracked = false;
+      try {
+        tracked = await registerBetaParticipant(session.claims);
+      } catch {
+        console.error("Public beta participant tracking failed");
+      }
+      const response = json({
+        ok: true,
+        mode: "public",
+        configured: true,
+        authenticated: true,
+        participantReady: true,
+        tracked,
+      });
+      response.cookies.set({
+        name: BETA_SESSION_COOKIE,
+        value: session.token,
+        ...betaSessionCookieOptions(),
+      });
+      return response;
+    }
     const input = BetaAccessInputSchema.parse(await request.json());
     const session = createBetaSession(input.code, currentToken);
     if (!session) {
@@ -72,6 +125,7 @@ export async function POST(request: NextRequest) {
       mode: "closed",
       configured: true,
       authenticated: true,
+      participantReady: true,
       tracked,
     });
     response.cookies.set({

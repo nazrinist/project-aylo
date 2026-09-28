@@ -4,8 +4,9 @@ import { FormEvent, useEffect, useState } from "react";
 import type { BetaFeedbackOutcome } from "@/types/beta";
 
 type BetaStatus = {
-  mode: "open" | "closed";
+  mode: "open" | "closed" | "public";
   authenticated: boolean;
+  participantReady: boolean;
 };
 
 const outcomeLabels: Record<BetaFeedbackOutcome, string> = {
@@ -17,6 +18,7 @@ const outcomeLabels: Record<BetaFeedbackOutcome, string> = {
 
 export function BetaFeedback() {
   const [enabled, setEnabled] = useState(false);
+  const [mode, setMode] = useState<BetaStatus["mode"]>("open");
   const [outcome, setOutcome] = useState<BetaFeedbackOutcome>("useful_options");
   const [easeRating, setEaseRating] = useState("4");
   const [comment, setComment] = useState("");
@@ -29,7 +31,14 @@ export function BetaFeedback() {
     fetch("/api/beta/access", { cache: "no-store" })
       .then(async (response) => response.json() as Promise<BetaStatus>)
       .then((status) => {
-        if (active) setEnabled(status.mode === "closed" && status.authenticated);
+        if (active) {
+          setMode(status.mode);
+          setEnabled(
+            status.participantReady &&
+            (status.mode === "public" || status.mode === "closed") &&
+            status.authenticated,
+          );
+        }
       })
       .catch(() => {
         if (active) setEnabled(false);
@@ -71,10 +80,12 @@ export function BetaFeedback() {
     <section className="betaFeedback" aria-labelledby="beta-feedback-title">
       <div className="betaFeedbackIntro">
         <div>
-          <p className="eyebrow">Closed beta feedback</p>
+          <p className="eyebrow">
+            {mode === "public" ? "Public beta feedback" : "Closed beta feedback"}
+          </p>
           <h2 id="beta-feedback-title">How did this search go?</h2>
         </div>
-        <span>Pseudonymous browser session</span>
+        <span>Private browser session</span>
       </div>
       <form onSubmit={submit}>
         <label>

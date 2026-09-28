@@ -20,11 +20,14 @@ async function countRows(
 
 export async function GET() {
   if (!isSupabaseConfigured()) {
-    return Response.json({
-      status: "demo",
-      database: "not_configured",
-      counts: null,
-    });
+    return Response.json(
+      {
+        status: "demo",
+        database: "not_configured",
+        counts: null,
+      },
+      { headers: { "Cache-Control": "no-store" } },
+    );
   }
 
   try {
@@ -36,35 +39,40 @@ export async function GET() {
     const firstError = businesses.error || services.error || slots.error;
 
     if (firstError) {
+      console.error("Database health check failed");
       return Response.json(
         {
           status: "error",
           database: "reachable_but_not_ready",
-          message: firstError,
+          message: "The provider catalog is not ready.",
           counts: null,
         },
-        { status: 503 },
+        { status: 503, headers: { "Cache-Control": "no-store" } },
       );
     }
 
-    return Response.json({
-      status: "live",
-      database: "connected",
-      counts: {
-        businesses: businesses.count,
-        services: services.count,
-        availableSlots: slots.count,
+    return Response.json(
+      {
+        status: "live",
+        database: "connected",
+        counts: {
+          businesses: businesses.count,
+          services: services.count,
+          availableSlots: slots.count,
+        },
       },
-    });
-  } catch (error) {
+      { headers: { "Cache-Control": "no-store" } },
+    );
+  } catch {
+    console.error("Database health check failed");
     return Response.json(
       {
         status: "error",
         database: "unreachable",
-        message: error instanceof Error ? error.message : "Database check failed",
+        message: "The provider catalog is temporarily unavailable.",
         counts: null,
       },
-      { status: 503 },
+      { status: 503, headers: { "Cache-Control": "no-store" } },
     );
   }
 }

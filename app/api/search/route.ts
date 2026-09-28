@@ -32,10 +32,13 @@ import {
   SearchEdgeCaseError,
 } from "@/lib/search/edge-cases";
 import { requireBetaAccess } from "@/lib/beta/response";
+import { requirePublicBetaRateLimit } from "@/lib/beta/rate-limit";
 
 export async function POST(request: NextRequest) {
   const betaAccessError = requireBetaAccess(request);
   if (betaAccessError) return betaAccessError;
+  const betaRateLimitError = await requirePublicBetaRateLimit(request, "search");
+  if (betaRateLimitError) return betaRateLimitError;
   const traceId = randomUUID();
   const startedAt = performance.now();
   let savedRequestId: string | null = null;
