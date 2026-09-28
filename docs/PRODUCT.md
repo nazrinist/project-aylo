@@ -32,3 +32,8 @@ Open the same narrow Baku beauty journey without accounts or invite codes while
 protecting availability and AI cost with pseudonymous session limits. Optimize
 for completed intents per week, useful-option rate, booking-request rate, and
 reliability—not raw traffic or chat volume.
+
+## Post-beta retention goal
+Close the booking loop before expanding categories: users can return on the
+same browser to see whether a provider accepted or rejected their request,
+without creating an account or exposing private booking identifiers.

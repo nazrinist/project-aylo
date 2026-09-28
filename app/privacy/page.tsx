@@ -38,8 +38,10 @@ export default function PrivacyPage() {
           <p>
             In live mode, a validated search can be saved privately so Aylo can
             show browser history and connect an explicitly confirmed offer to a
-            booking request. Providers receive only the service, appointment,
-            price, status, and short reference needed to handle that request.
+            booking request. The same encrypted browser references authorize the
+            My bookings status page without exposing full request or booking IDs.
+            Providers receive only the service, appointment, price, status, and
+            short reference needed to handle that request.
             Aylo does not collect payment during this beta.
           </p>
         </section>

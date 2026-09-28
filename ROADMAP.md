@@ -1,4 +1,4 @@
-# 30-Day MVP Roadmap
+# MVP & Post-beta Roadmap
 
 ## Week 1 — Foundation & marketplace data
 - [x] Day 1: repo skeleton + intent extraction endpoint
@@ -37,3 +37,6 @@
 - [x] Day 28: seed 30–50 real providers
 - [x] Day 29: closed beta
 - [x] Day 30: public beta
+
+## Week 5 — Post-beta booking lifecycle
+- [x] Day 31: consumer booking status

@@ -71,3 +71,30 @@ export type BookingSaveResult = {
 export type BookingSubmissionResult =
   | { status: "saved"; booking: PersistedBooking }
   | { status: "local"; booking: null };
+
+export type ConsumerBookingStatus = BookingStatus | "unknown";
+
+export type ConsumerBooking = {
+  reference: string;
+  businessName: string;
+  serviceName: string;
+  address: string | null;
+  bookedFor: string;
+  durationMinutes: number | null;
+  price: number | null;
+  currency: string;
+  status: ConsumerBookingStatus;
+  createdAt: string;
+  merchantRespondedAt: string | null;
+};
+
+export type ConsumerBookingsData = {
+  source: "live" | "catalog" | "demo";
+  bookingsAvailable: boolean;
+  scope: "this-browser";
+  entries: ConsumerBooking[];
+};
+
+export type ConsumerBookingsApiResponse =
+  | ({ ok: true } & ConsumerBookingsData)
+  | { ok: false; code: string; error: string };

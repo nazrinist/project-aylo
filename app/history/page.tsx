@@ -81,7 +81,7 @@ export default function RequestHistoryPage() {
   }, [loadHistory]);
 
   async function forgetHistory() {
-    if (!window.confirm("Forget this history on this browser? Private database records are not deleted.")) return;
+    if (!window.confirm("Forget this history on this browser? This also hides My bookings here. Private database records are not deleted.")) return;
     setClearing(true);
     setError(null);
     try {
@@ -202,7 +202,8 @@ export default function RequestHistoryPage() {
               Aylo stores only encrypted request references in an HttpOnly cookie;
               request text stays in the private database. History is limited to
               this browser and expires after 30 days without a new saved search.
-              Forgetting history removes browser access, not database records.
+              Forgetting history removes browser access to both request history
+              and My bookings, not database records.
             </p>
           </aside>
         </>

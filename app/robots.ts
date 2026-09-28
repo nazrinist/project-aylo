@@ -10,6 +10,7 @@ export default function robots(): MetadataRoute.Robots {
         "/analytics",
         "/availability",
         "/beta",
+        "/bookings",
         "/businesses",
         "/dashboard",
         "/history",

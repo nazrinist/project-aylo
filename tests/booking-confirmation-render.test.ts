@@ -119,4 +119,6 @@ test("persisted view shows the booking status and reference", () => {
   assert.match(html, /Booking request created/);
   assert.match(html, /Pending provider confirmation/);
   assert.match(html, /Reference · 40000000/);
+  assert.match(html, /href="\/bookings"/);
+  assert.match(html, /Track booking/);
 });

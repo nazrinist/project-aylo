@@ -432,6 +432,19 @@ Run `supabase/migrations/0012_public_beta.sql`, set
 `npm run test:public-beta`. See [docs/DAY_30.md](./docs/DAY_30.md) for the
 launch, rollback, monitoring, and acceptance checklist.
 
+## Day 31 proof
+
+`/bookings` now gives the current browser a private status view for its live
+booking requests. Ownership comes only from the encrypted Day 22 history
+cookie; the API rejects caller-supplied IDs and returns a minimized display DTO
+without full booking, request, business, service, or availability identifiers.
+
+The page refreshes provider decisions automatically, links directly from a
+persisted booking confirmation, and keeps demo/catalog behavior honest. No new
+migration or environment variable is required. Run
+`npm run test:booking-status` and see [docs/DAY_31.md](./docs/DAY_31.md) for the
+privacy boundary and end-to-end checklist.
+
 ## Product rules
 1. AI interprets intent; deterministic code handles filtering and permissions.
 2. No irreversible action without explicit user confirmation.

@@ -219,6 +219,7 @@ export default function Home() {
         <div className="brandRow">
           <div className="brand">AYLO <span>public beta</span></div>
           <div className="topActions">
+            <Link href="/bookings" className="manageLink">Bookings →</Link>
             <Link href="/history" className="manageLink">History →</Link>
             <Link href="/preferences" className="manageLink">Preferences →</Link>
             <Link href="/privacy" className="manageLink">Privacy →</Link>

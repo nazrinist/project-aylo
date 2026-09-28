@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   FormEvent,
   KeyboardEvent,
@@ -210,7 +211,12 @@ export function BookingConfirmation({
               )}
             </div>
 
-            <div className="bookingDialogActions single">
+            <div className={`bookingDialogActions${isPersisted ? "" : " single"}`}>
+              {isPersisted && (
+                <Link href="/bookings" className="bookingStatusLink">
+                  Track booking →
+                </Link>
+              )}
               <button type="button" onClick={onClose}>Done</button>
             </div>
           </div>
