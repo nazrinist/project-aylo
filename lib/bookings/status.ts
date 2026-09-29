@@ -78,6 +78,7 @@ export function consumerBookingCanCancel(
 export function consumerBookingFromRow(
   row: ConsumerBookingRow,
   cancellationToken: string | null = null,
+  rescheduleToken: string | null = null,
 ): ConsumerBooking {
   const business = firstRelated(row.businesses);
   const service = firstRelated(row.services);
@@ -96,6 +97,7 @@ export function consumerBookingFromRow(
     createdAt: row.created_at,
     merchantRespondedAt: row.merchant_responded_at,
     cancellationToken,
+    rescheduleToken,
   };
 }
 

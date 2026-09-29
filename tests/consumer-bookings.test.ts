@@ -35,6 +35,7 @@ test("booking rows map to a minimized consumer status DTO", () => {
     createdAt: "2026-09-28T10:00:00.000Z",
     merchantRespondedAt: "2026-09-28T10:05:00.000Z",
     cancellationToken: null,
+    rescheduleToken: null,
   });
   assert.equal("id" in booking, false);
   assert.equal("requestId" in booking, false);
@@ -65,6 +66,7 @@ test("malformed display values fall back without widening booking access", () =>
   assert.equal(booking.currency, "AZN");
   assert.equal(booking.status, "unknown");
   assert.equal(booking.cancellationToken, null);
+  assert.equal(booking.rescheduleToken, null);
 });
 
 test("only future pending or accepted bookings can expose a cancellation action", () => {

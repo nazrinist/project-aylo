@@ -102,6 +102,8 @@ test("consumer APIs recheck beta access before parsing payloads", async () => {
     "../app/api/search/route.ts",
     "../app/api/bookings/route.ts",
     "../app/api/bookings/cancel/route.ts",
+    "../app/api/bookings/reschedule/route.ts",
+    "../app/api/bookings/reschedule/options/route.ts",
     "../app/api/tools/check-availability/route.ts",
     "../app/api/tools/search-providers/route.ts",
     "../app/api/history/route.ts",

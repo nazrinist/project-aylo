@@ -6,6 +6,7 @@ import {
   type ConsumerBookingRow,
 } from "@/lib/bookings/status";
 import { createConsumerBookingCancellationToken } from "@/lib/bookings/cancellation-token";
+import { createRescheduleToken } from "@/lib/bookings/reschedule-token";
 import {
   getRequestHistorySecret,
   readRequestHistoryIds,
@@ -68,6 +69,9 @@ export async function getConsumerBookingsData(
         row,
         consumerBookingCanCancel(row.status, row.booked_for, nowMs)
           ? createConsumerBookingCancellationToken(row.id)
+          : null,
+        consumerBookingCanCancel(row.status, row.booked_for, nowMs)
+          ? createRescheduleToken({ kind: "start", bookingId: row.id, bookedFor: row.booked_for })
           : null,
       ),
     ),

@@ -39,7 +39,7 @@ export default function PrivacyPage() {
             In live mode, a validated search can be saved privately so Aylo can
             show browser history and connect an explicitly confirmed offer to a
             booking request. The same encrypted browser references authorize the
-            My bookings status and explicit cancellation flow without exposing
+            My bookings status, cancellation, and rescheduling flows without exposing
             full request or booking IDs. Cancellation uses a separate short-lived,
             encrypted action token and rechecks the browser reference on every write.
             Providers receive only the service, appointment, price, status, and

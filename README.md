@@ -83,7 +83,8 @@ Run the SQL files in this order inside a Supabase project:
 11. `supabase/migrations/0011_closed_beta.sql`
 12. `supabase/migrations/0012_public_beta.sql`
 13. `supabase/migrations/0013_consumer_booking_cancellation.sql`
-14. `supabase/seed.sql`
+14. `supabase/migrations/0014_consumer_booking_reschedule.sql`
+15. `supabase/seed.sql`
 
 See [docs/DAY_2.md](./docs/DAY_2.md) for the data flow and setup checklist.
 
@@ -458,6 +459,14 @@ Run `supabase/migrations/0013_consumer_booking_cancellation.sql`, restart the
 server, and use `npm run test:booking-status`. See
 [docs/DAY_32.md](./docs/DAY_32.md) for transition rules, security boundaries,
 and the end-to-end checklist. No new environment variable is required.
+
+## Day 33 proof
+
+`/bookings` now lists available times for the same provider and service.
+After final confirmation, the server verifies browser ownership and atomically
+moves the booking to the new slot, releases the old slot, and requests a new
+provider decision. Run `supabase/migrations/0014_consumer_booking_reschedule.sql`
+and restart the server. See [docs/DAY_33.md](./docs/DAY_33.md). No new environment variable.
 
 ## Product rules
 1. AI interprets intent; deterministic code handles filtering and permissions.

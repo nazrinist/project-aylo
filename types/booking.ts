@@ -49,6 +49,20 @@ export type ConsumerBookingCancellationInput = z.infer<
   typeof ConsumerBookingCancellationInputSchema
 >;
 
+export const ConsumerRescheduleOptionsInputSchema = z.object({
+  actionToken: z.string().min(32).max(2_048),
+}).strict();
+
+export const ConsumerRescheduleInputSchema = z.object({
+  optionToken: z.string().min(32).max(2_048),
+  confirmed: z.literal(true),
+}).strict();
+
+export type ConsumerRescheduleOption = {
+  bookedFor: string;
+  optionToken: string;
+};
+
 export type BookingOfferClaims = Omit<
   BookingCreateInput,
   "bookingToken" | "userConfirmed"
@@ -98,6 +112,7 @@ export type ConsumerBooking = {
   createdAt: string;
   merchantRespondedAt: string | null;
   cancellationToken: string | null;
+  rescheduleToken: string | null;
 };
 
 export type ConsumerBookingsData = {

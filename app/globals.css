@@ -647,6 +647,13 @@ pre { margin: 0; font-size: 13px; line-height: 1.55; }
 .consumerBookingTiming strong { color: #315d3a; }
 .consumerBookingCancelAction { flex: 0 0 auto; border: 1px solid #e3bebe; border-radius: 9px; padding: 7px 9px; background: #fff8f8; color: #922d2d; font-size: 8px; }
 .consumerBookingCancelAction:hover { border-color: #c97878; background: #feecec; }
+.consumerBookingActions { display: flex; align-items: center; gap: 7px; }
+.consumerBookingRescheduleAction { border: 1px solid #bad0c0; border-radius: 9px; padding: 7px 9px; background: #f4faf5; color: #315d3a; font-size: 8px; }
+.consumerBookingRescheduleAction:hover { background: #e6f3e8; }
+.consumerRescheduleOptions { display: grid; gap: 8px; max-height: min(35vh, 300px); margin: 18px 0; overflow-y: auto; border: 0; padding: 0 3px 0 0; }
+.consumerRescheduleOptions legend { margin-bottom: 9px; font-size: 10px; font-weight: 800; }
+.consumerRescheduleOptions label { display: flex; align-items: center; gap: 8px; border: 1px solid #e4e4df; border-radius: 10px; padding: 10px; font-size: 10px; cursor: pointer; }
+.consumerRescheduleOptions label:has(input:checked) { border-color: #78a883; background: #f1f8f2; }
 .consumerBookingsPrivacyNote { display: flex; align-items: flex-start; gap: 10px; margin-top: 17px; border: 1px solid #d9e2da; border-radius: 14px; padding: 13px 15px; background: #f6faf7; }
 .consumerBookingsPrivacyNote > span { display: grid; flex: 0 0 22px; width: 22px; height: 22px; place-items: center; border-radius: 50%; background: #dfeee2; color: #315d3a; font-size: 10px; font-weight: 900; }
 .consumerBookingsPrivacyNote p { margin: 2px 0 0; color: #657067; font-size: 10px; line-height: 1.5; }
@@ -905,6 +912,8 @@ pre { margin: 0; font-size: 13px; line-height: 1.55; }
   .consumerBookingFacts > div:last-child { border-bottom: 0; }
   .consumerBookingCard > footer { align-items: flex-start; flex-direction: column; }
   .consumerBookingCancelAction { width: 100%; }
+  .consumerBookingActions { width: 100%; flex-direction: column; }
+  .consumerBookingRescheduleAction { width: 100%; }
   .consumerCancellationBackdrop { align-items: end; padding: 12px; }
   .consumerCancellationDialog { border-radius: 22px; padding: 22px 18px 18px; }
   .consumerCancellationSummary { grid-template-columns: 1fr; }

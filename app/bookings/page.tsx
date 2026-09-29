@@ -17,6 +17,7 @@ import {
 import type {
   ConsumerBooking,
   ConsumerBookingCancellationApiResponse,
+  ConsumerRescheduleOption,
   ConsumerBookingsApiResponse,
   ConsumerBookingsData,
 } from "@/types/booking";
@@ -60,6 +61,13 @@ export default function ConsumerBookingsPage() {
   const [cancellationNotice, setCancellationNotice] = useState<string | null>(null);
   const cancellationDialogRef = useRef<HTMLDivElement>(null);
   const cancellationHeadingRef = useRef<HTMLHeadingElement>(null);
+  const [pendingReschedule, setPendingReschedule] = useState<ConsumerBooking | null>(null);
+  const [rescheduleOptions, setRescheduleOptions] = useState<ConsumerRescheduleOption[]>([]);
+  const [chosenOption, setChosenOption] = useState<ConsumerRescheduleOption | null>(null);
+  const [rescheduleBusy, setRescheduleBusy] = useState(false);
+  const [rescheduleError, setRescheduleError] = useState<string | null>(null);
+  const rescheduleHeadingRef = useRef<HTMLHeadingElement>(null);
+  const rescheduleDialogRef = useRef<HTMLDivElement>(null);
 
   const loadBookings = useCallback(async () => {
     setLoading(true);
@@ -102,6 +110,92 @@ export default function ConsumerBookingsPage() {
       previouslyFocused?.focus();
     };
   }, [pendingCancellation]);
+
+  useEffect(() => {
+    if (!pendingReschedule) return;
+    const focused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    rescheduleHeadingRef.current?.focus();
+    return () => { document.body.style.overflow = overflow; focused?.focus(); };
+  }, [pendingReschedule]);
+
+  async function openReschedule(booking: ConsumerBooking) {
+    if (!booking.rescheduleToken) return;
+    setPendingReschedule(booking);
+    setRescheduleOptions([]);
+    setChosenOption(null);
+    setRescheduleError(null);
+    setCancellationNotice(null);
+    setRescheduleBusy(true);
+    try {
+      const response = await fetch("/api/bookings/reschedule/options", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ actionToken: booking.rescheduleToken }),
+      });
+      const result = await response.json() as
+        | { ok: true; options: ConsumerRescheduleOption[] }
+        | { ok: false; error: string };
+      if (!result.ok) throw new Error(result.error);
+      if (!response.ok) throw new Error("Could not load available times.");
+      setRescheduleOptions(result.options);
+    } catch (caught) {
+      setRescheduleError(caught instanceof Error ? caught.message : "Could not load available times.");
+    } finally { setRescheduleBusy(false); }
+  }
+
+  function closeReschedule() {
+    if (rescheduleBusy) return;
+    setPendingReschedule(null);
+    setRescheduleError(null);
+    setChosenOption(null);
+  }
+
+  function handleRescheduleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.key === "Escape") { event.preventDefault(); closeReschedule(); return; }
+    if (event.key !== "Tab" || !rescheduleDialogRef.current) return;
+    const focusable = Array.from(rescheduleDialogRef.current.querySelectorAll<HTMLElement>(
+      'button:not([disabled]), input:not([disabled])',
+    ));
+    if (!focusable.length) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && (document.activeElement === first || document.activeElement === rescheduleHeadingRef.current)) {
+      event.preventDefault(); last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault(); first.focus();
+    }
+  }
+
+  async function confirmReschedule() {
+    const booking = pendingReschedule;
+    const selected = chosenOption;
+    if (!booking || !selected || rescheduleBusy) return;
+    setRescheduleBusy(true);
+    setRescheduleError(null);
+    try {
+      const response = await fetch("/api/bookings/reschedule", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ optionToken: selected.optionToken, confirmed: true }),
+      });
+      const result = await response.json() as
+        | { ok: true; reference: string; bookedFor: string; status: "pending_confirmation" }
+        | { ok: false; error: string };
+      if (!result.ok) throw new Error(result.error);
+      if (!response.ok) throw new Error("The booking could not be rescheduled.");
+      setData((current) => current ? { ...current, entries: current.entries.map((entry) =>
+        entry.reference === booking.reference && entry.createdAt === booking.createdAt
+          ? { ...entry, bookedFor: result.bookedFor, status: result.status,
+            merchantRespondedAt: null, cancellationToken: null, rescheduleToken: null }
+          : entry,
+      ) } : current);
+      setCancellationNotice(`Booking ${result.reference} moved to ${appointmentLabel(result.bookedFor)}. The provider must confirm the new time.`);
+      setPendingReschedule(null);
+      void loadBookings();
+    } catch (caught) {
+      setRescheduleError(caught instanceof Error ? caught.message : "The booking could not be rescheduled.");
+    } finally { setRescheduleBusy(false); }
+  }
 
   function requestCancellation(booking: ConsumerBooking) {
     if (!booking.cancellationToken) return;
@@ -196,7 +290,7 @@ export default function ConsumerBookingsPage() {
             <Link href="/" className="backLink">← Aylo search</Link>
             <Link href="/history" className="backLink">Request history</Link>
           </div>
-          <p className="eyebrow">Aylo · Day 32</p>
+          <p className="eyebrow">Aylo · Day 33</p>
           <h1>My bookings</h1>
           <p>Track provider decisions and manage future bookings from this browser.</p>
         </div>
@@ -334,14 +428,24 @@ export default function ConsumerBookingsPage() {
                             </strong>
                           )}
                         </div>
-                        {booking.cancellationToken && (
-                          <button
-                            type="button"
-                            className="consumerBookingCancelAction"
-                            onClick={() => requestCancellation(booking)}
-                          >
-                            Cancel booking
-                          </button>
+                        {(booking.cancellationToken || booking.rescheduleToken) && (
+                          <div className="consumerBookingActions">
+                            {booking.rescheduleToken && (
+                              <button type="button" className="consumerBookingRescheduleAction"
+                                onClick={() => void openReschedule(booking)}>
+                                Change time
+                              </button>
+                            )}
+                            {booking.cancellationToken && (
+                              <button
+                                type="button"
+                                className="consumerBookingCancelAction"
+                                onClick={() => requestCancellation(booking)}
+                              >
+                                Cancel booking
+                              </button>
+                            )}
+                          </div>
                         )}
                       </footer>
                     </article>
@@ -445,6 +549,54 @@ export default function ConsumerBookingsPage() {
                 disabled={cancelling}
               >
                 {cancelling ? "Cancelling…" : "Confirm cancellation"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {pendingReschedule && (
+        <div className="consumerCancellationBackdrop" onMouseDown={(event) => {
+          if (event.target === event.currentTarget) closeReschedule();
+        }}>
+          <div className="consumerCancellationDialog" role="dialog" aria-modal="true"
+            aria-labelledby="reschedule-title" aria-describedby="reschedule-description"
+            ref={rescheduleDialogRef} onKeyDown={handleRescheduleKeyDown}>
+            <p className="eyebrow">Change appointment</p>
+            <h2 id="reschedule-title" tabIndex={-1} ref={rescheduleHeadingRef}>Choose a new time</h2>
+            <p id="reschedule-description">
+              {pendingReschedule.businessName} · {pendingReschedule.serviceName}. Current appointment: {appointmentLabel(pendingReschedule.bookedFor)}.
+              The provider will need to confirm your new time.
+            </p>
+            {rescheduleBusy && !chosenOption && <p role="status">Loading available times…</p>}
+            {!rescheduleBusy && rescheduleOptions.length === 0 && !rescheduleError &&
+              <p role="status">No other times available in the next 30 days.</p>}
+            {rescheduleOptions.length > 0 && (
+              <fieldset className="consumerRescheduleOptions" disabled={rescheduleBusy}>
+                <legend>Available times · Baku time</legend>
+                {rescheduleOptions.map((option) => (
+                  <label key={option.optionToken}>
+                    <input type="radio" name="new-booking-time"
+                      checked={chosenOption?.optionToken === option.optionToken}
+                      onChange={() => setChosenOption(option)} />
+                    {appointmentLabel(option.bookedFor)}
+                  </label>
+                ))}
+              </fieldset>
+            )}
+            {chosenOption && <div className="consumerCancellationWarning" role="status">
+              <span aria-hidden="true">!</span>
+              <div><strong>Final confirmation</strong><small>
+                Move from {appointmentLabel(pendingReschedule.bookedFor)} to {appointmentLabel(chosenOption.bookedFor)}?
+                Your existing time will be released and provider acceptance will reset.
+              </small></div>
+            </div>}
+            {rescheduleError && <p className="consumerCancellationError" role="alert">{rescheduleError}</p>}
+            <div className="consumerCancellationActions">
+              <button type="button" onClick={closeReschedule} disabled={rescheduleBusy}>Keep current time</button>
+              <button type="button" className="confirm" onClick={() => void confirmReschedule()}
+                disabled={!chosenOption || rescheduleBusy}>
+                {rescheduleBusy ? "Changing…" : "Confirm new time"}
               </button>
             </div>
           </div>
