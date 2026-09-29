@@ -65,7 +65,20 @@ function status(value: string): ConsumerBookingStatus {
     : "unknown";
 }
 
-export function consumerBookingFromRow(row: ConsumerBookingRow): ConsumerBooking {
+export function consumerBookingCanCancel(
+  value: string,
+  bookedFor: string,
+  nowMs = Date.now(),
+) {
+  if (value !== "pending_confirmation" && value !== "accepted") return false;
+  const appointmentMs = Date.parse(bookedFor);
+  return Number.isFinite(appointmentMs) && appointmentMs > nowMs;
+}
+
+export function consumerBookingFromRow(
+  row: ConsumerBookingRow,
+  cancellationToken: string | null = null,
+): ConsumerBooking {
   const business = firstRelated(row.businesses);
   const service = firstRelated(row.services);
   const currency = row.currency.trim().toUpperCase();
@@ -82,6 +95,7 @@ export function consumerBookingFromRow(row: ConsumerBookingRow): ConsumerBooking
     status: status(row.status),
     createdAt: row.created_at,
     merchantRespondedAt: row.merchant_responded_at,
+    cancellationToken,
   };
 }
 

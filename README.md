@@ -82,7 +82,8 @@ Run the SQL files in this order inside a Supabase project:
 10. `supabase/migrations/0010_provider_provenance.sql`
 11. `supabase/migrations/0011_closed_beta.sql`
 12. `supabase/migrations/0012_public_beta.sql`
-13. `supabase/seed.sql`
+13. `supabase/migrations/0013_consumer_booking_cancellation.sql`
+14. `supabase/seed.sql`
 
 See [docs/DAY_2.md](./docs/DAY_2.md) for the data flow and setup checklist.
 
@@ -444,6 +445,19 @@ persisted booking confirmation, and keeps demo/catalog behavior honest. No new
 migration or environment variable is required. Run
 `npm run test:booking-status` and see [docs/DAY_31.md](./docs/DAY_31.md) for the
 privacy boundary and end-to-end checklist.
+
+## Day 32 proof
+
+Future pending or accepted bookings can now be cancelled from `/bookings` only
+after a separate final-confirmation dialog. The browser sends an opaque,
+ten-minute action token—never a booking or request ID—and the server separately
+rechecks the encrypted history cookie before one atomic database function
+changes the booking/request lifecycle and releases the slot.
+
+Run `supabase/migrations/0013_consumer_booking_cancellation.sql`, restart the
+server, and use `npm run test:booking-status`. See
+[docs/DAY_32.md](./docs/DAY_32.md) for transition rules, security boundaries,
+and the end-to-end checklist. No new environment variable is required.
 
 ## Product rules
 1. AI interprets intent; deterministic code handles filtering and permissions.

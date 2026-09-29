@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  consumerBookingCanCancel,
   consumerBookingFromRow,
   consumerBookingStatusText,
 } from "../lib/bookings/status.ts";
@@ -33,6 +34,7 @@ test("booking rows map to a minimized consumer status DTO", () => {
     status: "accepted",
     createdAt: "2026-09-28T10:00:00.000Z",
     merchantRespondedAt: "2026-09-28T10:05:00.000Z",
+    cancellationToken: null,
   });
   assert.equal("id" in booking, false);
   assert.equal("requestId" in booking, false);
@@ -62,6 +64,20 @@ test("malformed display values fall back without widening booking access", () =>
   assert.equal(booking.price, null);
   assert.equal(booking.currency, "AZN");
   assert.equal(booking.status, "unknown");
+  assert.equal(booking.cancellationToken, null);
+});
+
+test("only future pending or accepted bookings can expose a cancellation action", () => {
+  const now = Date.parse("2026-09-29T08:00:00.000Z");
+  const future = "2026-09-30T12:00:00.000Z";
+  const past = "2026-09-28T12:00:00.000Z";
+
+  assert.equal(consumerBookingCanCancel("pending_confirmation", future, now), true);
+  assert.equal(consumerBookingCanCancel("accepted", future, now), true);
+  assert.equal(consumerBookingCanCancel("rejected", future, now), false);
+  assert.equal(consumerBookingCanCancel("cancelled", future, now), false);
+  assert.equal(consumerBookingCanCancel("accepted", past, now), false);
+  assert.equal(consumerBookingCanCancel("accepted", "invalid", now), false);
 });
 
 test("consumer-facing labels cover every booking lifecycle state", () => {

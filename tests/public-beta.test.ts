@@ -85,6 +85,7 @@ test("expensive public routes rate-limit before reading request bodies", async (
     ["../app/api/intent/route.ts", "intent"],
     ["../app/api/search/route.ts", "search"],
     ["../app/api/bookings/route.ts", "booking"],
+    ["../app/api/bookings/cancel/route.ts", "booking"],
     ["../app/api/beta/feedback/route.ts", "feedback"],
     ["../app/api/tools/search-providers/route.ts", "search_providers"],
     ["../app/api/tools/check-availability/route.ts", "check_availability"],

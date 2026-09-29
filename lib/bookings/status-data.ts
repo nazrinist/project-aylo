@@ -1,9 +1,11 @@
 import "server-only";
 
 import {
+  consumerBookingCanCancel,
   consumerBookingFromRow,
   type ConsumerBookingRow,
 } from "@/lib/bookings/status";
+import { createConsumerBookingCancellationToken } from "@/lib/bookings/cancellation-token";
 import {
   getRequestHistorySecret,
   readRequestHistoryIds,
@@ -55,11 +57,19 @@ export async function getConsumerBookingsData(
     .limit(requestIds.length);
   if (result.error) throw new Error(result.error.message);
 
+  const nowMs = Date.now();
+
   return {
     source: "live",
     bookingsAvailable: true,
     scope: "this-browser",
-    entries: ((result.data ?? []) as unknown as ConsumerBookingRow[])
-      .map(consumerBookingFromRow),
+    entries: ((result.data ?? []) as unknown as ConsumerBookingRow[]).map(
+      (row) => consumerBookingFromRow(
+        row,
+        consumerBookingCanCancel(row.status, row.booked_for, nowMs)
+          ? createConsumerBookingCancellationToken(row.id)
+          : null,
+      ),
+    ),
   };
 }

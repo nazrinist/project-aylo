@@ -38,6 +38,17 @@ export const BookingCreateInputSchema = z.object({
 
 export type BookingCreateInput = z.infer<typeof BookingCreateInputSchema>;
 
+export const ConsumerBookingCancellationInputSchema = z
+  .object({
+    actionToken: z.string().min(32).max(2_048),
+    confirmed: z.literal(true),
+  })
+  .strict();
+
+export type ConsumerBookingCancellationInput = z.infer<
+  typeof ConsumerBookingCancellationInputSchema
+>;
+
 export type BookingOfferClaims = Omit<
   BookingCreateInput,
   "bookingToken" | "userConfirmed"
@@ -86,6 +97,7 @@ export type ConsumerBooking = {
   status: ConsumerBookingStatus;
   createdAt: string;
   merchantRespondedAt: string | null;
+  cancellationToken: string | null;
 };
 
 export type ConsumerBookingsData = {
@@ -97,4 +109,14 @@ export type ConsumerBookingsData = {
 
 export type ConsumerBookingsApiResponse =
   | ({ ok: true } & ConsumerBookingsData)
+  | { ok: false; code: string; error: string };
+
+export type ConsumerBookingCancellationResult = {
+  reference: string;
+  status: "cancelled";
+  changed: boolean;
+};
+
+export type ConsumerBookingCancellationApiResponse =
+  | ({ ok: true } & ConsumerBookingCancellationResult)
   | { ok: false; code: string; error: string };

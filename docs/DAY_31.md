@@ -71,3 +71,6 @@ npm run build
    browser lists disappear while their database rows remain.
 7. Verify the unavailable message in demo and public-catalog modes.
 8. Confirm the page remains usable on a narrow mobile viewport.
+
+Day 32 adds explicit consumer cancellation to this status surface while keeping
+the same browser-bound ownership model.

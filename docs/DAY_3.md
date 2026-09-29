@@ -26,7 +26,8 @@ Open **SQL Editor** in the Supabase dashboard. Run these files in order:
 10. `supabase/migrations/0010_provider_provenance.sql`
 11. `supabase/migrations/0011_closed_beta.sql`
 12. `supabase/migrations/0012_public_beta.sql`
-13. `supabase/seed.sql`
+13. `supabase/migrations/0013_consumer_booking_cancellation.sql`
+14. `supabase/seed.sql`
 
 The seed is safe to run again. It uses fixed IDs, ignores duplicate
 availability slots, and does not overwrite provider candidates already under

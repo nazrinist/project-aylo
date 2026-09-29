@@ -1,7 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import {
+  KeyboardEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { consumerBookingStatusText } from "@/lib/bookings/status";
 import {
   formatBakuDateTime,
@@ -10,6 +16,7 @@ import {
 } from "@/lib/search/presentation";
 import type {
   ConsumerBooking,
+  ConsumerBookingCancellationApiResponse,
   ConsumerBookingsApiResponse,
   ConsumerBookingsData,
 } from "@/types/booking";
@@ -46,6 +53,13 @@ export default function ConsumerBookingsPage() {
   const [data, setData] = useState<ConsumerBookingsData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [pendingCancellation, setPendingCancellation] =
+    useState<ConsumerBooking | null>(null);
+  const [cancelling, setCancelling] = useState(false);
+  const [cancellationError, setCancellationError] = useState<string | null>(null);
+  const [cancellationNotice, setCancellationNotice] = useState<string | null>(null);
+  const cancellationDialogRef = useRef<HTMLDivElement>(null);
+  const cancellationHeadingRef = useRef<HTMLHeadingElement>(null);
 
   const loadBookings = useCallback(async () => {
     setLoading(true);
@@ -74,6 +88,106 @@ export default function ConsumerBookingsPage() {
     return () => window.clearInterval(refreshTimer);
   }, [loadBookings]);
 
+  useEffect(() => {
+    if (!pendingCancellation) return;
+    const previouslyFocused = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    cancellationHeadingRef.current?.focus();
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      previouslyFocused?.focus();
+    };
+  }, [pendingCancellation]);
+
+  function requestCancellation(booking: ConsumerBooking) {
+    if (!booking.cancellationToken) return;
+    setCancellationError(null);
+    setCancellationNotice(null);
+    setPendingCancellation(booking);
+  }
+
+  function closeCancellation() {
+    if (cancelling) return;
+    setPendingCancellation(null);
+    setCancellationError(null);
+  }
+
+  function handleCancellationKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      closeCancellation();
+      return;
+    }
+    if (event.key !== "Tab" || !cancellationDialogRef.current) return;
+    const focusable = Array.from(
+      cancellationDialogRef.current.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), [href], [tabindex]:not([tabindex="-1"])',
+      ),
+    );
+    if (focusable.length === 0) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (
+      event.shiftKey &&
+      (document.activeElement === first ||
+        document.activeElement === cancellationHeadingRef.current)
+    ) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
+
+  async function confirmCancellation() {
+    const booking = pendingCancellation;
+    const actionToken = booking?.cancellationToken;
+    if (!booking || !actionToken || cancelling) return;
+    setCancelling(true);
+    setCancellationError(null);
+
+    try {
+      const response = await fetch("/api/bookings/cancel", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ actionToken, confirmed: true }),
+      });
+      const result = (await response.json()) as
+        ConsumerBookingCancellationApiResponse;
+      if (!result.ok) throw new Error(result.error);
+      if (!response.ok) throw new Error("The booking could not be cancelled.");
+
+      setData((current) => current ? {
+        ...current,
+        entries: current.entries.map((entry) =>
+          entry.reference === booking.reference &&
+          entry.createdAt === booking.createdAt
+            ? { ...entry, status: result.status, cancellationToken: null }
+            : entry
+        ),
+      } : current);
+      setCancellationNotice(
+        result.changed
+          ? `Booking ${result.reference} was cancelled and its slot was released.`
+          : `Booking ${result.reference} was already cancelled.`,
+      );
+      setPendingCancellation(null);
+    } catch (caught) {
+      setCancellationError(
+        caught instanceof Error
+          ? caught.message
+          : "The booking could not be cancelled.",
+      );
+    } finally {
+      setCancelling(false);
+    }
+  }
+
   return (
     <main className="businessShell consumerBookingsShell">
       <header className="businessHeader consumerBookingsHeader">
@@ -82,9 +196,9 @@ export default function ConsumerBookingsPage() {
             <Link href="/" className="backLink">← Aylo search</Link>
             <Link href="/history" className="backLink">Request history</Link>
           </div>
-          <p className="eyebrow">Aylo · Day 31</p>
+          <p className="eyebrow">Aylo · Day 32</p>
           <h1>My bookings</h1>
-          <p>Track provider decisions for bookings created on this browser.</p>
+          <p>Track provider decisions and manage future bookings from this browser.</p>
         </div>
         {data?.bookingsAvailable && (
           <span className="consumerBookingsHeaderBadge">
@@ -108,6 +222,13 @@ export default function ConsumerBookingsPage() {
           <button type="button" onClick={() => void loadBookings()} disabled={loading}>
             Try again
           </button>
+        </section>
+      )}
+
+      {cancellationNotice && (
+        <section className="consumerBookingsNotice" role="status">
+          <span aria-hidden="true">✓</span>
+          {cancellationNotice}
         </section>
       )}
 
@@ -203,13 +324,24 @@ export default function ConsumerBookingsPage() {
                       </div>
 
                       <footer>
-                        <span>
-                          Requested {safeDateLabel(booking.createdAt, "date unavailable")}
-                        </span>
-                        {booking.merchantRespondedAt && (
-                          <strong>
-                            Provider responded {safeDateLabel(booking.merchantRespondedAt, "date unavailable")}
-                          </strong>
+                        <div className="consumerBookingTiming">
+                          <span>
+                            Requested {safeDateLabel(booking.createdAt, "date unavailable")}
+                          </span>
+                          {booking.merchantRespondedAt && (
+                            <strong>
+                              Provider responded {safeDateLabel(booking.merchantRespondedAt, "date unavailable")}
+                            </strong>
+                          )}
+                        </div>
+                        {booking.cancellationToken && (
+                          <button
+                            type="button"
+                            className="consumerBookingCancelAction"
+                            onClick={() => requestCancellation(booking)}
+                          >
+                            Cancel booking
+                          </button>
                         )}
                       </footer>
                     </article>
@@ -226,10 +358,97 @@ export default function ConsumerBookingsPage() {
               HttpOnly cookie. Full booking and request IDs never reach this
               page. Access stays on this browser and expires after 30 days
               without a new saved search. Forgetting request history also hides
-              this list, but does not delete database records.
+              this list, but does not delete database records. Cancellation uses
+              a separate encrypted action token that expires after 10 minutes.
             </p>
           </aside>
         </>
+      )}
+
+      {pendingCancellation && (
+        <div
+          className="consumerCancellationBackdrop"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) closeCancellation();
+          }}
+        >
+          <div
+            className="consumerCancellationDialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="consumer-cancellation-title"
+            aria-describedby="consumer-cancellation-description"
+            ref={cancellationDialogRef}
+            onKeyDown={handleCancellationKeyDown}
+          >
+            <p className="eyebrow">Final confirmation</p>
+            <h2
+              id="consumer-cancellation-title"
+              ref={cancellationHeadingRef}
+              tabIndex={-1}
+            >
+              Cancel this booking?
+            </h2>
+            <p id="consumer-cancellation-description">
+              This releases the appointment for someone else. Aylo cannot restore
+              the booking after cancellation.
+            </p>
+
+            <dl className="consumerCancellationSummary">
+              <div>
+                <dt>Provider</dt>
+                <dd>{pendingCancellation.businessName}</dd>
+              </div>
+              <div>
+                <dt>Service</dt>
+                <dd>{pendingCancellation.serviceName}</dd>
+              </div>
+              <div>
+                <dt>Appointment</dt>
+                <dd>{appointmentLabel(pendingCancellation.bookedFor)}</dd>
+              </div>
+              <div>
+                <dt>Total</dt>
+                <dd>{priceLabel(pendingCancellation)}</dd>
+              </div>
+            </dl>
+
+            <div className="consumerCancellationWarning">
+              <span aria-hidden="true">!</span>
+              <div>
+                <strong>The slot becomes available again</strong>
+                <small>
+                  Cancellation is written only after the server rechecks this
+                  browser, booking state, appointment, and slot.
+                </small>
+              </div>
+            </div>
+
+            {cancellationError && (
+              <p className="consumerCancellationError" role="alert">
+                {cancellationError}
+              </p>
+            )}
+
+            <div className="consumerCancellationActions">
+              <button
+                type="button"
+                onClick={closeCancellation}
+                disabled={cancelling}
+              >
+                Keep booking
+              </button>
+              <button
+                type="button"
+                className="confirm"
+                onClick={() => void confirmCancellation()}
+                disabled={cancelling}
+              >
+                {cancelling ? "Cancelling…" : "Confirm cancellation"}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </main>
   );
