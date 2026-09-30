@@ -612,10 +612,18 @@ pre { margin: 0; font-size: 13px; line-height: 1.55; }
 .consumerBookingsToolbar strong { color: #353532; font-size: 13px; }
 .consumerBookingsToolbar small { color: #898983; font-size: 9px; }
 .consumerBookingsToolbar button { flex: 0 0 auto; border: 1px solid #d6d6d0; border-radius: 10px; padding: 9px 12px; background: white; color: #565650; font-size: 10px; }
+.consumerBookingsFilters { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+.consumerBookingsFilters button { display: inline-flex; align-items: center; gap: 7px; border: 1px solid #deded8; border-radius: 999px; padding: 8px 11px; background: white; color: #5b5b55; font-size: 10px; font-weight: 750; }
+.consumerBookingsFilters button[aria-pressed="true"] { border-color: #74a17d; background: #ebf6ed; color: #235c30; }
+.consumerBookingsFilters button > span { display: inline-grid; min-width: 19px; height: 19px; place-items: center; border-radius: 50%; background: #eeeeea; font-size: 9px; }
+.consumerBookingsFilters button[aria-pressed="true"] > span { background: #d5ead9; }
+.consumerBookingsFilterCount { margin-left: auto; color: #777771; font-size: 9px; }
 .consumerBookingsEmptyState { display: grid; justify-items: center; border: 1px dashed #cecec7; border-radius: 21px; padding: 42px 24px; background: rgba(255,255,255,.55); text-align: center; }
 .consumerBookingsEmptyState > span { display: grid; width: 42px; height: 42px; margin-bottom: 10px; place-items: center; border-radius: 50%; background: #e8f7eb; color: #267036; font-weight: 900; }
 .consumerBookingsEmptyState a { display: inline-block; margin-top: 18px; border: 1px solid #c8daca; border-radius: 999px; padding: 9px 12px; background: white; color: #2e673a; font-size: 10px; font-weight: 850; text-decoration: none; }
 .consumerBookingsEmptyState a:hover { border-color: #7da087; }
+.consumerBookingsEmptyState button { margin-top: 18px; border: 1px solid #c8daca; border-radius: 999px; padding: 9px 12px; background: white; color: #2e673a; font-size: 10px; font-weight: 850; }
+.consumerBookingsEmptyState button:hover { border-color: #7da087; }
 .consumerBookingsList { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 14px; margin: 0; padding: 0; list-style: none; }
 .consumerBookingCard { overflow: hidden; border: 1px solid #ddddda; border-radius: 22px; background: white; box-shadow: 0 11px 34px rgba(0,0,0,.035); }
 .consumerBookingCard > header { display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid #e8e8e3; padding: 12px 17px; background: #fafaf8; }
@@ -906,6 +914,7 @@ pre { margin: 0; font-size: 13px; line-height: 1.55; }
   .consumerBookingsHeader { align-items: flex-start; flex-direction: column; }
   .consumerBookingsToolbar { align-items: stretch; flex-direction: column; }
   .consumerBookingsToolbar button { width: 100%; }
+  .consumerBookingsFilterCount { flex-basis: 100%; margin-left: 0; }
   .consumerBookingsError, .consumerBookingsUnavailable { align-items: flex-start; flex-direction: column; }
   .consumerBookingsError button { width: 100%; }
   .consumerBookingsList { grid-template-columns: 1fr; }

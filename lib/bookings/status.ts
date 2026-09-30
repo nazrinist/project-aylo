@@ -80,6 +80,32 @@ export function consumerBookingCanCancel(
   return Number.isFinite(appointmentMs) && appointmentMs > nowMs;
 }
 
+export type ConsumerBookingFilter = "all" | "upcoming" | "history";
+
+export function consumerBookingIsUpcoming(
+  booking: ConsumerBooking,
+  nowMs: number,
+) {
+  return consumerBookingCanCancel(booking.status, booking.bookedFor, nowMs);
+}
+
+export function filterConsumerBookings(
+  entries: ConsumerBooking[],
+  filter: ConsumerBookingFilter,
+  nowMs: number,
+) {
+  if (filter === "all") return entries;
+  const filtered = entries.filter((booking) =>
+    consumerBookingIsUpcoming(booking, nowMs) === (filter === "upcoming")
+  );
+  if (filter === "history") return filtered;
+  return filtered.sort((a, b) =>
+    Date.parse(a.bookedFor) - Date.parse(b.bookedFor) ||
+    a.createdAt.localeCompare(b.createdAt) ||
+    a.reference.localeCompare(b.reference)
+  );
+}
+
 export function consumerBookingFromRow(
   row: ConsumerBookingRow,
   cancellationToken: string | null = null,

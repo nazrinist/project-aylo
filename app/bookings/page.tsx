@@ -8,7 +8,11 @@ import {
   useRef,
   useState,
 } from "react";
-import { consumerBookingStatusText } from "@/lib/bookings/status";
+import {
+  consumerBookingStatusText,
+  filterConsumerBookings,
+  type ConsumerBookingFilter,
+} from "@/lib/bookings/status";
 import {
   consumerBookingCanExportCalendar,
   createConsumerBookingCalendar,
@@ -58,6 +62,8 @@ export default function ConsumerBookingsPage() {
   const [data, setData] = useState<ConsumerBookingsData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [bookingFilter, setBookingFilter] = useState<ConsumerBookingFilter>("all");
+  const [asOfMs, setAsOfMs] = useState(0);
   const [pendingCancellation, setPendingCancellation] =
     useState<ConsumerBooking | null>(null);
   const [cancelling, setCancelling] = useState(false);
@@ -92,6 +98,7 @@ export default function ConsumerBookingsPage() {
           : "Booking status could not be loaded.",
       );
     } finally {
+      setAsOfMs(Date.now());
       setLoading(false);
     }
   }, []);
@@ -117,6 +124,7 @@ export default function ConsumerBookingsPage() {
         throw new Error("Booking status could not be loaded.");
       }
       const { ok: _ok, ...bookings } = result;
+      setAsOfMs(Date.now());
       setData(bookings);
       const current = result.entries.find((entry) =>
         entry.reference === booking.reference && entry.createdAt === booking.createdAt
@@ -307,7 +315,8 @@ export default function ConsumerBookingsPage() {
         entries: current.entries.map((entry) =>
           entry.reference === booking.reference &&
           entry.createdAt === booking.createdAt
-            ? { ...entry, status: result.status, cancellationToken: null }
+            ? { ...entry, status: result.status, bookedUntil: null,
+              cancellationToken: null, rescheduleToken: null }
             : entry
         ),
       } : current);
@@ -328,6 +337,11 @@ export default function ConsumerBookingsPage() {
     }
   }
 
+  const allEntries = data?.bookingsAvailable ? data.entries : [];
+  const visibleEntries = filterConsumerBookings(allEntries, bookingFilter, asOfMs);
+  const upcomingCount = filterConsumerBookings(allEntries, "upcoming", asOfMs).length;
+  const historyCount = allEntries.length - upcomingCount;
+
   return (
     <main className="businessShell consumerBookingsShell">
       <header className="businessHeader consumerBookingsHeader">
@@ -336,7 +350,7 @@ export default function ConsumerBookingsPage() {
             <Link href="/" className="backLink">← Aylo search</Link>
             <Link href="/history" className="backLink">Request history</Link>
           </div>
-          <p className="eyebrow">Aylo · Day 34</p>
+          <p className="eyebrow">Aylo · Day 35</p>
           <h1>My bookings</h1>
           <p>Track provider decisions and manage future bookings from this browser.</p>
         </div>
@@ -414,6 +428,25 @@ export default function ConsumerBookingsPage() {
             </button>
           </section>
 
+          {data.entries.length > 0 && (
+            <div className="consumerBookingsFilters" role="group" aria-label="Filter bookings">
+              {([
+                { value: "all", label: "All", count: data.entries.length },
+                { value: "upcoming", label: "Upcoming", count: upcomingCount },
+                { value: "history", label: "Past & closed", count: historyCount },
+              ] as const).map((option) => (
+                <button key={option.value} type="button"
+                  aria-pressed={bookingFilter === option.value}
+                  onClick={() => setBookingFilter(option.value)}>
+                  {option.label} <span>{option.count}</span>
+                </button>
+              ))}
+              <span className="consumerBookingsFilterCount" role="status" aria-live="polite">
+                Showing {visibleEntries.length} of {data.entries.length}
+              </span>
+            </div>
+          )}
+
           {data.entries.length === 0 ? (
             <section className="consumerBookingsEmptyState">
               <span aria-hidden="true">+</span>
@@ -421,9 +454,16 @@ export default function ConsumerBookingsPage() {
               <p>Confirm a live offer and its provider status will appear here.</p>
               <Link href="/">Find a provider →</Link>
             </section>
+          ) : visibleEntries.length === 0 ? (
+            <section className="consumerBookingsEmptyState">
+              <span aria-hidden="true">◇</span>
+              <h2>{bookingFilter === "upcoming" ? "No upcoming bookings" : "No past or closed bookings"}</h2>
+              <p>All tracked bookings are available in the All view.</p>
+              <button type="button" onClick={() => setBookingFilter("all")}>Show all bookings</button>
+            </section>
           ) : (
             <ol className="consumerBookingsList">
-              {data.entries.map((booking) => {
+              {visibleEntries.map((booking) => {
                 const status = consumerBookingStatusText(booking.status);
                 return (
                   <li key={`${booking.reference}:${booking.createdAt}`}>

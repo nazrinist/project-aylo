@@ -478,6 +478,15 @@ cancellation in Aylo do not automatically update an imported calendar event.
 Run `npm run test:booking-status` and see [docs/DAY_34.md](./docs/DAY_34.md).
 No migration or new environment variable is required.
 
+## Day 35 proof
+
+`/bookings` now has All, Upcoming, and Past & closed views, with counts.
+Upcoming shows future pending or accepted appointments in appointment order;
+Past & closed includes expired, rejected, cancelled, and unknown statuses.
+The filter stays in page memory and works with the same private browser list.
+See [docs/DAY_35.md](./docs/DAY_35.md). No migration or new environment
+variable is required.
+
 ## Product rules
 1. AI interprets intent; deterministic code handles filtering and permissions.
 2. No irreversible action without explicit user confirmation.
