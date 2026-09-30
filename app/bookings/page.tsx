@@ -10,6 +10,10 @@ import {
 } from "react";
 import { consumerBookingStatusText } from "@/lib/bookings/status";
 import {
+  consumerBookingCanExportCalendar,
+  createConsumerBookingCalendar,
+} from "@/lib/bookings/calendar";
+import {
   formatBakuDateTime,
   formatDuration,
   providerInitials,
@@ -68,6 +72,8 @@ export default function ConsumerBookingsPage() {
   const [rescheduleError, setRescheduleError] = useState<string | null>(null);
   const rescheduleHeadingRef = useRef<HTMLHeadingElement>(null);
   const rescheduleDialogRef = useRef<HTMLDivElement>(null);
+  const [calendarBusy, setCalendarBusy] = useState(false);
+  const [calendarError, setCalendarError] = useState<string | null>(null);
 
   const loadBookings = useCallback(async () => {
     setLoading(true);
@@ -95,6 +101,46 @@ export default function ConsumerBookingsPage() {
     const refreshTimer = window.setInterval(() => void loadBookings(), 60_000);
     return () => window.clearInterval(refreshTimer);
   }, [loadBookings]);
+
+  async function downloadCalendar(booking: ConsumerBooking) {
+    if (calendarBusy) return;
+    setCalendarBusy(true);
+    setCalendarError(null);
+    setCancellationNotice(null);
+    try {
+      // Fetch again so a cancellation, provider decision, or time change since
+      // the last automatic refresh cannot create a stale confirmed event.
+      const response = await fetch("/api/bookings", { cache: "no-store" });
+      const result = (await response.json()) as ConsumerBookingsApiResponse;
+      if (!result.ok) throw new Error(result.error);
+      if (!response.ok || !result.bookingsAvailable) {
+        throw new Error("Booking status could not be loaded.");
+      }
+      const { ok: _ok, ...bookings } = result;
+      setData(bookings);
+      const current = result.entries.find((entry) =>
+        entry.reference === booking.reference && entry.createdAt === booking.createdAt
+      );
+      const calendar = current && createConsumerBookingCalendar(current);
+      if (!calendar || !current) {
+        throw new Error("This booking is no longer confirmed for a future appointment.");
+      }
+
+      const url = URL.createObjectURL(new Blob([calendar], { type: "text/calendar;charset=utf-8" }));
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `aylo-booking-${current.reference.toLowerCase()}.ics`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1_000);
+      setCancellationNotice("Calendar file downloaded. Import it into your calendar; later changes in Aylo will not update the event automatically.");
+    } catch (caught) {
+      setCalendarError(caught instanceof Error ? caught.message : "Calendar file could not be downloaded.");
+    } finally {
+      setCalendarBusy(false);
+    }
+  }
 
   useEffect(() => {
     if (!pendingCancellation) return;
@@ -185,7 +231,7 @@ export default function ConsumerBookingsPage() {
       if (!response.ok) throw new Error("The booking could not be rescheduled.");
       setData((current) => current ? { ...current, entries: current.entries.map((entry) =>
         entry.reference === booking.reference && entry.createdAt === booking.createdAt
-          ? { ...entry, bookedFor: result.bookedFor, status: result.status,
+          ? { ...entry, bookedFor: result.bookedFor, bookedUntil: null, status: result.status,
             merchantRespondedAt: null, cancellationToken: null, rescheduleToken: null }
           : entry,
       ) } : current);
@@ -290,7 +336,7 @@ export default function ConsumerBookingsPage() {
             <Link href="/" className="backLink">← Aylo search</Link>
             <Link href="/history" className="backLink">Request history</Link>
           </div>
-          <p className="eyebrow">Aylo · Day 33</p>
+          <p className="eyebrow">Aylo · Day 34</p>
           <h1>My bookings</h1>
           <p>Track provider decisions and manage future bookings from this browser.</p>
         </div>
@@ -316,6 +362,13 @@ export default function ConsumerBookingsPage() {
           <button type="button" onClick={() => void loadBookings()} disabled={loading}>
             Try again
           </button>
+        </section>
+      )}
+
+      {calendarError && (
+        <section className="consumerBookingsError" role="alert">
+          <div><strong>Calendar download unavailable</strong><p>{calendarError}</p></div>
+          <button type="button" onClick={() => setCalendarError(null)}>Dismiss</button>
         </section>
       )}
 
@@ -428,8 +481,14 @@ export default function ConsumerBookingsPage() {
                             </strong>
                           )}
                         </div>
-                        {(booking.cancellationToken || booking.rescheduleToken) && (
+                        {(booking.cancellationToken || booking.rescheduleToken || consumerBookingCanExportCalendar(booking)) && (
                           <div className="consumerBookingActions">
+                            {consumerBookingCanExportCalendar(booking) && (
+                              <button type="button" className="consumerBookingCalendarAction"
+                                onClick={() => void downloadCalendar(booking)} disabled={calendarBusy}>
+                                {calendarBusy ? "Checking booking…" : "Download calendar file"}
+                              </button>
+                            )}
                             {booking.rescheduleToken && (
                               <button type="button" className="consumerBookingRescheduleAction"
                                 onClick={() => void openReschedule(booking)}>

@@ -52,7 +52,7 @@ export async function getConsumerBookingsData(
   const supabase = getSupabaseAdminClient();
   const result = await supabase
     .from("bookings")
-    .select("id,booked_for,price,currency,status,created_at,merchant_responded_at,businesses(name,address),services(name,duration_minutes)")
+    .select("id,booked_for,price,currency,status,created_at,merchant_responded_at,businesses(name,address),services(name,duration_minutes),availability(end_time)")
     .in("request_id", requestIds)
     .order("created_at", { ascending: false })
     .limit(requestIds.length);

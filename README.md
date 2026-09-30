@@ -468,6 +468,16 @@ moves the booking to the new slot, releases the old slot, and requests a new
 provider decision. Run `supabase/migrations/0014_consumer_booking_reschedule.sql`
 and restart the server. See [docs/DAY_33.md](./docs/DAY_33.md). No new environment variable.
 
+## Day 34 proof
+
+Future accepted bookings can download a private `.ics` calendar event from
+`/bookings`. The page rechecks the current booking before generating the file;
+the event uses the actual booked slot start and end in UTC, with provider,
+service, address, and a short reference. The file is a snapshot; changes or
+cancellation in Aylo do not automatically update an imported calendar event.
+Run `npm run test:booking-status` and see [docs/DAY_34.md](./docs/DAY_34.md).
+No migration or new environment variable is required.
+
 ## Product rules
 1. AI interprets intent; deterministic code handles filtering and permissions.
 2. No irreversible action without explicit user confirmation.

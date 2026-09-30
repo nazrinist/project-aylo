@@ -42,3 +42,4 @@
 - [x] Day 31: consumer booking status
 - [x] Day 32: consumer booking cancellation
 - [x] Day 33: consumer booking rescheduling
+- [x] Day 34: confirmed booking calendar export

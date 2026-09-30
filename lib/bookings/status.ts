@@ -13,6 +13,10 @@ type RelatedService = {
   duration_minutes: number | string | null;
 };
 
+type RelatedAvailability = {
+  end_time: string;
+};
+
 export type ConsumerBookingRow = {
   id: string;
   booked_for: string;
@@ -23,6 +27,7 @@ export type ConsumerBookingRow = {
   merchant_responded_at: string | null;
   businesses: RelatedBusiness | RelatedBusiness[] | null;
   services: RelatedService | RelatedService[] | null;
+  availability: RelatedAvailability | RelatedAvailability[] | null;
 };
 
 const knownStatuses = new Set<ConsumerBookingStatus>([
@@ -83,6 +88,9 @@ export function consumerBookingFromRow(
   const business = firstRelated(row.businesses);
   const service = firstRelated(row.services);
   const currency = row.currency.trim().toUpperCase();
+  const slot = firstRelated(row.availability);
+  const startMs = Date.parse(row.booked_for);
+  const endMs = slot ? Date.parse(slot.end_time) : NaN;
 
   return {
     reference: row.id.slice(0, 8).toUpperCase(),
@@ -90,6 +98,8 @@ export function consumerBookingFromRow(
     serviceName: cleanText(service?.name, "Unknown service"),
     address: nullableText(business?.address),
     bookedFor: row.booked_for,
+    bookedUntil: Number.isFinite(startMs) && Number.isFinite(endMs) && endMs > startMs
+      ? slot!.end_time : null,
     durationMinutes: duration(service?.duration_minutes ?? null),
     price: nonNegativeNumber(row.price),
     currency: /^[A-Z]{3}$/.test(currency) ? currency : "AZN",

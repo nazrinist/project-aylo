@@ -36,5 +36,6 @@ reliability—not raw traffic or chat volume.
 ## Post-beta retention goal
 Close the booking loop before expanding categories: users can return on the
 same browser to see whether a provider accepted or rejected their request,
-and explicitly cancel or change a future appointment, without creating an account or
-exposing private booking identifiers.
+and explicitly cancel or change a future appointment, then add an accepted
+appointment to a personal calendar without creating an account or exposing
+private booking identifiers.

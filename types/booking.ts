@@ -105,6 +105,7 @@ export type ConsumerBooking = {
   serviceName: string;
   address: string | null;
   bookedFor: string;
+  bookedUntil: string | null;
   durationMinutes: number | null;
   price: number | null;
   currency: string;

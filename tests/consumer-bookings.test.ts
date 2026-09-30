@@ -20,6 +20,7 @@ test("booking rows map to a minimized consumer status DTO", () => {
       address: " Ağ Şəhər, Bakı ",
     },
     services: [{ name: " Hair + Makeup ", duration_minutes: "90" }],
+    availability: { end_time: "2026-10-02T19:45:00+04:00" },
   });
 
   assert.deepEqual(booking, {
@@ -28,6 +29,7 @@ test("booking rows map to a minimized consumer status DTO", () => {
     serviceName: "Hair + Makeup",
     address: "Ağ Şəhər, Bakı",
     bookedFor: "2026-10-02T18:00:00+04:00",
+    bookedUntil: "2026-10-02T19:45:00+04:00",
     durationMinutes: 90,
     price: 95.5,
     currency: "AZN",
@@ -55,6 +57,7 @@ test("malformed display values fall back without widening booking access", () =>
     merchant_responded_at: null,
     businesses: [],
     services: [{ name: " ", duration_minutes: 1_441 }],
+    availability: { end_time: "invalid" },
   });
 
   assert.equal(booking.reference, "ABCDEF12");
@@ -67,6 +70,7 @@ test("malformed display values fall back without widening booking access", () =>
   assert.equal(booking.status, "unknown");
   assert.equal(booking.cancellationToken, null);
   assert.equal(booking.rescheduleToken, null);
+  assert.equal(booking.bookedUntil, null);
 });
 
 test("only future pending or accepted bookings can expose a cancellation action", () => {

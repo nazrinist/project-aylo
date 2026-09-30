@@ -14,7 +14,7 @@ test("booking status DAL scopes rows to encrypted history ownership", async () =
   assert.match(source, /\.in\("request_id", requestIds\)/);
   assert.equal(
     bookingSelect?.[1],
-    "id,booked_for,price,currency,status,created_at,merchant_responded_at,businesses(name,address),services(name,duration_minutes)",
+    "id,booked_for,price,currency,status,created_at,merchant_responded_at,businesses(name,address),services(name,duration_minutes),availability(end_time)",
   );
   assert.doesNotMatch(bookingSelect?.[1] ?? "", /request_id|user_id|original_request/);
 });
